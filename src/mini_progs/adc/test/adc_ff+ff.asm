@@ -1,0 +1,2 @@
+lda #$ff
+adc #$ff

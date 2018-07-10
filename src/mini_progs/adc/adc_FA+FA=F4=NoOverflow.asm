@@ -1,0 +1,2 @@
+lda #$FA
+adc #$FA
