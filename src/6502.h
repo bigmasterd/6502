@@ -1,4 +1,4 @@
-#include "types.h" //test
+#include "types.h"
 
 //TRANSFER INSTRUCTIONS (single byte instructions, operand addr is implied by opcode)
 #define TAX_IMPL    0xAA    //transfer A to X
@@ -213,7 +213,6 @@
 #define NOP_IMPL    0xEA	//done
                 
 #define BRK_IMPL    0x00
-                
 
 
 //TRANSFER INSTRUCTIONS (single byte instructions, operand addr is implied by opcode)
@@ -241,7 +240,7 @@ void inc_zrpx    (void);
 void inc_abs     (void);  
 void inc_absx    (void);  
                 
-void inx_impl    (void);  
+void inx    (void);  
                 
 void iny_impl    (void);  
                 
@@ -250,7 +249,7 @@ void dec_zrpx    (void);
 void dec_abs     (void);  
 void dec_absx    (void);  
                 
-void dex_impl    (void);  
+void dex    (void);  
                                 
 void dey_impl    (void);  
                 
@@ -381,7 +380,7 @@ void php_impl    (void);
 void plp_impl    (void);  
                 
 //MISC INSTRUCTIONS
-//void nop_impl    (void);  
+//void nop_impl    (void); //no function needed, just do do anything on NOP_IMPL (0xEA)  
                 
 void brk_impl    (void);  
                 

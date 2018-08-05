@@ -10,5 +10,4 @@ void mwr(word b, address a);
 
 void mdump(address from, address to);
 
-//test
 

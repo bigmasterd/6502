@@ -28,7 +28,7 @@ word 	Y;  //Y indexing register
 word 	A;  //accumulator
 word 	P;  //processor status word with the flags (N V - B D I Z C)
 word 	IR; //instruction register, contains instruction to be decoded, i.e. IR == mrd(PC)
-word  	SP; //TODO: get info about stack, the following one seems to be strage, at least I don't get it: 6502's stack of 1 k range is located at 0100 to 01FF (hard wired). 1k = 1024 bytes = 4 frames
+word  	SP; //6502's stack of 256 bytes range is located at 0100 to 01FF (hard wired). that is the 2nd frame in the RAM
 address PC; //program counter, NOTE: PC contains always the instruction to be fetched next !!!
 
 
@@ -660,7 +660,17 @@ int main(int argc, char *argv[])
             
             
             
-            case DEX_IMPL: dex_impl(); break;   //X <- X - 1 
+            case INX_IMPL: 
+            {
+                PC++;                //target next opcode
+                inx(); break;        //X <- X x 1
+            }
+                
+            case DEX_IMPL: 
+            {
+                PC++;                //target next opcode
+                dex(); break;        //X <- X - 1
+            }
                 
                 
             //############################# SHIFT & ROTATE INSTRUCTIONS #############################
@@ -752,7 +762,7 @@ int main(int argc, char *argv[])
 
 //X <- A
 //affects N and Z
-void tax(void) 
+void tax(void) //OK
 {    
     X = A;                       
                 
@@ -898,12 +908,21 @@ void sbc(word operand)
     
 }
 
+//increment X
+//affects N and Z
+void inx(void)
+{
+    X++;
+    
+    setN(X);
+    setZ(X);        
+}
+
+
 //decrement X
 //affects N and Z
-void dex_impl(void)
+void dex(void)
 {
-    PC++;   //target next opcode
-    
     X--;
     
     setN(X);
