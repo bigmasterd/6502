@@ -18,9 +18,20 @@
 #include "6502.h"
 #include "mem.h"
 #include "utils.h"
+#include "test.h"
 
 #define START_ADDRESS 0x0
-   
+
+//enable/disable test mode here
+#define TEST_MODE
+
+#ifdef TEST_MODE 
+    #define PREPTEST(opcode) preptest(opcode)
+    #define TEST(opcode) test(opcode)
+#else 
+    #define PREPTEST(opcode)    //expand to nothing
+    #define TEST(opcode)        //expand to nothing
+#endif
 
 //6502 registers
 word 	X;  //X indexing register
@@ -302,7 +313,6 @@ address getIndYOp(void)
 }
 
 
-
 int main(int argc, char *argv[])
 {	
     
@@ -337,15 +347,23 @@ int main(int argc, char *argv[])
             //############################# TRANSFER INSTRUCTIONS #############################
 			case TAX_IMPL:  //X <- A, 1 byte long
             {
+                PREPTEST(TAX_IMPL);
+            
                 PC++;                           //target next opcode
                 tax();                          //execute opcode      
-                break;  
+                        
+                TEST(TAX_IMPL);            
+                break;
             }
             
             case TXA_IMPL:  //A <- X, 1 byte long
             {
+                PREPTEST(TXA_IMPL);
+            
                 PC++;                           //target next opcode
                 txa();                          //execute opcode      
+            
+                TEST(TXA_IMPL);
                 break;  
             }
             
@@ -1019,3 +1037,5 @@ void bne_rel(void)
         PC = PC+(operand); //PC <- PC+operand, operand is in [-128, 127]        
     }
 }
+
+

@@ -1,5 +1,6 @@
 #include "types.h"
 
+
 //TRANSFER INSTRUCTIONS (single byte instructions, operand addr is implied by opcode)
 #define TAX_IMPL    0xAA    //transfer A to X
 #define TXA_IMPL    0x8A    //transfer X to A              
