@@ -61,8 +61,14 @@ void setN(word reg)
     word tmp = reg >> 7; //shift register value 7 bits to right => get only 1st bit, i.e. 0b00000001
     //alternatively: if (((sword) reg) < 0)         (not tested though)
     
-    if (tmp == 1) P = P | 0b10000000; //N = 1 => register value is negative
-    else P = P & 0b01111111; //N = 0 => register value is non negative
+    if (tmp == 1) 
+    {
+        P = P | 0b10000000; //N = 1 => register value is negative
+    }
+    else 
+    {
+        P = P & 0b01111111; //N = 0 => register value is non negative        
+    }
 }
 
 //set V in P = (N V - B D I Z C) 
@@ -369,29 +375,45 @@ int main(int argc, char *argv[])
             
             case TAY_IMPL:  //Y <- A, 1 byte long
             {
+                PREPTEST(TAY_IMPL);
+            
                 PC++;                           //target next opcode
-                tay();                          //execute opcode      
+                tay();                          //execute opcode
+            
+                TEST(TAY_IMPL);
                 break;  
             }
             
             case TYA_IMPL:  //A <- Y, 1 byte long
             {
+                PREPTEST(TYA_IMPL);
+            
                 PC++;                           //target next opcode
                 tya();                          //execute opcode      
+            
+                TEST(TYA_IMPL);            
                 break;  
             }
                 
             case TSX_IMPL:  //X <- SP, 1 byte long
             {
+                PREPTEST(TSX_IMPL);
+            
                 PC++;                           //target next opcode
                 tsx();                          //execute opcode      
+            
+                TEST(TSX_IMPL);
                 break;  
             }
              
             case TXS_IMPL:  //SP <- X, 1 byte long
             {
+                PREPTEST(TXS_IMPL);
+            
                 PC++;                           //target next opcode
                 txs();                          //execute opcode      
+            
+                TEST(TXS_IMPL);            
                 break;  
             }
                 
@@ -680,14 +702,30 @@ int main(int argc, char *argv[])
             
             case INX_IMPL: 
             {
+                PREPTEST(INX_IMPL);
+            
                 PC++;                //target next opcode
-                inx(); break;        //X <- X x 1
+                inx();               //X <- X + 1, 1 byte long
+            
+                TEST(INX_IMPL);
+                break;        
+            }
+                
+            case INY_IMPL: 
+            {
+                PREPTEST(INY_IMPL);
+            
+                PC++;                //target next opcode
+                iny();               //Y <- Y + 1, 1 byte long
+            
+                TEST(INY_IMPL);
+                break;        
             }
                 
             case DEX_IMPL: 
             {
                 PC++;                //target next opcode
-                dex(); break;        //X <- X - 1
+                dex(); break;        //X <- X - 1, 1 byte long
             }
                 
                 
@@ -934,6 +972,16 @@ void inx(void)
     
     setN(X);
     setZ(X);        
+}
+
+//increment Y
+//affects N and Z
+void iny(void)
+{
+    Y++;
+    
+    setN(Y);
+    setZ(Y);        
 }
 
 

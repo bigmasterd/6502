@@ -243,7 +243,7 @@ void inc_absx    (void);
                 
 void inx    (void);  
                 
-void iny_impl    (void);  
+void iny    (void);  
                 
 void dec_zrp     (void);  
 void dec_zrpx    (void);  
