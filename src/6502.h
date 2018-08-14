@@ -252,7 +252,7 @@ void dec_absx    (void);
                 
 void dex    (void);  
                                 
-void dey_impl    (void);  
+void dey    (void);  
                 
                 
 //SHIFT & ROTATE INSTRUCTIONS

@@ -422,16 +422,24 @@ int main(int argc, char *argv[])
             //************ LDA: A <- M *************
             case LDA_IMMD: //A <- M, 2 bytes long
             {
+                PREPTEST(LDA_IMMD);
+            
                 word operand = getImdOp();      //target operand 
                 PC += 2;                        //target next opcode 
                 lda(operand);                   //execute opcode
+            
+                TEST(LDA_IMMD);
                 break;  
             }                
             case LDA_ZRP: //A <- M from zeropage, 2 bytes long
             {
+                PREPTEST(LDA_ZRP);
+            
                 word operand = getZrpOp();      //get operand from zeropage
                 PC += 2;                        //target next opcode
                 lda(operand);                   //execute opcode
+            
+                TEST(LDA_ZRP);
                 break;  
             }         
             //TODO/TOCHECK/LATER
@@ -724,8 +732,24 @@ int main(int argc, char *argv[])
                 
             case DEX_IMPL: 
             {
+                PREPTEST(DEX_IMPL);
+            
                 PC++;                //target next opcode
-                dex(); break;        //X <- X - 1, 1 byte long
+                dex();               //X <- X - 1, 1 byte long
+            
+                TEST(DEX_IMPL);
+                break;        
+            }
+                
+            case DEY_IMPL: 
+            {
+                PREPTEST(DEY_IMPL);
+            
+                PC++;                //target next opcode
+                dey();               //Y <- Y - 1, 1 byte long
+            
+                TEST(DEY_IMPL);
+                break;        
             }
                 
                 
@@ -738,22 +762,34 @@ int main(int argc, char *argv[])
             //############################# SET AND CLEAR INSTRUCTIONS #############################
             case SEC_IMPL: 
             {
+                PREPTEST(SEC_IMPL);
+            
                 PC++;   //target next opcode
                 sec();  //C <- 1
+            
+                TEST(SEC_IMPL);
                 break; 
             }
             
             case SED_IMPL: 
             {
+                PREPTEST(SED_IMPL);
+            
                 PC++;   //target next opcode
                 sed();  //D <- 1
+            
+                TEST(SED_IMPL);
                 break; 
             }
                 
             case SEI_IMPL: 
             {
+                PREPTEST(SEI_IMPL);
+            
                 PC++;   //target next opcode
                 sei();  //I <- 1
+            
+                TEST(SEI_IMPL);
                 break; 
             }
                 
@@ -761,29 +797,45 @@ int main(int argc, char *argv[])
                 
             case CLC_IMPL: 
             {
+                PREPTEST(CLC_IMPL);
+            
                 PC++;   //target next opcode
                 clc();  //C <- 0
+                
+                TEST(CLC_IMPL);
                 break; 
             }
                 
             case CLD_IMPL: 
             {
+                PREPTEST(CLD_IMPL);
+            
                 PC++;   //target next opcode
                 cld();  //D <- 0
+            
+                TEST(CLD_IMPL);
                 break; 
             }
                 
             case CLI_IMPL: 
             {
+                PREPTEST(CLI_IMPL);
+            
                 PC++;   //target next opcode
                 cli();  //I <- 0
+            
+                TEST(CLI_IMPL);
                 break; 
             }
                 
             case CLV_IMPL: 
             {
+                PREPTEST(CLV_IMPL);
+            
                 PC++;   //target next opcode
                 clv();  //V <- 0
+            
+                TEST(CLV_IMPL);
                 break; 
             }
                 
@@ -993,6 +1045,16 @@ void dex(void)
     
     setN(X);
     setZ(X);        
+}
+
+//decrement Y
+//affects N and Z
+void dey(void)
+{
+    Y--;
+    
+    setN(Y);
+    setZ(Y);        
 }
 
 //C <-- 1
