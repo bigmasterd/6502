@@ -121,6 +121,39 @@ void preptest(word opcode)
             break;
         }
             
+        case LDA_ZRPX:
+        {
+            X   =   0x7;
+            Y   =   DEF_Y;
+            A   =   DEF_A;  //will change to 0x78 after load
+            P   =   DEF_P;  
+            SP  =   DEF_SP;
+            mwr(0x78, 0xab+X); //M[0x00ab+X] <- 0x78
+            break;
+        } 
+            
+        case LDA_ABS:
+        {
+            X   =   DEF_X;
+            Y   =   DEF_Y;
+            A   =   DEF_A;  //will change to 0x79 after load
+            P   =   DEF_P;  
+            SP  =   DEF_SP;
+            mwr(0x79, 0xabcd); //M[0xabcd] <- 0x79
+            break;
+        } 
+            
+        case LDA_ABSX:
+        {
+            X   =   0x8;
+            Y   =   DEF_Y;
+            A   =   DEF_A;  //will change to 0x80 after load
+            P   =   DEF_P;  
+            SP  =   DEF_SP;
+            mwr(0x80, 0xabcd+X); //M[0xabcd+X] <- 0x80
+            break;
+        } 
+            
             
         default:
         {
@@ -264,7 +297,25 @@ void test(word opcode)
         {
             check_reg(0x77, A, "A", "LDA_ZRP"); 
             break;  
-        }  
+        }
+            
+        case LDA_ZRPX: //A <- M[zrp+X], 2 bytes long
+        {
+            check_reg(0x78, A, "A", "LDA_ZRPX"); 
+            break;  
+        }
+            
+        case LDA_ABS: //A <- M[abcd], 3 bytes long
+        {
+            check_reg(0x79, A, "A", "LDA_ABS"); 
+            break;  
+        }
+            
+        case LDA_ABSX: //A <- M[abcd+X], 3 bytes long
+        {
+            check_reg(0x80, A, "A", "LDA_ABSX"); 
+            break;  
+        }
 
 
             

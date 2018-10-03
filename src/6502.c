@@ -183,10 +183,11 @@ address getZrpAddr(void)
     return a;
 }
 
+//The address calculation wraps around if the sum of the base address and the register exceed $FF (e.g. $80 + $FF => $7F) and not $017F.
 address getZrpXAddr(void)
 {
     address a = mrd(PC+1);              //get address from zeropage    
-    a = (a + X) & 0xFF;                 //address must be within zero page => wrap around if a+X > 8bit address;            
+    a = (a + X) & 0x00FF;               //address must be within zero page => wrap around if a+X > 8bit address (i.e. clear MSB);            
     return a; 
 }
 
@@ -197,26 +198,29 @@ address getZrpYAddr(void)
     return a; 
 }
 
-
+//operand is absolute address which is stored in little endian format, e.g. CDAB
+//the actual mem address we want to access is ABCD though, hence convert little endian CDAB to address ABCD, then we can do mem[ABCD]
 address getAbsAddr(void)
 {
     word lo = mrd(PC+1);                //get least significat byte of operand address (little endian)
     word hi = mrd(PC+2);                //get most significat byte of operand address (little endian)
-    return lohi2addr(lo,hi);            //convert lo byte and hi byte to a 16bit address
+    return lohi2addr(lo,hi);            //convert lo byte and hi byte to a 16bit address    
 }
 
+//NOTE: no wrapping here if final address > 16bit, 6502 programmer must care by himself!!!
 address getAbsXAddr(void)
 {
     word lo = mrd(PC+1);                //get least significat byte of operand address (little endian)
     word hi = mrd(PC+2);                //get most significat byte of operand address (little endian)
-    return lohi2addr(lo,hi) + X;        //convert lo byte and hi byte to a 16bit address and add X
+    return lohi2addr(lo,hi) + X;        //convert lo byte and hi byte to a 16bit address and add X 
 }
 
+//NOTE: no wrapping here if final address > 16bit, 6502 programmer must care by himself!!!
 address getAbsYAddr(void)
 {
     word lo = mrd(PC+1);                //get least significat byte of operand address (little endian)
     word hi = mrd(PC+2);                //get most significat byte of operand address (little endian)
-    return lohi2addr(lo,hi) + Y;        //convert lo byte and hi byte to a 16bit address and add Y
+    return lohi2addr(lo,hi) + Y;        //convert lo byte and hi byte to a 16bit address and add Y 
 }
 
 
@@ -259,13 +263,15 @@ word getAbsOp(void)
 
 word getAbsXOp(void)
 {
-    word operand = getAbsOp() + (sword) X; //get operand
+    address a = getAbsXAddr();          //get absolute address + X, i.e. (PC+1 concat PC+2) + X
+    word operand = mrd(a);              //get operand
     return operand;
 }
 
 word getAbsYOp(void)
 {
-    word operand = getAbsOp() + (sword) Y; //get operand
+    address a = getAbsYAddr();          //get absolute address + Y, i.e. (PC+1 concat PC+2) + Y
+    word operand = mrd(a);              //get operand
     return operand;
 }
 
@@ -445,30 +451,42 @@ int main(int argc, char *argv[])
             //TODO/TOCHECK/LATER
             case LDA_ZRPX: //A <- M from zeropage+X, 2 bytes long
             {
+                PREPTEST(LDA_ZRPX);
+            
                 word operand = getZrpXOp();     //get operand from zeropage 
                 PC += 2;                        //target next opcode
                 lda(operand);                   //execute opcode
+            
+                TEST(LDA_ZRPX);
                 break;  
             }
             case LDA_ABS: //A <- M from [PChi,PClo], 3 bytes long
             {
-                word operand = getAbsOp();      //get absolute operand  
+                PREPTEST(LDA_ABS);
+            
+                word operand = getAbsOp();      //get operand from absolute address  
                 PC += 3;                        //target next opcode
                 lda(operand);                   //execute opcode
+            
+                TEST(LDA_ABS);
                 break;                          
             }
-            //TODO/TOCHECK/LATER
+            
             case LDA_ABSX: //A <- M from [[PChi,PClo]+X], 3 bytes long
             {
-                word operand = getAbsXOp();     //get absolute operand + X
+                PREPTEST(LDA_ABSX);
+                
+                word operand = getAbsXOp();     //get operand from absolute address + X
                 PC += 3;                        //target next opcode
                 lda(operand);                   //execute opcode
+            
+                TEST(LDA_ABSX);
                 break;                          
             }
             //TODO/TOCHECK/LATER
             case LDA_ABSY: //A <- M from [[PChi,PClo]+Y], 3 bytes long
             {
-                word operand = getAbsYOp();     //get absolute operand + Y
+                word operand = getAbsYOp();     //get operand from absolute address + Y
                 PC += 3;                        //target next opcode
                 lda(operand);                   //execute opcode
                 break;                          
@@ -515,7 +533,7 @@ int main(int argc, char *argv[])
             }
             case LDX_ABS: //X <- M from [PChi,PClo], 3 bytes long
             {
-                word operand = getAbsOp();      //get absolute operand  
+                word operand = getAbsOp();      //get operand from absolute address  
                 PC += 3;                        //target next opcode
                 ldx(operand);                   //execute opcode
                 break;         
@@ -523,7 +541,7 @@ int main(int argc, char *argv[])
             //TODO/TOCHECK/LATER
             case LDX_ABSY: //X <- M from [[PChi,PClo]+Y], 3 bytes long
             {
-                word operand = getAbsYOp();     //get absolute operand + Y
+                word operand = getAbsYOp();     //get operand from absolute address + Y
                 PC += 3;                        //target next opcode
                 ldx(operand);                   //execute opcode
                 break; 
@@ -555,7 +573,7 @@ int main(int argc, char *argv[])
             //TODO/TOCHECK/LATER
             case LDY_ABS: //X <- M from [PChi,PClo], 3 bytes long
             {
-                word operand = getAbsOp();      //get absolute operand  
+                word operand = getAbsOp();      //get operand from absolute address  
                 PC += 3;                        //target next opcode
                 ldy(operand);                   //execute opcode
                 break;         
@@ -563,7 +581,7 @@ int main(int argc, char *argv[])
             //TODO/TOCHECK/LATER
             case LDY_ABSX: //X <- M from [[PChi,PClo]+X], 3 bytes long
             {
-                word operand = getAbsXOp();     //get absolute operand + X
+                word operand = getAbsXOp();     //get operand from absolute address + X
                 PC += 3;                        //target next opcode
                 ldy(operand);                   //execute opcode
                 break; 
@@ -863,6 +881,10 @@ int main(int argc, char *argv[])
 
 	}
     
+    
+#ifdef TEST_MODE 
+printf("\nTestmode was on.");  
+#endif
 
 
 	return 0;
