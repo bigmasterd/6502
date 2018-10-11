@@ -194,7 +194,7 @@ address getZrpXAddr(void)
 address getZrpYAddr(void)
 {
     address a = mrd(PC+1);              //get address from zeropage    
-    a = (a + Y) & 0xFF;                 //address must be within zero page => wrap around if a+Y > 8bit address;            
+    a = (a + Y) & 0x00FF;               //address must be within zero page => wrap around if a+Y > 8bit address;            
     return a; 
 }
 
@@ -486,9 +486,13 @@ int main(int argc, char *argv[])
             //TODO/TOCHECK/LATER
             case LDA_ABSY: //A <- M from [[PChi,PClo]+Y], 3 bytes long
             {
+                PREPTEST(LDA_ABSY);
+            
                 word operand = getAbsYOp();     //get operand from absolute address + Y
                 PC += 3;                        //target next opcode
                 lda(operand);                   //execute opcode
+            
+                TEST(LDA_ABSY);
                 break;                          
             }
             //TODO/TOCHECK/LATER
@@ -511,79 +515,121 @@ int main(int argc, char *argv[])
             //************ LDA: X <- M *************
             case LDX_IMMD: //X <- M, e.g. LDX #$FF ; load X with $FF, 2 bytes long
             {
+                PREPTEST(LDX_IMMD);
+            
                 word operand = getImdOp();      //target operand 
                 PC += 2;                        //target next opcode
                 ldx(operand); 
+            
+                TEST(LDX_IMMD);
                 break;  
             }
+                
             case LDX_ZRP: //X <- M from zeropage, 2 bytes long
             {
+                PREPTEST(LDX_ZRP);
+            
                 word operand = getZrpOp();     //get operand from zeropage 
                 PC += 2;                        //target next opcode
                 ldx(operand);                   //execute opcode
+            
+                TEST(LDX_ZRP);
                 break;
             }
-            //TODO/TOCHECK/LATER
+            
+                
             case LDX_ZRPY: //X <- M from zeropage+Y, 2 bytes long
             {
+                PREPTEST(LDX_ZRPY);
+            
                 word operand = getZrpYOp();     //get operand from zeropage 
                 PC += 2;                        //target next opcode
                 ldx(operand);                   //execute opcode
+            
+                TEST(LDX_ZRPY);
                 break; 
             }
             case LDX_ABS: //X <- M from [PChi,PClo], 3 bytes long
             {
+                PREPTEST(LDX_ABS);
+            
                 word operand = getAbsOp();      //get operand from absolute address  
                 PC += 3;                        //target next opcode
                 ldx(operand);                   //execute opcode
+            
+                TEST(LDX_ABS);
                 break;         
             }
-            //TODO/TOCHECK/LATER
+            
             case LDX_ABSY: //X <- M from [[PChi,PClo]+Y], 3 bytes long
             {
+                PREPTEST(LDX_ABSY);
+            
                 word operand = getAbsYOp();     //get operand from absolute address + Y
                 PC += 3;                        //target next opcode
                 ldx(operand);                   //execute opcode
+            
+                TEST(LDX_ABSY);
                 break; 
             }
              
             //************ LDY: Y <- M *************
             case LDY_IMMD: //X <- M, e.g. LDX #$FF ; load X with $FF, 2 bytes long
             {
+                PREPTEST(LDY_IMMD);
+            
                 word operand = getImdOp();      //target operand 
                 PC += 2;                        //target next opcode
-                ldy(operand); 
+                ldy(operand);                   //execute opcode
+            
+                TEST(LDY_IMMD);
                 break;  
             }
             case LDY_ZRP: //X <- M from zeropage, 2 bytes long
             {
+                PREPTEST(LDY_ZRP);
+            
                 word operand = getZrpOp();     //get operand from zeropage 
                 PC += 2;                        //target next opcode
                 ldy(operand);                   //execute opcode
+            
+                TEST(LDY_ZRP);
                 break;
             }
-            //TODO/TOCHECK/LATER
+            
             case LDY_ZRPX: //X <- M from zeropage+X, 2 bytes long
             {
+                PREPTEST(LDY_ZRPX);
+            
                 word operand = getZrpXOp();     //get operand from zeropage 
                 PC += 2;                        //target next opcode
                 ldy(operand);                   //execute opcode
+            
+                TEST(LDY_ZRPX);
                 break; 
             }
-            //TODO/TOCHECK/LATER
+            
             case LDY_ABS: //X <- M from [PChi,PClo], 3 bytes long
             {
+                PREPTEST(LDY_ABS);
+            
                 word operand = getAbsOp();      //get operand from absolute address  
                 PC += 3;                        //target next opcode
                 ldy(operand);                   //execute opcode
+            
+                TEST(LDY_ABS);
                 break;         
             }
-            //TODO/TOCHECK/LATER
+            
             case LDY_ABSX: //X <- M from [[PChi,PClo]+X], 3 bytes long
             {
+                PREPTEST(LDY_ABSX);
+            
                 word operand = getAbsXOp();     //get operand from absolute address + X
                 PC += 3;                        //target next opcode
                 ldy(operand);                   //execute opcode
+            
+                TEST(LDY_ABSX);
                 break; 
             }
                 

@@ -1,6 +1,7 @@
 #include "test.h"
 #include "6502.h"
 #include "mem.h"
+#include "utils.h"
 #include <stdio.h>
 #include <stdlib.h>
 
@@ -154,6 +155,127 @@ void preptest(word opcode)
             break;
         } 
             
+        case LDA_ABSY:
+        {
+            X   =   DEF_X;
+            Y   =   0xaa;
+            A   =   DEF_A;  //will change to 0x81 after load
+            P   =   DEF_P;  
+            SP  =   DEF_SP;
+            mwr(0x81, 0xabcd+Y); //M[0xabcd+Y] <- 0x81
+            break;
+        } 
+            
+        case LDX_IMMD:  
+        {
+            X   =   DEF_X; //will change to 0x23 after load
+            Y   =   DEF_Y;
+            A   =   DEF_A;  
+            P   =   DEF_P;  
+            SP  =   DEF_SP;
+            break;
+        }
+            
+        case LDX_ZRP:  
+        {
+            X   =   DEF_X; //will change to 0x77 after load
+            Y   =   DEF_Y;
+            A   =   DEF_A;  
+            P   =   DEF_P;  
+            SP  =   DEF_SP;
+            mwr(0x77, 0xab); //M[0x00ab] <- 0x77
+            break;
+        }
+            
+        case LDX_ZRPY:  
+        {
+            X   =   DEF_X; //will change to 0xcc after load
+            Y   =   0xaa;  //offset
+            A   =   DEF_A;  
+            P   =   DEF_P;  
+            SP  =   DEF_SP;
+            mwr(0xcc, 0x42+Y); //M[0x0042+0x00aa] <- 0xcc
+            break;
+        }
+            
+        case LDX_ABS:
+        {
+            X   =   DEF_X; //will change to 0x12 after load
+            Y   =   DEF_Y;
+            A   =   DEF_A;  
+            P   =   DEF_P;  
+            SP  =   DEF_SP;
+            mwr(0x12, 0xabcd); //M[0xabcd] <- 0x12
+            break;
+        }
+            
+            
+        case LDX_ABSY:
+        {
+            X   =   DEF_X; //will change to 0xFA after load
+            Y   =   0xbb;
+            A   =   DEF_A;  
+            P   =   DEF_P;  
+            SP  =   DEF_SP;
+            mwr(0xFA, 0x1234+Y); //M[0xabcd+Y] <- 0xFA //negative
+            break;
+        } 
+         
+           
+        case LDY_IMMD:  
+        {
+            X   =   DEF_X; 
+            Y   =   DEF_Y; //will change to 0x23 after load
+            A   =   DEF_A;  
+            P   =   DEF_P;  
+            SP  =   DEF_SP;
+            break;
+        }
+            
+        case LDY_ZRP:  
+        {
+            X   =   DEF_X; 
+            Y   =   DEF_Y; //will change to 0x77 after load
+            A   =   DEF_A;  
+            P   =   DEF_P;  
+            SP  =   DEF_SP;
+            mwr(0x77, 0xab); //M[0x00ab] <- 0x77
+            break;
+        }
+            
+        case LDY_ZRPX:  
+        {
+            X   =   0xaa;  //offset
+            Y   =   DEF_Y; //will change to 0xcc after load
+            A   =   DEF_A;  
+            P   =   DEF_P;  
+            SP  =   DEF_SP;
+            mwr(0xcc, 0x42+X); //M[0x0042+0x00aa] <- 0xcc
+            break;
+        }
+            
+        case LDY_ABS:
+        {
+            X   =   DEF_X; 
+            Y   =   DEF_Y; //will change to 0x12 after load
+            A   =   DEF_A;  
+            P   =   DEF_P;  
+            SP  =   DEF_SP;
+            mwr(0x12, 0xabcd); //M[0xabcd] <- 0x12
+            break;
+        }
+            
+            
+        case LDY_ABSX:
+        {
+            X   =   0xbb; 
+            Y   =   DEF_Y; //will change to 0xFA after load
+            A   =   DEF_A;  
+            P   =   DEF_P;  
+            SP  =   DEF_SP;
+            mwr(0xFA, 0x1234+X); //M[0xabcd+X] <- 0xFA //negative
+            break;
+        }
             
         default:
         {
@@ -316,10 +438,83 @@ void test(word opcode)
             check_reg(0x80, A, "A", "LDA_ABSX"); 
             break;  
         }
+            
+        case LDA_ABSY: //A <- M[abcd+Y], 3 bytes long
+        {
+            check_reg(0x81, A, "A", "LDA_ABSY"); 
+            break;  
+        }
 
 
+        case LDX_IMMD: //X <- M, 2 bytes long
+        {
+            check_reg(0x23, X, "X", "LDX_IMMD"); 
+            break;  
+        }      
             
+        case LDX_ZRP: //X <- M[zrp], 2 bytes long
+        {
+            check_reg(0x77, X, "X", "LDX_ZRP"); 
+            break;  
+        }
             
+        case LDX_ZRPY: //X <- M[zrp+Y], 2 bytes long
+        {
+            check_reg(0xcc, X, "X", "LDX_ZRPY"); 
+            break;  
+        }
+            
+        case LDX_ABS: //X <- M[abcd], 3 bytes long
+        {
+            check_reg(0x12, X, "X", "LDX_ABS"); 
+            break;  
+        }
+            
+        case LDX_ABSY: //X <- M[1234+Y], 3 bytes long
+        {
+            printRegs();
+            check_reg(0xFA, X, "X", "LDX_ABSY"); 
+            check_reg(0b10110000, P, "P", "LDX_ABSY"); //P changed, since value in mem was negative (0xFA)
+            break;  
+        }
+             
+        
+        case LDY_IMMD: //Y <- M, 2 bytes long
+        {
+            printRegs();
+            check_reg(0x23, Y, "Y", "LDY_IMMD"); 
+            break;  
+        }      
+            
+        case LDY_ZRP: //Y <- M[zrp], 2 bytes long
+        {
+            printRegs();
+            check_reg(0x77, Y, "Y", "LDY_ZRP"); 
+            break;  
+        }
+            
+        case LDY_ZRPX: //Y <- M[zrp+Y], 2 bytes long
+        {
+            printRegs();
+            check_reg(0xcc, Y, "Y", "LDY_ZRPX"); 
+            break;  
+        }
+            
+        case LDY_ABS: //Y <- M[abcd], 3 bytes long
+        {
+            printRegs();
+            check_reg(0x12, Y, "Y", "LDY_ABS"); 
+            break;  
+        }
+            
+        case LDY_ABSX: //Y <- M[1234+Y], 3 bytes long
+        {
+            printRegs();
+            check_reg(0xFA, Y, "Y", "LDY_ABSX"); 
+            check_reg(0b10110000, P, "P", "LDY_ABSX"); //P changed, since value in mem was negative (0xFA)
+            break;  
+        }
+         
             
         default:
         {
