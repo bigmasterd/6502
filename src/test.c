@@ -277,6 +277,16 @@ void preptest(word opcode)
             break;
         }
             
+        case STA_ZRP:  
+        {
+            X   =   DEF_X;
+            Y   =   DEF_Y;
+            A   =   0x47;  
+            P   =   DEF_P;  
+            SP  =   DEF_SP;            
+            break;
+        }
+            
         default:
         {
             X   =   DEF_X;
@@ -514,6 +524,15 @@ void test(word opcode)
             check_reg(0b10110000, P, "P", "LDY_ABSX"); //P changed, since value in mem was negative (0xFA)
             break;  
         }
+            
+        case STA_ZRP: //M[zrp] <--A, 2 bytes long
+        {
+            printRegs();
+            check_mem(0xab, 0x47, "STA_ZRP"); //expecting value 0x47 in mem[0xab]
+            break;  
+        }
+            
+        
          
             
         default:
@@ -533,5 +552,19 @@ void check_reg(word exp_reg_val, word act_reg_value, char* reg_name, char* opcod
     else
     {
         printf("%s: PASSED. Value in %s is just as expected: 0x%x.\n", opcode_name, reg_name, exp_reg_val);
+    }
+}
+
+void check_mem(address addr, word exp_mem_val, char* opcode_name)
+{
+    word act_mem_value = mrd(addr);
+    
+    if (exp_mem_val != act_mem_value)
+    {
+        printf("%s: FAILED. Expected value in mem[0x%x]: 0x%x, but actual value: 0x%x.\n", opcode_name, addr, exp_mem_val, act_mem_value);
+    }
+    else
+    {
+        printf("%s: PASSED. Value in mem[0x%x] is just as expected: 0x%x.\n", opcode_name, addr, exp_mem_val);
     }
 }

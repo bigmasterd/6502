@@ -637,9 +637,13 @@ int main(int argc, char *argv[])
             //************ STA: A -> M *************
             case STA_ZRP: //A -> M from zeropage, 2 bytes long
             {               
+                PREPTEST(STA_ZRP);
+            
                 address a = getZrpAddr();       //get address from zeropage
                 PC += 2;                        //target next opcode
                 sta(a);                         //execute opcode
+            
+                TEST(STA_ZRP);
                 break;  
             }    
             //TODO/TOCHECK/LATER
