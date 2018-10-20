@@ -1,2 +1,0 @@
-lda #$FA
-adc #$FA

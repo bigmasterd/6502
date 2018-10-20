@@ -1,1 +1,0 @@
-lda $abcd,Y
