@@ -166,6 +166,16 @@ void preptest(word opcode)
             break;
         } 
             
+        case LDA_INDX:
+        {
+            //TODO
+        }
+            
+        case LDA_INDY:
+        {
+            //TODO
+        }
+            
         case LDX_IMMD:  
         {
             X   =   DEF_X; //will change to 0x23 after load
@@ -282,6 +292,116 @@ void preptest(word opcode)
             X   =   DEF_X;
             Y   =   DEF_Y;
             A   =   0x47;  
+            P   =   DEF_P;  
+            SP  =   DEF_SP;            
+            break;
+        }
+            
+        case STA_ZRPX:  
+        {
+            X   =   0x33;
+            Y   =   DEF_Y;
+            A   =   0x48;  
+            P   =   DEF_P;  
+            SP  =   DEF_SP;            
+            break;
+        }
+            
+        case STA_ABS:  
+        {
+            X   =   DEF_X;
+            Y   =   DEF_Y;
+            A   =   0x99;  
+            P   =   DEF_P;  
+            SP  =   DEF_SP;            
+            break;
+        }
+            
+        case STA_ABSX:  
+        {
+            X   =   0x33;
+            Y   =   DEF_Y;
+            A   =   0x99;  
+            P   =   DEF_P;  
+            SP  =   DEF_SP;            
+            break;
+        }
+            
+        case STA_ABSY:  
+        {
+            X   =   DEF_X;
+            Y   =   0x44;
+            A   =   0x88;  
+            P   =   DEF_P;  
+            SP  =   DEF_SP;            
+            break;
+        }
+            
+        case STA_INDX:  
+        {
+            //TODO;
+        }
+            
+        case STA_INDY:  
+        {
+            //TODO;
+        }
+            
+        case STX_ZRP:  
+        {
+            X   =   0xcc;
+            Y   =   DEF_Y;
+            A   =   DEF_A;  
+            P   =   DEF_P;  
+            SP  =   DEF_SP;            
+            break;
+        }
+            
+        case STX_ZRPY:  
+        {
+            X   =   0xcc;
+            Y   =   0x01;
+            A   =   DEF_A;  
+            P   =   DEF_P;  
+            SP  =   DEF_SP;            
+            break;
+        }
+            
+        case STX_ABS:  
+        {
+            X   =   0x33;
+            Y   =   DEF_Y;
+            A   =   DEF_A;  
+            P   =   DEF_P;  
+            SP  =   DEF_SP;            
+            break;
+        }
+            
+        case STY_ZRP:  
+        {
+            X   =   DEF_X;
+            Y   =   0xcc;
+            A   =   DEF_A;  
+            P   =   DEF_P;  
+            SP  =   DEF_SP;            
+            break;
+        }
+            
+        case STY_ZRPX:  
+        {
+            X   =   0x01; 
+            Y   =   0xcc;
+            A   =   DEF_A;  
+            P   =   DEF_P;  
+            SP  =   DEF_SP;            
+            break;
+        }
+            
+        case STY_ABS:  
+        {
+            X   =   DEF_X;
+            Y   =   0x33;
+            A   =   DEF_A;  
             P   =   DEF_P;  
             SP  =   DEF_SP;            
             break;
@@ -454,6 +574,17 @@ void test(word opcode)
             check_reg(0x81, A, "A", "LDA_ABSY"); 
             break;  
         }
+            
+            
+        case LDA_INDX:
+        {
+            //TODO
+        }
+            
+        case LDA_INDY:
+        {
+            //TODO
+        }
 
 
         case LDX_IMMD: //X <- M, 2 bytes long
@@ -532,11 +663,93 @@ void test(word opcode)
             break;  
         }
             
+        case STA_ZRPX: //M[zrp+X] <--A, 2 bytes long
+        {
+            printRegs();
+            check_mem(0xab+X, 0x48, "STA_ZRPX"); //expecting value 0x48 in mem[0xab+X]
+            check_reg(DEF_P, P, "P", "STA_ZRPX"); //P unchanged!           
+            break;  
+        }
+            
+        case STA_ABS: //M[abcd] <--A, 3 bytes long
+        {
+            printRegs();
+            check_mem(0x6666, 0x99, "STA_ABS"); //expecting value 0x99 in mem[0x6666]
+            break;  
+        }
+            
+        case STA_ABSX: //M[abcd+X] <--A, 3 bytes long
+        {
+            printRegs();
+            check_mem(0x6666+X, 0x99, "STA_ABSX"); //expecting value 0x99 in mem[0x6666+X]
+            break;  
+        }
+            
+        case STA_ABSY: //M[abcd+Y] <--A, 3 bytes long
+        {
+            printRegs();
+            check_mem(0x6666+Y, 0x88, "STA_ABSY"); //expecting value 0x88 in mem[0x6666+Y]
+            break;  
+        }
+            
+        case STA_INDX:  
+        {
+            //TODO;
+        }
+            
+        case STA_INDY:  
+        {
+            //TODO;
+        }
+            
+        case STX_ZRP: //M[zrp] <--X, 2 bytes long
+        {
+            printRegs();
+            check_mem(0xab, 0xcc, "STX_ZRP"); //expecting value 0xcc in mem[0xab]
+            break;  
+        }
+            
+        case STX_ZRPY: //M[zrp+Y] <--X, 2 bytes long
+        {
+            printRegs();
+            check_mem(0xab+Y, 0xcc, "STX_ZRPY"); //expecting value 0xcc in mem[0xab+Y]
+            break;  
+        }
+            
+        case STX_ABS: //M[abcd] <--X, 3 bytes long
+        {
+            printRegs();
+            check_mem(0x1234, 0x33, "STX_ABS"); //expecting value 0x33 in mem[0x1234]
+            break;  
+        }
+            
+        case STY_ZRP: //M[zrp] <--Y, 2 bytes long
+        {
+            printRegs();
+            check_mem(0xab, 0xcc, "STY_ZRP"); //expecting value 0xcc in mem[0xab]
+            break;  
+        }
+            
+        case STY_ZRPX: //M[zrp+X] <--Y, 2 bytes long
+        {
+            printRegs();
+            check_mem(0xab+X, 0xcc, "STY_ZRPX"); //expecting value 0xcc in mem[0xab+X]
+            break;  
+        }
+            
+        case STY_ABS: //M[abcd] <--Y, 3 bytes long
+        {
+            printRegs();
+            check_mem(0x1234, 0x33, "STY_ABS"); //expecting value 0x33 in mem[0x1234]
+            break;  
+        }
+            
         
          
             
         default:
         {
+            printf("There is no test for opcode %x", opcode);
             break;
         }
     }

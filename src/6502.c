@@ -646,35 +646,51 @@ int main(int argc, char *argv[])
                 TEST(STA_ZRP);
                 break;  
             }    
-            //TODO/TOCHECK/LATER
+            
             case STA_ZRPX: //A -> M from zeropage+X, 2 bytes long
             {
+                PREPTEST(STA_ZRPX);
+            
                 address a = getZrpXAddr();      //get address from zeropage + X
                 PC += 2;                        //target next opcode
                 sta(a);                         //execute opcode
+            
+                TEST(STA_ZRPX);
                 break;  
             }                   
             case STA_ABS: //A -> M from [PChi,PClo], 3 bytes long
             {
+                PREPTEST(STA_ABS);
+            
                 address a = getAbsAddr();       //get absolute address
                 PC += 3;                        //target next opcode
                 sta(a);                         //execute opcode
+            
+                TEST(STA_ABS);
                 break;                          
             }
-            //TODO/TOCHECK/LATER
+            
             case STA_ABSX: //A -> M from [PChi,PClo] + X, 3 bytes long
             {
+                PREPTEST(STA_ABSX);
+            
                 address a = getAbsXAddr();      //get absolute address + X
                 PC += 3;                        //target next opcode
                 sta(a);                         //execute opcode
+                
+                TEST(STA_ABSX);
                 break;                          
             }
-            //TODO/TOCHECK/LATER
+            
             case STA_ABSY: //A -> M from [PChi,PClo] + Y, 3 bytes long
             {
+                PREPTEST(STA_ABSY);
+            
                 address a = getAbsYAddr();      //get absolute address + Y
                 PC += 3;                        //target next opcode
                 sta(a);                         //execute opcode
+            
+                TEST(STA_ABSY);
                 break;                          
             }
                 
@@ -699,44 +715,84 @@ int main(int argc, char *argv[])
             
                 
             //************ STX: X -> M *************
-            case STX_ZRP: //A -> M from zeropage, 2 bytes long
+            case STX_ZRP: //X -> M from zeropage, 2 bytes long
             {               
+                PREPTEST(STX_ZRP);
+                
                 address a = getZrpAddr();       //get address from zeropage
                 PC += 2;                        //target next opcode
                 stx(a);                         //execute opcode
+                
+                TEST(STX_ZRP);
                 break;  
             } 
                 
-            /*DOITLATER                 
-            case STX_ZRPY: */
+            //************ STX: X -> M *************
+            case STX_ZRPY: //X -> M from zeropage+Y, 2 bytes long
+            {               
+                PREPTEST(STX_ZRPY);
+                
+                address a = getZrpYAddr();      //get address from zeropage + Y
+                PC += 2;                        //target next opcode
+                stx(a);                         //execute opcode
+                
+                TEST(STX_ZRPY);
+                break;  
+            }
+                
                 
             case STX_ABS: //X -> M from [PChi,PClo], 3 bytes long
             {
+                PREPTEST(STX_ABS);
+                
                 address a = getAbsAddr();       //get absolute address
                 PC += 3;                        //target next opcode
                 stx(a);                         //execute opcode
+                
+                TEST(STX_ABS);
                 break;                          
             }
                 
-            //************ STY: Y -> M *************
+              
+            //************ STY: Y -> M *************                
             case STY_ZRP: //Y -> M from zeropage, 2 bytes long
             {               
+                PREPTEST(STY_ZRP);
+                
                 address a = getZrpAddr();       //get address from zeropage
                 PC += 2;                        //target next opcode
                 sty(a);                         //execute opcode
+                
+                TEST(STY_ZRP);
                 break;  
             } 
                 
-            /*DOITLATER                 
-            case STY_ZRPX: */
+            //************ STY: Y -> M *************
+            case STY_ZRPX: //Y -> M from zeropage+X, 2 bytes long
+            {               
+                PREPTEST(STY_ZRPX);
+                
+                address a = getZrpXAddr();      //get address from zeropage + X
+                PC += 2;                        //target next opcode
+                sty(a);                         //execute opcode
+                
+                TEST(STY_ZRPX);
+                break;  
+            }
+                
                 
             case STY_ABS: //Y -> M from [PChi,PClo], 3 bytes long
             {
+                PREPTEST(STY_ABS);
+                
                 address a = getAbsAddr();       //get absolute address
                 PC += 3;                        //target next opcode
                 sty(a);                         //execute opcode
+                
+                TEST(STY_ABS);
                 break;                          
             }
+
             
                 
                 
