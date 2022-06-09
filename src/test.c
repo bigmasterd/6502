@@ -6,7 +6,8 @@
 #include <stdlib.h>
 
 
-//6502 registers
+
+//6502 registers...
 extern word 	X;  //X indexing register
 extern word 	Y;  //Y indexing register
 extern word 	A;  //accumulator
