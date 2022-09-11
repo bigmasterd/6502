@@ -1,7 +1,7 @@
 # 6502
 Software emulator of the famous 6502 8-bit CPU.<br/>
 Just for fun. Made from scratch, using various documentaion found online.<br/>
-Incomplete yet, still in progress...<br/>
+Far from complete yet, still in progress...<br/>
 
 ## How to compile
 Make sure gcc is installed, then change to "src" folder and just run `make`.
