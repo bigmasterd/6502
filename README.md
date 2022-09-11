@@ -7,8 +7,8 @@ Incomplete yet, still in progress...<br/>
 Make sure gcc is installed, then just run `make`.
 
 ## How to run
-`./6502 <6202-Binary>` <br/> 
-e.g. `./6502 my_6202_app.o65`
+`./6502 <6502-Binary>` <br/> 
+e.g. `./6502 my_6502_app.o65`
 
 ## Useful tools 
 `xa` 6202 asssembler <br/>
