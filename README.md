@@ -6,6 +6,8 @@ Incomplete yet, still in progress...<br/>
 ## Used documentation resources
 [http://skilldrick.github.io/easy6502/](http://skilldrick.github.io/easy6502/) <br/>
 
+[https://en.wikibooks.org/wiki/6502_Assembly](https://en.wikibooks.org/wiki/6502_Assembly)
+
 [https://sites.google.com/site/6502asembly/6502-instruction-set/sta](https://sites.google.com/site/6502asembly/6502-instruction-set/sta) <br/>
 
 [http://www.6502.org/tutorials/6502opcodes.html](http://www.6502.org/tutorials/6502opcodes.html) <br/>
