@@ -9,6 +9,11 @@ Make sure gcc is installed, then just run `make`.
 ## How to run
 `./6502 <6202-Binary>`, e.g. `./6502 my_6202_app.o65`
 
+## Useful tools 
+`xa` 6202 asssembler
+`hexdump` to dump 6502 binary
+
+
 
 ## Used documentation resources
 [http://skilldrick.github.io/easy6502/](http://skilldrick.github.io/easy6502/)
