@@ -4,7 +4,7 @@ Just for fun. Made from scratch, using various documentaion found online.<br/>
 Incomplete yet, still in progress...<br/>
 
 ## How to compile
-Make sure gcc is installed, then just run `make`.
+Make sure gcc is installed, then change to "src" folder and just run `make`.
 
 ## How to run
 `./6502 <6502-Binary>` <br/> 
