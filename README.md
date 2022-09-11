@@ -3,6 +3,13 @@ Software emulator of the famous 6502 8-bit CPU.<br/>
 Just for fun. Made from scratch, using various documentaion found online.<br/>
 Incomplete yet, still in progress...<br/>
 
+## How to compile
+Make sure gcc is installed, then just run `make`.
+
+## How to run
+`./6502 <6202-Binary>`, e.g. `./6502 my_6202_app.o65`
+
+
 ## Used documentation resources
 [http://skilldrick.github.io/easy6502/](http://skilldrick.github.io/easy6502/)
 
