@@ -1,0 +1,1 @@
+lda $abcd, X 	
