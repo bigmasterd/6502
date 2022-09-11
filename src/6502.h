@@ -57,7 +57,7 @@
 #define ADC_INDX    0x61 	//DOITLATER
 #define ADC_INDY    0x71 	//DOITLATER
                 
-#define SBC_IMMD    0xE9 
+#define SBC_IMMD    0xE9    //???
 #define SBC_ZRP     0xE5 
 #define SBC_ZRPX    0xF5 
 #define SBC_ABS     0xED 
@@ -66,7 +66,7 @@
 #define SBC_INDX    0xE1 
 #define SBC_INDY    0xF1 
                 
-#define INC_ZRP     0xE6 
+#define INC_ZRP     0xE6    //OK
 #define INC_ZRPX    0xF6 
 #define INC_ABS     0xEE 
 #define INC_ABSX    0xFE 
@@ -236,10 +236,7 @@ void sty(address a);
 void adc(word operand);
 void sbc(word operand);
                 
-void inc_zrp     (void);  
-void inc_zrpx    (void);  
-void inc_abs     (void);  
-void inc_absx    (void);  
+void inc(address a);  
                 
 void inx    (void);  
                 

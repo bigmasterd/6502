@@ -6,15 +6,14 @@
 #include <stdlib.h>
 
 
-
-//6502 registers...
+//6502 registers
 extern word 	X;  //X indexing register
 extern word 	Y;  //Y indexing register
 extern word 	A;  //accumulator
 extern word 	P;  //processor status word with the flags (N V - B D I Z C)
 extern word 	IR; //instruction register, contains instruction to be decoded, i.e. IR == mrd(PC)
 extern word  	SP; //6502's stack of 256 bytes range is located at 0100 to 01FF (hard wired). that is the 2nd frame in the RAM
-extern address PC; //program counter, NOTE: PC contains always the instruction to be fetched next !!!
+extern address PC;  //program counter, NOTE: PC contains always the instruction to be fetched next !!!
 
 #define DEF_X   0b00000001
 #define DEF_Y   0b00000010
@@ -407,6 +406,25 @@ void preptest(word opcode)
             SP  =   DEF_SP;            
             break;
         }
+
+        case INC_ZRP:
+        {
+            mwr(0x60, 0xAA);          
+            break;
+        }
+
+        case INC_ZRPX:
+        {
+            X = 0x5;
+            mwr(0xF0, 0xAA+X);          
+            break;
+        }
+
+        case INC_ABS:
+        {            
+            mwr(0x12, 0x1234);          
+            break;
+        }
             
         default:
         {
@@ -490,7 +508,7 @@ void test(word opcode)
             
         case DEY_IMPL:  //Y--, 1 byte long, affects N and Z
         {
-            check_reg(DEF_Y-1, X, "Y", "DEY_IMPL");            
+            check_reg(DEF_Y-1, Y, "Y", "DEY_IMPL");            
             check_reg(DEF_P, P, "P", "DEY_IMPL");  
             break;
         }
@@ -744,7 +762,29 @@ void test(word opcode)
             check_mem(0x1234, 0x33, "STY_ABS"); //expecting value 0x33 in mem[0x1234]
             break;  
         }
+
+        
+        case INC_ZRP: //M[zrp] <- M[zrp]+1, 3 bytes long
+        {
+            printRegs();
+            check_mem(0xAA, 0x61, "INC_ZRP"); //expecting value 0x61 in mem[0xAA]
+            break;  
+        }
+
+        case INC_ZRPX: //M[zrp+X] <- M[zrp]+1, 2 bytes long
+        {
+            printRegs();
+            check_mem(0xAA+0x5, 0xf1, "INC_ZRPX"); //expecting value 0xf1 in mem[0xAF]
+            check_reg(0b10110000, P, "P", "INC_ZRPX"); //P changed, since value in mem was negative (0xF1)
+            break;  
+        }
             
+        case INC_ABS: //M[abcd] <- M[abcd]+1, 3 bytes long
+        {
+            printRegs();
+            check_mem(0x1234, 0x13, "INC_ABS"); //expecting value 0x12+1 in mem[0x1234]
+            break;  
+        }
         
          
             

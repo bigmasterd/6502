@@ -5,7 +5,7 @@
 word mrd(address a);
 
 
-void mwr(word b, address a);
+void mwr(word w, address a);
 
 
 void mdump(address from, address to);

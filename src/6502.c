@@ -45,6 +45,7 @@ address PC; //program counter, NOTE: PC contains always the instruction to be fe
 
 void reset()
 {
+
     X   =   0x0;
     Y   =   0x0;
     A   =   0x0;
@@ -829,7 +830,45 @@ int main(int argc, char *argv[])
                 sbc(operand);                   //execute opcode
                 break;
             }
+                
+            //TODO: other SBCs here
             
+                
+            case INC_ZRP: //2 bytes long
+            {
+                PREPTEST(INC_ZRP);
+
+                address a = getZrpAddr();       //get address from zeropage                 
+                PC += 2;                        //target next opcode
+                inc(a);                         //execute opcode
+
+                TEST(INC_ZRP);
+                break;
+            }
+            
+            case INC_ZRPX: //2 bytes long
+            {
+                PREPTEST(INC_ZRPX);
+
+                address a = getZrpXAddr();      //get address from zeropage + X                 
+                PC += 2;                        //target next opcode
+                inc(a);                         //execute opcode
+
+                TEST(INC_ZRPX);
+                break;
+            }
+
+            case INC_ABS: //3 bytes long
+            {
+                PREPTEST(INC_ABS);
+
+                address a = getAbsAddr();       //get absolute address                
+                PC += 3;                        //target next opcode
+                inc(a);                         //execute opcode
+
+                TEST(INC_ABS);
+                break;
+            }
             
             
             case INX_IMPL: 
@@ -1143,6 +1182,19 @@ void sbc(word operand)
     printRegs();
     
 }
+
+//increment memory: M <- M + 1
+//affects N and Z
+void inc(address a)
+{
+    word w = mrd(a);
+    mwr(++w, a);
+
+    setN(w);
+    setZ(w);
+}
+
+
 
 //increment X
 //affects N and Z
