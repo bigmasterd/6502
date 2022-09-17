@@ -1,5 +1,5 @@
 # 6502
-Software emulator of the famous 6502 8-bit CPU.<br/>
+Software emulator of the 6502 8-bit CPU 2A03.<br/>
 Just for fun. Made from scratch, using various documentaion found online.<br/>
 Far from complete yet, still in progress...<br/>
 

@@ -1,17 +1,6 @@
-//TODO: test already implemented OPCODES first !!!!
-
-//TODO:
-//  -a
-//  -b
-//    - implement adplusb.asm
-
-/* NOTES:
-*
-* Little Endian: address AB is stored as:
-*   address n, address n+1 
-*   B         A           i.e. "little significance first"
-*
-*/
+/***********************************
+*** 6502 CPU emulator main file. ***
+************************************/
 
 #include <stdio.h>
 #include <stdlib.h>
