@@ -12,13 +12,15 @@ extern word 	IR;
 extern word  	SP; 
 extern address  PC; 
 
+const char* int2bin[] = {"0000", "0001", "0010", "0011", "0100", "0101", "0110", "0111", "1000", "1001", "1010", "1011", "1100", "1101", "1110", "1111"};
+
 
 void printRegs(void)
 {
     printf("*** Register contents *** \n");
-    printf("X:  0x%.2X \n", X);
-    printf("Y:  0x%.2X \n", Y);
-    printf("A:  0x%.2X \n", A);
+    printf("X:  0x%.2X (%s.%s) \n", X, int2bin[(X >> 4) & 0xF], int2bin[X & 0xF]);
+    printf("Y:  0x%.2X (%s.%s) \n", Y, int2bin[(Y >> 4) & 0xF], int2bin[Y & 0xF]);    
+    printf("A:  0x%.2X (%s.%s) \n", A, int2bin[(A >> 4) & 0xF], int2bin[A & 0xF]);
     printf("P:  0x%.2X N=%d,V=%d,B=%d,D=%d,I=%d,Z=%d,C=%d\n", P, //(N V - B D I Z C)
                                                             ((P >> 7) & 0b00000001), 
                                                             ((P >> 6) & 0b00000001), 
@@ -27,8 +29,8 @@ void printRegs(void)
                                                             ((P >> 2) & 0b00000001),
                                                             ((P >> 1) & 0b00000001),
                                                             ((P) & 0b00000001)); 
-    printf("IR: 0x%.2X \n", IR);
-    printf("SP: 0x%.2X \n", SP);    
+    printf("IR: 0x%.2X (%s.%s) \n", IR, int2bin[(IR >> 4) & 0xF], int2bin[IR & 0xF]);
+    printf("SP: 0x%.2X (%s.%s) \n", SP, int2bin[(SP >> 4) & 0xF], int2bin[SP & 0xF]);
     printf("PC: 0x%.4X \n", PC);    
     printf("************************* \n");
 }
@@ -72,5 +74,6 @@ address lohi2addr(word lo, word hi)
     
 	return a;
 }
+
 
 
