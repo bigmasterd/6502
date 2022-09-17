@@ -15,19 +15,34 @@ extern word 	IR; //instruction register, contains instruction to be decoded, i.e
 extern word  	SP; //6502's stack of 256 bytes range is located at 0100 to 01FF (hard wired). that is the 2nd frame in the RAM
 extern address PC;  //program counter, NOTE: PC contains always the instruction to be fetched next !!!
 
+word X_EXP;  //expected value in register X after test run
+word Y_EXP;  //expected value in register Y after test run
+word A_EXP;  //expected value in accumulator after test run
+word P_EXP;  //expected value in status register after test run
+word IR_EXP; //expected value in instruction register after test run
+word SP_EXP; //expected value in stack pointer register after test run
+
 #define DEF_X   0b00000001
 #define DEF_Y   0b00000010
 #define DEF_A   0b00000011
 #define DEF_P   0b00110000 //normal default value: (N V - B D I Z C) // - always 1, B is 1 too because NES does not use decimal mode D at all
 #define DEF_SP  0b00000100
 
+#define NO_TEST_PREP_IMPL_WARN(opcode) printf("NO TEST PREPARATION FOR OPCODE %X", opcode);
+#define NO_TEST_IMPL_WARN(opcode) printf("NO TEST FOR OPCODE %X", opcode);
+
 
 void preptest(word opcode)
 {
     switch(opcode)
 	{
-        case TAX_IMPL:  
+
+        
+        //############################# TRANSFER INSTRUCTIONS #############################        
+
+        case TAX_IMPL:
         {
+            NO_TEST_PREP_IMPL_WARN(TAX_IMPL);
             break;
         }
         
@@ -50,57 +65,28 @@ void preptest(word opcode)
             SP  =   DEF_SP;
             break;
         }
-            
-        case INY_IMPL:  
+
+        case TYA_IMPL:  
         {
-            X   =   DEF_X;
-            Y   =   0b11111111; //will turn into 0 after increment
-            A   =   DEF_A;
-            P   =   DEF_P; 
-            SP  =   DEF_SP;
+            NO_TEST_PREP_IMPL_WARN(TYA_IMPL);
             break;
         }
-            
-        case CLC_IMPL:  
+
+        case TSX_IMPL:  
         {
-            X   =   DEF_X;
-            Y   =   DEF_Y;
-            A   =   DEF_A;
-            P   =   DEF_P | 0b00000001; //set carry to 1, to be deleted by CLC_IMPL 
-            SP  =   DEF_SP;
+            NO_TEST_PREP_IMPL_WARN(TSX_IMPL);
             break;
         }
-            
-        case CLD_IMPL:  
+
+        case TXS_IMPL:  
         {
-            X   =   DEF_X;
-            Y   =   DEF_Y;
-            A   =   DEF_A;
-            P   =   DEF_P | 0b00001000; //set decimal flag to 1, to be deleted by CLD_IMPL 
-            SP  =   DEF_SP;
+            NO_TEST_PREP_IMPL_WARN(TXS_IMPL);
             break;
         }
-            
-        case CLI_IMPL:  
-        {
-            X   =   DEF_X;
-            Y   =   DEF_Y;
-            A   =   DEF_A;
-            P   =   DEF_P | 0b00000100; //set interrupt-disable flag to 1, to be deleted by CLI_IMPL 
-            SP  =   DEF_SP;
-            break;
-        }
-            
-        case CLV_IMPL:  
-        {
-            X   =   DEF_X;
-            Y   =   DEF_Y;
-            A   =   DEF_A;
-            P   =   DEF_P | 0b01000000; //set overflow flag to 1, to be deleted by CLV_IMPL 
-            SP  =   DEF_SP;
-            break;
-        }
-            
+
+
+        //############################# STORAGE INSTRUCTIONS #############################
+
         case LDA_IMMD:  
         {
             X   =   DEF_X;
@@ -168,12 +154,14 @@ void preptest(word opcode)
             
         case LDA_INDX:
         {
-            //TODO
+            NO_TEST_PREP_IMPL_WARN(LDA_INDX);
+            break;
         }
             
         case LDA_INDY:
         {
-            //TODO
+            NO_TEST_PREP_IMPL_WARN(LDA_INDY);
+            break;
         }
             
         case LDX_IMMD:  
@@ -339,12 +327,14 @@ void preptest(word opcode)
             
         case STA_INDX:  
         {
-            //TODO;
+            NO_TEST_PREP_IMPL_WARN(STA_INDX);
+            break;
         }
             
         case STA_INDY:  
         {
-            //TODO;
+            NO_TEST_PREP_IMPL_WARN(STA_INDY);
+            break;
         }
             
         case STX_ZRP:  
@@ -407,6 +397,106 @@ void preptest(word opcode)
             break;
         }
 
+
+        //############################# ARITHMETIC INSTRUCTIONS #############################
+
+        case ADC_IMMD:  
+        {   
+            NO_TEST_PREP_IMPL_WARN(ADC_IMMD);        
+            break;
+        }
+
+        case ADC_ZRP:  
+        {   
+            NO_TEST_PREP_IMPL_WARN(ADC_ZRP);        
+            break;
+        }
+
+        case ADC_ZRPX:  
+        {   
+            NO_TEST_PREP_IMPL_WARN(ADC_ZRPX);        
+            break;
+        }
+
+        case ADC_ABS:  
+        {   
+            NO_TEST_PREP_IMPL_WARN(ADC_ABS);        
+            break;
+        }
+
+        case ADC_ABSX:  
+        {   
+            NO_TEST_PREP_IMPL_WARN(ADC_ABSX);        
+            break;
+        }
+
+        case ADC_ABSY:  
+        {   
+            NO_TEST_PREP_IMPL_WARN(ADC_ABSY);        
+            break;
+        }
+
+        case ADC_INDX:  
+        {   
+            NO_TEST_PREP_IMPL_WARN(ADC_INDX);        
+            break;
+        }
+
+        case ADC_INDY:  
+        {   
+            NO_TEST_PREP_IMPL_WARN(ADC_INDY);        
+            break;
+        }
+
+        case SBC_IMMD:  
+        {   
+            NO_TEST_PREP_IMPL_WARN(SBC_IMMD);        
+            break;
+        }
+
+        case SBC_ZRP:  
+        {   
+            NO_TEST_PREP_IMPL_WARN(SBC_ZRP);        
+            break;
+        }
+
+        case SBC_ZRPX:  
+        {   
+            NO_TEST_PREP_IMPL_WARN(SBC_ZRPX);        
+            break;
+        }
+
+        case SBC_ABS:  
+        {   
+            NO_TEST_PREP_IMPL_WARN(SBC_ABS);        
+            break;
+        }
+
+        case SBC_ABSX:  
+        {   
+            NO_TEST_PREP_IMPL_WARN(SBC_ABSX);        
+            break;
+        }
+
+        case SBC_ABSY:  
+        {   
+            NO_TEST_PREP_IMPL_WARN(SBC_ABSY);        
+            break;
+        }
+
+        case SBC_INDX:  
+        {   
+            NO_TEST_PREP_IMPL_WARN(SBC_INDX);        
+            break;
+        }
+
+        case SBC_INDY:  
+        {   
+            NO_TEST_PREP_IMPL_WARN(SBC_INDY);        
+            break;
+        }
+
+//        
         case INC_ZRP:
         {
             mwr(0x60, 0xAA);          
@@ -425,7 +515,626 @@ void preptest(word opcode)
             mwr(0x12, 0x1234);          
             break;
         }
+
+
+        case INC_ABSX:  
+        {   
+            NO_TEST_PREP_IMPL_WARN(INC_ABSX);        
+            break;
+        }
+
+        case INX_IMPL:  
+        {   
+            NO_TEST_PREP_IMPL_WARN(INX_IMPL);        
+            break;
+        }
+
+        case INY_IMPL:  
+        {
+            X   =   DEF_X;
+            Y   =   0b11111111; //will turn into 0 after increment
+            A   =   DEF_A;
+            P   =   DEF_P; 
+            SP  =   DEF_SP;
+            break;
+        }
+
+        case DEC_ZRP:  
+        {   
+            NO_TEST_PREP_IMPL_WARN(DEC_ZRP);        
+            break;
+        }
+
+        case DEC_ZRPX:  
+        {   
+            NO_TEST_PREP_IMPL_WARN(DEC_ZRPX);        
+            break;
+        }
+
+        case DEC_ABS:  
+        {   
+            NO_TEST_PREP_IMPL_WARN(DEC_ABS);        
+            break;
+        }
+
+        case DEC_ABSX:  
+        {   
+            NO_TEST_PREP_IMPL_WARN(DEC_ABSX);        
+            break;
+        }
+
+        case DEX_IMPL:  
+        {   
+            NO_TEST_PREP_IMPL_WARN(DEX_IMPL);        
+            break;
+        }
+
+        case DEY_IMPL:  
+        {   
+            NO_TEST_PREP_IMPL_WARN(DEY_IMPL);        
+            break;
+        }
+
+
+        //############################# SHIFT & ROTATE INSTRUCTIONS #############################
+
+        case ASL_ACCU:
+        {   
+            A = 0b10010011; //init A with test value
+            P = 0; //init P
+            A_EXP = 0b00100110; //bits shifted left, must change to 0b00100110                      
+            P_EXP = 0b0000001; //carry must be set
+            break;
+        }
+
+        case ASL_ZRP:  
+        {   
+            NO_TEST_PREP_IMPL_WARN(ASL_ZRP);        
+            break;
+        }
+
+        case ASL_ZRPX:  
+        {   
+            NO_TEST_PREP_IMPL_WARN(ASL_ZRPX);        
+            break;
+        }
+
+        case ASL_ABS:  
+        {   
+            NO_TEST_PREP_IMPL_WARN(ASL_ABS);        
+            break;
+        }
+
+        case ASL_ABSX:  
+        {   
+            NO_TEST_PREP_IMPL_WARN(ASL_ABSX);        
+            break;
+        }
+
+        case LSR_ACCU:  
+        {   
+            NO_TEST_PREP_IMPL_WARN(LSR_ACCU);        
+            break;
+        }
+
+        case LSR_ZRP:  
+        {   
+            NO_TEST_PREP_IMPL_WARN(LSR_ZRP);        
+            break;
+        }
+
+        case LSR_ZRPX:  
+        {   
+            NO_TEST_PREP_IMPL_WARN(LSR_ZRPX);        
+            break;
+        }
+
+        case LSR_ABS:  
+        {   
+            NO_TEST_PREP_IMPL_WARN(LSR_ABS);        
+            break;
+        }
+
+        case LSR_ABSX:  
+        {   
+            NO_TEST_PREP_IMPL_WARN(LSR_ABSX);        
+            break;
+        }
+
+        case ROL_ACCU:  
+        {   
+            NO_TEST_PREP_IMPL_WARN(ROL_ACCU);        
+            break;
+        }
+
+        case ROL_ZRP:  
+        {   
+            NO_TEST_PREP_IMPL_WARN(ROL_ZRP);        
+            break;
+        }
+
+        case ROL_ZRPX:  
+        {   
+            NO_TEST_PREP_IMPL_WARN(ROL_ZRPX);        
+            break;
+        }
+
+        case ROL_ABS:  
+        {   
+            NO_TEST_PREP_IMPL_WARN(ROL_ABS);        
+            break;
+        }
+
+        case ROL_ABSX:  
+        {   
+            NO_TEST_PREP_IMPL_WARN(ROL_ABSX);        
+            break;
+        }
+
+        case ROR_ACCU:  
+        {   
+            NO_TEST_PREP_IMPL_WARN(ROR_ACCU);        
+            break;
+        }
+
+        case ROR_ZRP:  
+        {   
+            NO_TEST_PREP_IMPL_WARN(ROR_ZRP);        
+            break;
+        }
+
+        case ROR_ZRPX:  
+        {   
+            NO_TEST_PREP_IMPL_WARN(ROR_ZRPX);        
+            break;
+        }
+
+        case ROR_ABS:  
+        {   
+            NO_TEST_PREP_IMPL_WARN(ROR_ABS);        
+            break;
+        }
+
+        case ROR_ABSX:  
+        {   
+            NO_TEST_PREP_IMPL_WARN(ROR_ABSX);        
+            break;
+        }
+
+
+        //############################# LOGIC INSTRUCTIONS #############################
+
+        case AND_IMMD:  
+        {   
+            NO_TEST_PREP_IMPL_WARN(AND_IMMD);
+            break;
+        }
+
+        case AND_ZRP:  
+        {   
+            NO_TEST_PREP_IMPL_WARN(AND_ZRP);
+            break;
+        }
+
+        case AND_ZRPX:  
+        {   
+            NO_TEST_PREP_IMPL_WARN(AND_ZRPX);
+            break;
+        }
+
+        case AND_ABS:  
+        {   
+            NO_TEST_PREP_IMPL_WARN(AND_ABS);
+            break;
+        }
+
+        case AND_ABSX:  
+        {   
+            NO_TEST_PREP_IMPL_WARN(AND_ABSX);
+            break;
+        }
+
+        case AND_ABSY:  
+        {   
+            NO_TEST_PREP_IMPL_WARN(AND_ABSY);
+            break;
+        }
+
+        case AND_INDX:  
+        {   
+            NO_TEST_PREP_IMPL_WARN(AND_INDX);
+            break;
+        }
+
+        case AND_INDY:  
+        {   
+            NO_TEST_PREP_IMPL_WARN(AND_INDY);
+            break;
+        }
+
+        case ORA_IMMD:  
+        {   
+            NO_TEST_PREP_IMPL_WARN(ORA_IMMD);
+            break;
+        }
+
+        case ORA_ZRP:  
+        {   
+            NO_TEST_PREP_IMPL_WARN(ORA_ZRP);
+            break;
+        }
+
+        case ORA_ZRPX:  
+        {   
+            NO_TEST_PREP_IMPL_WARN(ORA_ZRPX);
+            break;
+        }
+
+        case ORA_ABS:  
+        {   
+            NO_TEST_PREP_IMPL_WARN(ORA_ABS);
+            break;
+        }
+
+        case ORA_ABSX:  
+        {   
+            NO_TEST_PREP_IMPL_WARN(ORA_ABSX);
+            break;
+        }
+
+        case ORA_ABSY:  
+        {   
+            NO_TEST_PREP_IMPL_WARN(ORA_ABSY);
+            break;
+        }
+
+        case ORA_INDX:  
+        {   
+            NO_TEST_PREP_IMPL_WARN(ORA_INDX);
+            break;
+        }
+
+        case ORA_INDY:  
+        {   
+            NO_TEST_PREP_IMPL_WARN(ORA_INDY);
+            break;
+        }
+
+        case EOR_IMMD:  
+        {   
+            NO_TEST_PREP_IMPL_WARN(EOR_IMMD);
+            break;
+        }
+
+        case EOR_ZRP:  
+        {   
+            NO_TEST_PREP_IMPL_WARN(EOR_ZRP);
+            break;
+        }
+
+        case EOR_ZRPX:  
+        {   
+            NO_TEST_PREP_IMPL_WARN(EOR_ZRPX);
+            break;
+        }
+
+        case EOR_ABS:  
+        {   
+            NO_TEST_PREP_IMPL_WARN(EOR_ABS);
+            break;
+        }
+
+        case EOR_ABSX:  
+        {   
+            NO_TEST_PREP_IMPL_WARN(EOR_ABSX);
+            break;
+        }
+
+        case EOR_ABSY:  
+        {   
+            NO_TEST_PREP_IMPL_WARN(EOR_ABSY);
+            break;
+        }
+
+        case EOR_INDX:  
+        {   
+            NO_TEST_PREP_IMPL_WARN(EOR_INDX);
+            break;
+        }
+
+        case EOR_INDY:
+        {   
+            NO_TEST_PREP_IMPL_WARN(EOR_INDY);
+            break;
+        }
+
+
+        //############################# COMPARE AND TEST BIT INSTRUCTIONS #############################
+
+        case CMP_IMMD:
+        {   
+            NO_TEST_PREP_IMPL_WARN(CMP_IMMD);
+            break;
+        }
+
+        case CMP_ZRP:
+        {   
+            NO_TEST_PREP_IMPL_WARN(CMP_ZRP);
+            break;
+        }
+
+        case CMP_ZRPX:
+        {   
+            NO_TEST_PREP_IMPL_WARN(CMP_ZRPX);
+            break;
+        }
+
+        case CMP_ABS:
+        {   
+            NO_TEST_PREP_IMPL_WARN(CMP_ABS);
+            break;
+        }
+
+        case CMP_ABSX:
+        {   
+            NO_TEST_PREP_IMPL_WARN(CMP_ABSX);
+            break;
+        }
+
+        case CMP_ABSY:
+        {   
+            NO_TEST_PREP_IMPL_WARN(CMP_ABSY);
+            break;
+        }
+
+        case CMP_INDX:
+        {   
+            NO_TEST_PREP_IMPL_WARN(CMP_INDX);
+            break;
+        }
+
+        case CMP_INDY:
+        {   
+            NO_TEST_PREP_IMPL_WARN(CMP_INDY);
+            break;
+        }
+
+        case CPX_IMMD:
+        {   
+            NO_TEST_PREP_IMPL_WARN(CPX_IMMD);
+            break;
+        }
+
+        case CPX_ZRP:
+        {   
+            NO_TEST_PREP_IMPL_WARN(CPX_ZRP);
+            break;
+        }
+
+        case CPX_ABS:
+        {   
+            NO_TEST_PREP_IMPL_WARN(CPX_ABS);
+            break;
+        }
+
+        case CPY_IMMD:
+        {   
+            NO_TEST_PREP_IMPL_WARN(CPY_IMMD);
+            break;
+        }
+
+        case CPY_ZRP:
+        {   
+            NO_TEST_PREP_IMPL_WARN(CPY_ZRP);
+            break;
+        }
+
+        case CPY_ABS:
+        {   
+            NO_TEST_PREP_IMPL_WARN(CPY_ABS);
+            break;
+        }
+
+        case BIT_ZRP:
+        {   
+            NO_TEST_PREP_IMPL_WARN(BIT_ZRP);
+            break;
+        }
+
+        case BIT_ABS:
+        {   
+            NO_TEST_PREP_IMPL_WARN(BIT_ABS);
+            break;
+        }
+
+
+        //############################# SET AND CLEAR INSTRUCTIONS #############################
+
+        case SEC_IMPL:
+        {   
+            NO_TEST_PREP_IMPL_WARN(SEC_IMPL);
+            break;
+        }
+
+        case SED_IMPL:
+        {   
+            NO_TEST_PREP_IMPL_WARN(SED_IMPL);
+            break;
+        }
+
+        case SEI_IMPL:
+        {   
+            NO_TEST_PREP_IMPL_WARN(SEI_IMPL);
+            break;
+        }
+
+        case CLC_IMPL:  
+        {
+            X   =   DEF_X;
+            Y   =   DEF_Y;
+            A   =   DEF_A;
+            P   =   DEF_P | 0b00000001; //set carry to 1, to be deleted by CLC_IMPL 
+            SP  =   DEF_SP;
+            break;
+        }
             
+        case CLD_IMPL:  
+        {
+            X   =   DEF_X;
+            Y   =   DEF_Y;
+            A   =   DEF_A;
+            P   =   DEF_P | 0b00001000; //set decimal flag to 1, to be deleted by CLD_IMPL 
+            SP  =   DEF_SP;
+            break;
+        }
+            
+        case CLI_IMPL:  
+        {
+            X   =   DEF_X;
+            Y   =   DEF_Y;
+            A   =   DEF_A;
+            P   =   DEF_P | 0b00000100; //set interrupt-disable flag to 1, to be deleted by CLI_IMPL 
+            SP  =   DEF_SP;
+            break;
+        }
+            
+        case CLV_IMPL:  
+        {
+            X   =   DEF_X;
+            Y   =   DEF_Y;
+            A   =   DEF_A;
+            P   =   DEF_P | 0b01000000; //set overflow flag to 1, to be deleted by CLV_IMPL 
+            SP  =   DEF_SP;
+            break;
+        }
+
+
+        //############################# JUMP AND SUBROUTINE INSTRUCTIONS #############################
+
+        case JMP_ABS:
+        {   
+            NO_TEST_PREP_IMPL_WARN(JMP_ABS);
+            break;
+        }
+
+        case JMP_IND:
+        {   
+            NO_TEST_PREP_IMPL_WARN(JMP_IND);
+            break;
+        }
+
+        case JSR_ABS:
+        {   
+            NO_TEST_PREP_IMPL_WARN(JSR_ABS);
+            break;
+        }
+
+        case RTS_IMPL:
+        {   
+            NO_TEST_PREP_IMPL_WARN(RTS_IMPL);
+            break;
+        }
+
+        case RTI_IMPL:
+        {   
+            NO_TEST_PREP_IMPL_WARN(RTI_IMPL);
+            break;
+        }
+
+
+        //############################# BRANCH INSTRUCTIONS #############################
+
+        case BCC_REL:
+        {   
+            NO_TEST_PREP_IMPL_WARN(BCC_REL);
+            break;
+        }
+
+        case BCS_REL:
+        {   
+            NO_TEST_PREP_IMPL_WARN(BCS_REL);
+            break;
+        }
+
+        case BEQ_REL:
+        {   
+            NO_TEST_PREP_IMPL_WARN(BEQ_REL);
+            break;
+        }
+
+        case BMI_REL:
+        {   
+            NO_TEST_PREP_IMPL_WARN(BMI_REL);
+            break;
+        }
+
+        case BNE_REL:
+        {   
+            NO_TEST_PREP_IMPL_WARN(BNE_REL);
+            break;
+        }
+
+        case BPL_REL:
+        {   
+            NO_TEST_PREP_IMPL_WARN(BPL_REL);
+            break;
+        }
+
+        case BVC_REL:
+        {   
+            NO_TEST_PREP_IMPL_WARN(BVC_REL);
+            break;
+        }
+        
+        case BVS_REL:
+        {   
+            NO_TEST_PREP_IMPL_WARN(BVS_REL);
+            break;
+        }
+
+
+        //############################# STACK INSTRUCTIONS #############################
+                
+        case PHA_IMPL:
+        {   
+            NO_TEST_PREP_IMPL_WARN(PHA_IMPL);
+            break;
+        }
+        
+        case PLA_IMPL:
+        {   
+            NO_TEST_PREP_IMPL_WARN(PLA_IMPL);
+            break;
+        }
+
+        case PHP_IMPL:
+        {   
+            NO_TEST_PREP_IMPL_WARN(PHP_IMPL);
+            break;
+        }
+        
+        case PLP_IMPL:
+        {   
+            NO_TEST_PREP_IMPL_WARN(PLP_IMPL);
+            break;
+        }
+    
+
+        //############################# MISC INSTRUCTIONS #############################
+
+        case NOP_IMPL:
+        {   
+            NO_TEST_PREP_IMPL_WARN(NOP_IMPL);
+            break;
+        }
+        
+        case BRK_IMPL:
+        {   
+            NO_TEST_PREP_IMPL_WARN(BRK_IMPL);
+            break;
+        }
+
+
         default:
         {
             X   =   DEF_X;
@@ -512,51 +1221,7 @@ void test(word opcode)
             check_reg(DEF_P, P, "P", "DEY_IMPL");  
             break;
         }
-            
-        //############################# SET AND CLEAR INSTRUCTIONS #############################
-            
-        case SEC_IMPL:  //C <- 1, 1 byte long, affects C
-        {
-            check_reg(DEF_P | 0b00000001, P, "P", "SEC_IMPL"); //carry changed in P from 0 to 1  
-            break;
-        } 
-            
-        case SED_IMPL:  //D <- 1, 1 byte long, affects D
-        {
-            check_reg(DEF_P | 0b00001000, P, "P", "SED_IMPL"); //decimal flag changed in P from 0 to 1  
-            break;
-        } 
-            
-        case SEI_IMPL:  //I <- 1, 1 byte long, affects I
-        {
-            check_reg(DEF_P | 0b00000100, P, "P", "SEI_IMPL"); //interrupt flag changed in P from 0 to 1  
-            break;
-        }
-         
-        case CLC_IMPL:  //C <- 0, 1 byte long, affects C
-        {
-            check_reg(DEF_P, P, "P", "CLC_IMPL"); //carry flag set from 1 to 0   
-            break;
-        }
-            
-        case CLD_IMPL:  //D <- 0, 1 byte long, affects D
-        {
-            check_reg(DEF_P, P, "P", "CLD_IMPL"); //decimal flag set from 1 to 0   
-            break;
-        }
-            
-        case CLI_IMPL:  //I <- 0, 1 byte long, affects I
-        {
-            check_reg(DEF_P, P, "P", "CLI_IMPL"); //interrupt flag set from 1 to 0   
-            break;
-        }
-            
-        case CLV_IMPL:  //V <- 0, 1 byte long, affects V
-        {
-            check_reg(DEF_P, P, "P", "CLV_IMPL"); //overflow flag set from 1 to 0   
-            break;
-        }
-            
+
         //############################# STORAGE INSTRUCTIONS #############################        
         case LDA_IMMD: //A <- M, 2 bytes long
         {
@@ -761,9 +1426,11 @@ void test(word opcode)
             printRegs();
             check_mem(0x1234, 0x33, "STY_ABS"); //expecting value 0x33 in mem[0x1234]
             break;  
-        }
+        }        
 
-        
+
+        //############################# ARITHMETIC INSTRUCTIONS #############################
+
         case INC_ZRP: //M[zrp] <- M[zrp]+1, 3 bytes long
         {
             printRegs();
@@ -785,6 +1452,80 @@ void test(word opcode)
             check_mem(0x1234, 0x13, "INC_ABS"); //expecting value 0x12+1 in mem[0x1234]
             break;  
         }
+
+
+        //############################# SHIFT & ROTATE INSTRUCTIONS #############################
+
+        case ASL_ACCU: //A <- [A << 1], original bit #7 is stored to carry flag
+        {
+            printRegs();
+            check_reg(A_EXP, A, "A", "ASL_ACCU");
+            check_reg(P_EXP, P, "P", "ASL_ACCU");
+            break;  
+        }
+
+        //############################# LOGIC INSTRUCTIONS #############################
+
+        //############################# COMPARE AND TEST BIT INSTRUCTIONS #############################
+
+
+        //############################# SET AND CLEAR INSTRUCTIONS #############################
+            
+        case SEC_IMPL:  //C <- 1, 1 byte long, affects C
+        {
+            check_reg(DEF_P | 0b00000001, P, "P", "SEC_IMPL"); //carry changed in P from 0 to 1  
+            break;
+        } 
+            
+        case SED_IMPL:  //D <- 1, 1 byte long, affects D
+        {
+            check_reg(DEF_P | 0b00001000, P, "P", "SED_IMPL"); //decimal flag changed in P from 0 to 1  
+            break;
+        } 
+            
+        case SEI_IMPL:  //I <- 1, 1 byte long, affects I
+        {
+            check_reg(DEF_P | 0b00000100, P, "P", "SEI_IMPL"); //interrupt flag changed in P from 0 to 1  
+            break;
+        }
+         
+        case CLC_IMPL:  //C <- 0, 1 byte long, affects C
+        {
+            check_reg(DEF_P, P, "P", "CLC_IMPL"); //carry flag set from 1 to 0   
+            break;
+        }
+            
+        case CLD_IMPL:  //D <- 0, 1 byte long, affects D
+        {
+            check_reg(DEF_P, P, "P", "CLD_IMPL"); //decimal flag set from 1 to 0   
+            break;
+        }
+            
+        case CLI_IMPL:  //I <- 0, 1 byte long, affects I
+        {
+            check_reg(DEF_P, P, "P", "CLI_IMPL"); //interrupt flag set from 1 to 0   
+            break;
+        }
+            
+        case CLV_IMPL:  //V <- 0, 1 byte long, affects V
+        {
+            check_reg(DEF_P, P, "P", "CLV_IMPL"); //overflow flag set from 1 to 0   
+            break;
+        }
+        
+
+        //############################# JUMP AND SUBROUTINE INSTRUCTIONS #############################
+
+            
+        //############################# BRANCH INSTRUCTIONS #############################    
+
+
+        //############################# STACK INSTRUCTIONS #############################
+
+        //############################# MISC INSTRUCTIONS #############################
+
+        
+        
         
          
             

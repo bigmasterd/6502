@@ -16,10 +16,10 @@ extern address  PC;
 void printRegs(void)
 {
     printf("*** Register contents *** \n");
-    printf("X:  %.2X \n", X);
-    printf("Y:  %.2X \n", Y);
-    printf("A:  %.2X \n", A);
-    printf("P:  %.2X N=%d,V=%d,B=%d,D=%d,I=%d,Z=%d,C=%d\n", P, //(N V - B D I Z C)
+    printf("X:  0x%.2X \n", X);
+    printf("Y:  0x%.2X \n", Y);
+    printf("A:  0x%.2X \n", A);
+    printf("P:  0x%.2X N=%d,V=%d,B=%d,D=%d,I=%d,Z=%d,C=%d\n", P, //(N V - B D I Z C)
                                                             ((P >> 7) & 0b00000001), 
                                                             ((P >> 6) & 0b00000001), 
                                                             ((P >> 4) & 0b00000001),
@@ -27,9 +27,9 @@ void printRegs(void)
                                                             ((P >> 2) & 0b00000001),
                                                             ((P >> 1) & 0b00000001),
                                                             ((P) & 0b00000001)); 
-    printf("IR: %.2X \n", IR);
-    printf("SP: %.2X \n", SP);    
-    printf("PC: %.4X \n", PC);    
+    printf("IR: 0x%.2X \n", IR);
+    printf("SP: 0x%.2X \n", SP);    
+    printf("PC: 0x%.4X \n", PC);    
     printf("************************* \n");
 }
 
