@@ -62,30 +62,30 @@ void setN(word reg)
 }
 
 //set V in P = (N V - B D I Z C) 
-void setV(int flag)
+void setV(uint8_t flag)
 {
-    if (flag == 1) P = P | 0b01000000; //V = 1 => overflow occured
+    if (flag >= 1) P = P | 0b01000000; //V = 1 => overflow occured
     else P = P & 0b10111111; 
 }
 
 //set B in P = (N V - B D I Z C) 
-void setB(int flag)
+void setB(uint8_t flag)
 {
-    if (flag == 1) P = P | 0b00010000; 
+    if (flag >= 1) P = P | 0b00010000; 
     else P = P & 0b11101111; 
 }
 
 //set D in P = (N V - B D I Z C) 
-void setD(int flag)
+void setD(uint8_t flag)
 {
-    if (flag == 1) P = P | 0b00001000; 
+    if (flag >= 1) P = P | 0b00001000; 
     else P = P & 0b11110111; 
 }
 
 //set I in P = (N V - B D I Z C) 
-void setI(int flag)
+void setI(uint8_t flag)
 {
-    if (flag == 1) P = P | 0b00000100; 
+    if (flag >= 1) P = P | 0b00000100; 
     else P = P & 0b11111011; 
 }
 
@@ -97,9 +97,9 @@ void setZ(word reg)
 }
 
 //set C in P = (N V - B D I Z C) 
-void setC(int flag)
+void setC(uint8_t flag)
 {
-    if (flag == 1) P = P | 0b00000001; 
+    if (flag >= 1) P = P | 0b00000001; 
     else P = P & 0b11111110; 
 }
 
@@ -910,11 +910,25 @@ int main(int argc, char *argv[])
                 PREPTEST(ASL_ACCU);
             
                 PC++;                //target next opcode
-                asl_accu();          //A <- [A << 1], original bit #7 is stored to carry flag, 1 byte long
+                asl_accu();          //A <- (A << 1), original bit #7 is stored to carry flag, 1 byte long
             
                 TEST(ASL_ACCU);
                 break;        
             }
+
+            case ASL_ZRP: 
+            {
+                PREPTEST(ASL_ZRP);
+                
+                address a = getZrpAddr();       //get address from zeropage                 
+                PC += 2;                        //target next opcode                
+                asl(a);                         //M[a] <- (M[a] << 1), original bit #7 is stored to carry flag, 1 byte long
+
+                TEST(ASL_ZRP);
+                break;        
+            }
+            
+            
                 
             //############################# LOGIC INSTRUCTIONS #############################
             
@@ -1244,16 +1258,32 @@ void dey(void)
     setZ(Y);        
 }
 
-//A <- [A << 1], original bit #7 is stored to carry flag
+//A <- (A << 1), original bit #7 is stored to carry flag
 //affects N, Z, C
 void asl_accu(void)
 {   
-    setC((A & 0x80) >> 7); //before shifting, extract bit #7 and write it to carry    
-
-    A = A << 1;    
+    setC(getBit(A, 7)); //before shifting, save bit #7 to carry
+    
+    A = A << 1;  //the actual shift operation   
 
     setN(A);
     setZ(A); 
+}
+
+//M[a] <- (M[a] << 1), original bit #7 is stored to carry flag
+//affects N, Z, C
+void asl(address a)
+{   
+    word w = mrd(a); //get word stored at address
+
+    setC(getBit(w, 7)); //before shifting, save bit #7 to carry
+    
+    w = w << 1; //the actual shift operation
+
+    mwr(w, a); // write back updated word
+
+    setN(w);
+    setZ(w); 
 }
 
 

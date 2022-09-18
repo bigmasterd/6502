@@ -253,11 +253,8 @@ void dey    (void);
                 
                 
 //SHIFT & ROTATE INSTRUCTIONS
-void asl_accu    (void);                    
-void asl_zrp     (void);  
-void asl_zrpx    (void);  
-void asl_abs     (void);  
-void asl_absx    (void);  
+void asl_accu (void); //done                 
+void asl (address a);  
                  
 void lsr_accu    (void);                    
 void lsr_zrp     (void);  

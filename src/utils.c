@@ -1,5 +1,6 @@
 #include <stdio.h>
 #include <string.h>
+#include <math.h>
 #include "utils.h"
 #include "mem.h"
 
@@ -14,6 +15,9 @@ extern address  PC;
 
 //4bit integer to binary lookup table
 const char* int2bin[] = {"0000", "0001", "0010", "0011", "0100", "0101", "0110", "0111", "1000", "1001", "1010", "1011", "1100", "1101", "1110", "1111"};
+
+//8bit integer to bit-extractor lookup table
+word bitmasks[] = {0x01, 0x02, 0x04, 0x08, 0x10, 0x20, 0x40, 0x80};
 
 
 void printRegs(void)
@@ -70,5 +74,54 @@ address lohi2addr(word lo, word hi)
     return a;
 }
 
+//get bit from word
+word getBit(word w, uint32_t bit_number)
+{
+    if (bit_number > 7)
+    {
+        printf("ERROR: can't get bit %u", bit_number);
+        return 0xFF; //invalid
+    }
 
+    return (w & bitmasks[bit_number]) >> bit_number;
+}
+
+//set bit of word
+void setBit(word* w, uint32_t bit_number)
+{
+    if (bit_number > 7)
+    {
+        printf("ERROR: can't set bit %u", bit_number);
+        return;
+    }
+    
+    *w |= bitmasks[bit_number];
+
+//     00111100
+
+//     01000000
+
+// 0x40
+
+//     00111100
+}
+
+//clear bit of word
+void clearBit(word* w, uint32_t bit_number)
+{
+    if (bit_number > 7)
+    {
+        printf("ERROR: can't clear bit %u", bit_number);
+        return;
+    }
+    
+    *w &= ~bitmasks[bit_number];
+
+    // 0000.0001 => & with 0xFF-1
+    // 1111.1110
+
+
+    // 1111.1111
+    // 1000.0000
+}
 

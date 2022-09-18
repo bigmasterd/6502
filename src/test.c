@@ -589,7 +589,12 @@ void preptest(word opcode)
 
         case ASL_ZRP:  
         {   
-            NO_TEST_PREP_IMPL_WARN(ASL_ZRP);        
+            A = 0b10010011; //init A with test value
+            P = 0; //init P
+            A_EXP = 0b00100110; //bits shifted left, must change to 0b00100110                      
+            P_EXP = 0b0000001; //carry must be set
+            break;
+
             break;
         }
 
