@@ -1,2 +1,0 @@
-lda #$ff
-adc #$ff
