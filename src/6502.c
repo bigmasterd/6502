@@ -518,7 +518,7 @@ int main(int argc, char *argv[])
             {
                 PREPTEST(LDX_ZRP);
             
-                word operand = getZrpOp();     //get operand from zeropage 
+                word operand = getZrpOp();      //get operand from zeropage 
                 PC += 2;                        //target next opcode
                 ldx(operand);                   //execute opcode
             
@@ -578,7 +578,7 @@ int main(int argc, char *argv[])
             {
                 PREPTEST(LDY_ZRP);
             
-                word operand = getZrpOp();     //get operand from zeropage 
+                word operand = getZrpOp();      //get operand from zeropage 
                 PC += 2;                        //target next opcode
                 ldy(operand);                   //execute opcode
             
@@ -864,7 +864,7 @@ int main(int argc, char *argv[])
                 PREPTEST(INX_IMPL);
             
                 PC++;                //target next opcode
-                inx();               //X <- X + 1, 1 byte long
+                inx();               //execute opcode
             
                 TEST(INX_IMPL);
                 break;        
@@ -875,7 +875,7 @@ int main(int argc, char *argv[])
                 PREPTEST(INY_IMPL);
             
                 PC++;                //target next opcode
-                iny();               //Y <- Y + 1, 1 byte long
+                iny();               //execute opcode
             
                 TEST(INY_IMPL);
                 break;        
@@ -886,7 +886,7 @@ int main(int argc, char *argv[])
                 PREPTEST(DEX_IMPL);
             
                 PC++;                //target next opcode
-                dex();               //X <- X - 1, 1 byte long
+                dex();               //execute opcode
             
                 TEST(DEX_IMPL);
                 break;        
@@ -897,7 +897,7 @@ int main(int argc, char *argv[])
                 PREPTEST(DEY_IMPL);
             
                 PC++;                //target next opcode
-                dey();               //Y <- Y - 1, 1 byte long
+                dey();               //execute opcode
             
                 TEST(DEY_IMPL);
                 break;        
@@ -910,7 +910,7 @@ int main(int argc, char *argv[])
                 PREPTEST(ASL_ACCU);
             
                 PC++;                //target next opcode
-                asl_accu();          //A <- (A << 1), original bit #7 is stored to carry flag, 1 byte long
+                asl_accu();          //execute opcode
             
                 TEST(ASL_ACCU);
                 break;        
@@ -922,12 +922,47 @@ int main(int argc, char *argv[])
                 
                 address a = getZrpAddr();       //get address from zeropage                 
                 PC += 2;                        //target next opcode                
-                asl(a);                         //M[a] <- (M[a] << 1), original bit #7 is stored to carry flag, 1 byte long
+                asl(a);                         //execute opcode
 
                 TEST(ASL_ZRP);
                 break;        
             }
             
+            case ASL_ZRPX: 
+            {
+                PREPTEST(ASL_ZRPX);
+                
+                address a = getZrpXAddr();      //get address from zeropage+X                 
+                PC += 2;                        //target next opcode                
+                asl(a);                         //execute opcode
+
+                TEST(ASL_ZRPX);
+                break;        
+            }
+
+            case ASL_ABS: 
+            {
+                PREPTEST(ASL_ABS);
+                
+                address a = getAbsAddr();       //get absoulte address                 
+                PC += 3;                        //target next opcode                
+                asl(a);                         //execute opcode
+
+                TEST(ASL_ABS);
+                break;        
+            }
+
+            case ASL_ABSX: 
+            {
+                PREPTEST(ASL_ABSX);
+                
+                address a = getAbsXAddr();      //get absoulte+X address                 
+                PC += 3;                        //target next opcode                
+                asl(a);                         //execute opcode
+
+                TEST(ASL_ABSX);
+                break;        
+            }
             
                 
             //############################# LOGIC INSTRUCTIONS #############################
@@ -940,7 +975,7 @@ int main(int argc, char *argv[])
                 PREPTEST(SEC_IMPL);
             
                 PC++;   //target next opcode
-                sec();  //C <- 1
+                sec();  //execute opcode
             
                 TEST(SEC_IMPL);
                 break; 
@@ -951,7 +986,7 @@ int main(int argc, char *argv[])
                 PREPTEST(SED_IMPL);
             
                 PC++;   //target next opcode
-                sed();  //D <- 1
+                sed();  //execute opcode
             
                 TEST(SED_IMPL);
                 break; 
@@ -962,7 +997,7 @@ int main(int argc, char *argv[])
                 PREPTEST(SEI_IMPL);
             
                 PC++;   //target next opcode
-                sei();  //I <- 1
+                sei();  //execute opcode
             
                 TEST(SEI_IMPL);
                 break; 
@@ -975,7 +1010,7 @@ int main(int argc, char *argv[])
                 PREPTEST(CLC_IMPL);
             
                 PC++;   //target next opcode
-                clc();  //C <- 0
+                clc();  //execute opcode
                 
                 TEST(CLC_IMPL);
                 break; 
@@ -986,7 +1021,7 @@ int main(int argc, char *argv[])
                 PREPTEST(CLD_IMPL);
             
                 PC++;   //target next opcode
-                cld();  //D <- 0
+                cld();  //execute opcode
             
                 TEST(CLD_IMPL);
                 break; 
@@ -997,7 +1032,7 @@ int main(int argc, char *argv[])
                 PREPTEST(CLI_IMPL);
             
                 PC++;   //target next opcode
-                cli();  //I <- 0
+                cli();  //execute opcode
             
                 TEST(CLI_IMPL);
                 break; 
@@ -1008,7 +1043,7 @@ int main(int argc, char *argv[])
                 PREPTEST(CLV_IMPL);
             
                 PC++;   //target next opcode
-                clv();  //V <- 0
+                clv();  //execute opcode
             
                 TEST(CLV_IMPL);
                 break; 
@@ -1017,14 +1052,18 @@ int main(int argc, char *argv[])
             //############################# JUMP AND SUBROUTINE INSTRUCTIONS #############################
                 
             //############################# BRANCH INSTRUCTIONS #############################
-            case BNE_REL: bne_rel(); break; //branch to PC+operand if Z == 0
+            case BNE_REL: 
+            {
+                bne_rel(); //branch to PC+operand if Z == 0
+                break;
+            }
                 
             //############################# STACK INSTRUCTIONS #############################
                 
             //############################# MISC INSTRUCTIONS #############################
             case NOP_IMPL: //do nothing, 1 byte long
             {
-                PC++; //target next operand
+                PC++; //nothing to do, just target next operand
             }
 
 

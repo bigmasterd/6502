@@ -21,6 +21,7 @@ word A_EXP;  //expected value in accumulator after test run
 word P_EXP;  //expected value in status register after test run
 word IR_EXP; //expected value in instruction register after test run
 word SP_EXP; //expected value in stack pointer register after test run
+word M_EXP;  //expected value in memory location
 
 #define DEF_X   0b00000001
 #define DEF_Y   0b00000010
@@ -589,32 +590,42 @@ void preptest(word opcode)
 
         case ASL_ZRP:  
         {   
-            A = 0b10010011; //init A with test value
-            P = 0; //init P
-            A_EXP = 0b00100110; //bits shifted left, must change to 0b00100110                      
-            P_EXP = 0b0000001; //carry must be set
-            break;
-
+            mwr(0b00010011, 0x0A); // init memory location that will be shifted
+            M_EXP = 0b00100110; //expected value in memory after shift
+            P = 0b1001001; //init P            
+            P_EXP = 0b1001000; //carry must be NOT set, other bits must be unchanged            
             break;
         }
 
         case ASL_ZRPX:  
         {   
-            NO_TEST_PREP_IMPL_WARN(ASL_ZRPX);        
+            X = 0x07;
+            mwr(0b00010011, 0x0A+X); // init memory location that will be shifted
+            M_EXP = 0b00100110; //expected value in memory after shift
+            P = 0b1001001; //init P            
+            P_EXP = 0b1001000; //carry must be NOT set, other bits must be unchanged            
             break;
         }
 
         case ASL_ABS:  
         {   
-            NO_TEST_PREP_IMPL_WARN(ASL_ABS);        
+            mwr(0b11111110, 0x6789); // init memory location that will be shifted
+            M_EXP = 0b11111100; //expected value in memory after shift
+            P = 0b11111101; //init P            
+            P_EXP = 0b11111101; //carry must be set, other bits must be unchanged            
             break;
         }
 
         case ASL_ABSX:  
         {   
-            NO_TEST_PREP_IMPL_WARN(ASL_ABSX);        
+            X = 0xEE;
+            mwr(0b11111110, 0x6789+X); // init memory location that will be shifted
+            M_EXP = 0b11111100; //expected value in memory after shift
+            P = 0b11111101; //init P            
+            P_EXP = 0b11111101; //carry must be set, other bits must be unchanged            
             break;
         }
+
 
         case LSR_ACCU:  
         {   
@@ -1468,6 +1479,39 @@ void test(word opcode)
             check_reg(P_EXP, P, "P", "ASL_ACCU");
             break;  
         }
+
+        case ASL_ZRP: //M[zrp] <- [M[zrp] << 1], original bit #7 is stored to carry flag
+        {
+            printRegs();
+            check_mem(0x0A, M_EXP, "ASL_ZRP"); //expecting value M_EXP in mem[0x0A]
+            check_reg(P_EXP, P, "P", "ASL_ZRP");
+            break;  
+        }        
+
+        case ASL_ZRPX: //M[zrp+X] <- [M[zrp+X] << 1], original bit #7 is stored to carry flag
+        {
+            printRegs();
+            check_mem(0x0A+X, M_EXP, "ASL_ZRP"); //expecting value M_EXP in mem[0x0A+X]
+            check_reg(P_EXP, P, "P", "ASL_ZRP");
+            break;  
+        }        
+
+        case ASL_ABS: //M[abcd] <- [M[abcd] << 1], original bit #7 is stored to carry flag
+        {
+            printRegs();
+            check_mem(0x6789, M_EXP, "ASL_ABS"); //expecting value M_EXP in mem[0xabcd]
+            check_reg(P_EXP, P, "P", "ASL_ABS");
+            break;  
+        }        
+
+        case ASL_ABSX: //M[abcd+X] <- [M[abcd+X] << 1], original bit #7 is stored to carry flag
+        {
+            printRegs();
+            check_mem(0x6789+X, M_EXP, "ASL_ABSX"); //expecting value M_EXP in mem[0xabcd+X]
+            check_reg(P_EXP, P, "P", "ASL_ABSX");
+            break;  
+        }
+
 
         //############################# LOGIC INSTRUCTIONS #############################
 

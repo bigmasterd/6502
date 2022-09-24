@@ -86,7 +86,7 @@
                 
                 
 //SHIFT & ROTATE INSTRUCTIONS
-#define ASL_ACCU    0x0A                   
+#define ASL_ACCU    0x0A    //ok           
 #define ASL_ZRP     0x06 
 #define ASL_ZRPX    0x16 
 #define ASL_ABS     0x0E 
