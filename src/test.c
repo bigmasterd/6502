@@ -29,8 +29,8 @@ word M_EXP;  //expected value in memory location
 #define DEF_P   0b00110000 //normal default value: (N V - B D I Z C) // - always 1, B is 1 too because NES does not use decimal mode D at all
 #define DEF_SP  0b00000100
 
-#define NO_TEST_PREP_IMPL_WARN(opcode) printf("NO TEST PREPARATION FOR OPCODE %X", opcode);
-#define NO_TEST_IMPL_WARN(opcode) printf("NO TEST FOR OPCODE %X", opcode);
+#define NO_TEST_PREP_IMPL_WARN(opcode) printf("NO TEST PREPARATION FOR OPCODE %X\n", opcode);
+#define NO_TEST_IMPL_WARN(opcode) printf("NO TEST FOR OPCODE %X\n", opcode);
 
 
 void preptest(word opcode)

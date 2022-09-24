@@ -1088,7 +1088,7 @@ int main(int argc, char *argv[])
     
     
 #ifdef TEST_MODE 
-printf("\nTestmode was on.");  
+printf("\nTestmode was on.\n");  
 #endif
 
 
