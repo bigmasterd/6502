@@ -256,20 +256,14 @@ void dey    (void);
 void asl_accu(void); //done                 
 void asl(address a); //done
                  
-void lsr_accu(void);                    
-void lsr(address a);  
+void lsr_accu(void); //done                
+void lsr(address a); //done
 
-void rol_accu    (void);                     
-void rol_zrp     (void);   
-void rol_zrpx    (void);   
-void rol_abs     (void);   
-void rol_absx    (void);   
+void rol_accu(void);                     
+void rol(address a);   
                 
-void ror_accu    (void);                     
-void ror_zrp     (void);   
-void ror_zrpx    (void);   
-void ror_abs     (void);   
-void ror_absx    (void);   
+void ror_accu (void);                     
+void ror(address a);
                 
 //LOGIC INSTRUCTIONS
 void and_immd    (void);   

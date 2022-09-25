@@ -104,66 +104,66 @@ void setC(uint8_t flag)
 }
 
 //get N from P = (N V - B D I Z C)
-int getN(void)
+word getN(void)
 {
     //move N bit to the right most location and clear all bits bevore N => result is 0 or 1
-    int n = (P >> 7) & 0b00000001; 
+    word n = (P >> 7) & 0b00000001; 
     return n;
 }
 
 //get V from P = (N V - B D I Z C)
-int getV(void)
+word getV(void)
 {
     //move V bit to the right most location and clear all bits bevore V => result is 0 or 1
-    int v = (P >> 6) & 0b00000001; 
+    word v = (P >> 6) & 0b00000001; 
     return v;
 }
 
 //get B from P = (N V - B D I Z C)
-int getB(void)
+word getB(void)
 {
     //move B bit to the right most location and clear all bits bevore B => result is 0 or 1
-    int b = (P >> 4) & 0b00000001; 
+    word b = (P >> 4) & 0b00000001; 
     return b;
 }
 
 //get D from P = (N V - B D I Z C)
-int getD(void)
+word getD(void)
 {
     //move D bit to the right most location and clear all bits bevore D => result is 0 or 1
-    int d = (P >> 3) & 0b00000001; 
+    word d = (P >> 3) & 0b00000001; 
     return d;
 }
 
 //get I from P = (N V - B D I Z C)
-int getI(void)
+word getI(void)
 {
     //move I bit to the right most location and clear all bits bevore I => result is 0 or 1
-    int i = (P >> 2) & 0b00000001; 
+    word i = (P >> 2) & 0b00000001; 
     return i;
 }
 
 //get Z from P = (N V - B D I Z C) 
-int getZ(void)
+word getZ(void)
 {
     //move Z bit to the right most location and clear all bits bevore Z => result is 0 or 1
-    int z = (P >> 1) & 0b00000001; 
+    word z = (P >> 1) & 0b00000001; 
     return z;
 }
 
 //get C from P = (N V - B D I Z C)
-int getC(void)
+word getC(void)
 {
     //clear all bits bevore C => result is 0 or 1
-    int c = P & 0b00000001; 
+    word c = P & 0b00000001; 
     return c;
 }
 
 //checks whether specified word is negative or not
-int isN(word w)
+word isN(word w)
 {
     //move bit 7 to the right most location and clear all bits 0 - 6 => result is 0 or 1
-    int n = (w >> 7) & 0b00000001; 
+    word n = (w >> 7) & 0b00000001; 
     return n;
 }
 
@@ -1018,6 +1018,65 @@ int main(int argc, char *argv[])
                 TEST(LSR_ABSX);
                 break;        
             }
+
+            case ROL_ACCU: 
+            {
+                PREPTEST(ROL_ACCU);
+            
+                PC++;                //target next opcode
+                rol_accu();          //execute opcode
+            
+                TEST(ROL_ACCU);
+                break;        
+            }
+
+            case ROL_ZRP: 
+            {
+                PREPTEST(ROL_ZRP);
+                
+                address a = getZrpAddr();       //get address from zeropage                 
+                PC += 2;                        //target next opcode                
+                rol(a);                         //execute opcode
+
+                TEST(ROL_ZRP);
+                break;        
+            }
+            
+            case ROL_ZRPX: 
+            {
+                PREPTEST(ROL_ZRPX);
+                
+                address a = getZrpXAddr();      //get address from zeropage+X                 
+                PC += 2;                        //target next opcode                
+                rol(a);                         //execute opcode
+
+                TEST(ROL_ZRPX);
+                break;        
+            }
+
+            case ROL_ABS: 
+            {
+                PREPTEST(ROL_ABS);
+                
+                address a = getAbsAddr();       //get absoulte address                 
+                PC += 3;                        //target next opcode                
+                rol(a);                         //execute opcode
+
+                TEST(ROL_ABS);
+                break;        
+            }
+
+            case ROL_ABSX: 
+            {
+                PREPTEST(ROL_ABSX);
+                
+                address a = getAbsXAddr();      //get absoulte+X address                 
+                PC += 3;                        //target next opcode                
+                rol(a);                         //execute opcode
+
+                TEST(ROL_ABSX);
+                break;        
+            }
             
                 
             //############################# LOGIC INSTRUCTIONS #############################
@@ -1401,6 +1460,35 @@ void lsr(address a)
     setZ(w); 
 }
 
+//rotate left: shift A left, copy original bit #7 to carry and to bit #0 of A
+//affects N, Z, C
+void rol_accu(void)
+{   
+    setC(getBit(A, 7)); //before shifting, save bit #7 to carry
+    
+    A = A << 1; //the actual shift operation
+
+    A = A | getC(); //copy carry to bit #0
+
+    setN(A);
+    setZ(A); 
+}
+
+//rotate left: shift M[a] left, copy original bit #7 to carry and to bit #0 of M[a]
+//affects N, Z, C
+void rol(address a)
+{   
+    word w = mrd(a); //get word stored at address
+
+    setC(getBit(w, 7)); //before shifting, save bit #7 to carry
+    
+    w = w << 1; //the actual shift operation
+
+    w = w | getC(); //copy carry to bit #0
+
+    setN(w);
+    setZ(w); 
+}
 
 //C <-- 1
 //affects C

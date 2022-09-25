@@ -673,35 +673,53 @@ void preptest(word opcode)
             break;
         }
 
-        case ROL_ACCU:  
+        case ROL_ACCU:
         {   
-            NO_TEST_PREP_IMPL_WARN(ROL_ACCU);        
+            A = 0b10010011; //init A with test value
+            P = 0b10000000; //init P
+            A_EXP = 0b00100111; //rotated right, must change to 0b10100111
+            P_EXP = 0b00000001; //carry must be set, N must be cleared
             break;
         }
 
-        case ROL_ZRP:  
+        case ROL_ZRP: //TODO
         {   
-            NO_TEST_PREP_IMPL_WARN(ROL_ZRP);        
+            mwr(0xFF, 0x88); //init memory location that will be roteated
+            M_EXP = 0xFF; //expected value in memory after rotate, still 0xFF
+            P = 0x0; //init P
+            P_EXP = 0b10000001; //carry must be set, N must be set            
             break;
         }
 
-        case ROL_ZRPX:  
+        case ROL_ZRPX: //TODO
         {   
-            NO_TEST_PREP_IMPL_WARN(ROL_ZRPX);        
+            X = 0x22;
+            mwr(0b11111111, 0xCC+X); // init memory location that will be shifted
+            M_EXP = 0b01111111; //expected value in memory after shift
+            P = 0b10000000; //init P            
+            P_EXP = 0b00000001; //carry must be set, N flag must be NOT set
             break;
         }
 
-        case ROL_ABS:  
+        case ROL_ABS: //TODO
         {   
-            NO_TEST_PREP_IMPL_WARN(ROL_ABS);        
+            mwr(0b00001000, 0xDCBA); // init memory location that will be shifted
+            M_EXP = 0b00000100; //expected value in memory after shift
+            P = DEF_P; //init P            
+            P_EXP = DEF_P; //no changes in P expected            
             break;
         }
 
-        case ROL_ABSX:  
+        case ROL_ABSX: //TODO
         {   
-            NO_TEST_PREP_IMPL_WARN(ROL_ABSX);        
+            X = 0x30;
+            mwr(0b00001000, 0xDCBA+X); // init memory location that will be shifted
+            M_EXP = 0b00000100; //expected value in memory after shift
+            P = DEF_P; //init P            
+            P_EXP = DEF_P; //no changes in P expected            
             break;
         }
+
 
         case ROR_ACCU:  
         {   
@@ -1567,6 +1585,24 @@ void test(word opcode)
             check_reg(P_EXP, P, "P", "LSR_ABSX");
             break;  
         }        
+
+        case ROL_ACCU: //rotate A left, copy bit #7 to carry and to bit #0
+        {
+            printRegs();
+            check_reg(A_EXP, A, "A", "ROL_ACCU");
+            check_reg(P_EXP, P, "P", "ROL_ACCU");
+            break;  
+        }
+
+        case ROL_ZRP: //rotate A left, copy bit #7 to carry and to bit #0
+        {
+            printRegs();
+            check_mem(0x88, M_EXP, "ROL_ZRP"); //expecting value M_EXP in mem[0x88]
+            check_reg(P_EXP, P, "P", "ROL_ZRP");
+            break;  
+        }
+
+        
 
 
 
