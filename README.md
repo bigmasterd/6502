@@ -25,5 +25,4 @@ Binary file dump tool: `hexdump`
 
 [http://www.emulator101.com.s3-website-us-east-1.amazonaws.com/6502-addressing-modes.html](http://www.emulator101.com.s3-website-us-east-1.amazonaws.com/6502-addressing-modes.html)
 
-[https://www.c64-wiki.de/wiki/%C3%9Cbersicht_6502-Assemblerbefehle]
-(https://www.c64-wiki.de/wiki/%C3%9Cbersicht_6502-Assemblerbefehle)
+[https://www.c64-wiki.de/wiki/%C3%9Cbersicht_6502-Assemblerbefehle](https://www.c64-wiki.de/wiki/%C3%9Cbersicht_6502-Assemblerbefehle)
