@@ -584,7 +584,7 @@ void preptest(word opcode)
             A = 0b10010011; //init A with test value
             P = 0; //init P
             A_EXP = 0b00100110; //bits shifted left, must change to 0b00100110                      
-            P_EXP = 0b0000001; //carry must be set
+            P_EXP = 0b00000001; //carry must be set
             break;
         }
 
@@ -626,34 +626,50 @@ void preptest(word opcode)
             break;
         }
 
-
-        case LSR_ACCU:  
+        case LSR_ACCU:
         {   
-            NO_TEST_PREP_IMPL_WARN(LSR_ACCU);        
+            A = 0b10010011; //init A with test value
+            P = 0; //init P
+            A_EXP = 0b01001001; //bits shifted right, must change to 0b01001001
+            P_EXP = 0b00000001; //carry must be set
             break;
         }
 
-        case LSR_ZRP:  
+        case LSR_ZRP:
         {   
-            NO_TEST_PREP_IMPL_WARN(LSR_ZRP);        
+            mwr(0b00010010, 0xCC); //init memory location that will be shifted
+            M_EXP = 0b00001001; //expected value in memory after shift
+            P = 0b01001001; //init P            
+            P_EXP = 0b01001000; //carry must be NOT set, other bits must be unchanged            
             break;
         }
 
-        case LSR_ZRPX:  
+        case LSR_ZRPX:
         {   
-            NO_TEST_PREP_IMPL_WARN(LSR_ZRPX);        
+            X = 0x22;
+            mwr(0b11111111, 0xCC+X); // init memory location that will be shifted
+            M_EXP = 0b01111111; //expected value in memory after shift
+            P = 0b10000000; //init P            
+            P_EXP = 0b00000001; //carry must be set, N flag must be NOT set
             break;
         }
 
         case LSR_ABS:  
         {   
-            NO_TEST_PREP_IMPL_WARN(LSR_ABS);        
+            mwr(0b00001000, 0xDCBA); // init memory location that will be shifted
+            M_EXP = 0b00000100; //expected value in memory after shift
+            P = DEF_P; //init P            
+            P_EXP = DEF_P; //no changes in P expected            
             break;
         }
 
-        case LSR_ABSX:  
+        case LSR_ABSX:
         {   
-            NO_TEST_PREP_IMPL_WARN(LSR_ABSX);        
+            X = 0x30;
+            mwr(0b00001000, 0xDCBA+X); // init memory location that will be shifted
+            M_EXP = 0b00000100; //expected value in memory after shift
+            P = DEF_P; //init P            
+            P_EXP = DEF_P; //no changes in P expected            
             break;
         }
 
@@ -1511,6 +1527,47 @@ void test(word opcode)
             check_reg(P_EXP, P, "P", "ASL_ABSX");
             break;  
         }
+
+        case LSR_ACCU: //A <- [A >> 1], original bit #0 is stored to carry flag
+        {
+            printRegs();
+            check_reg(A_EXP, A, "A", "LSR_ACCU");
+            check_reg(P_EXP, P, "P", "LSR_ACCU");
+            break;  
+        }
+
+        case LSR_ZRP: //M[zrp] <- [M[zrp] >> 1], original bit #0 is stored to carry flag
+        {
+            printRegs();
+            check_mem(0xCC, M_EXP, "LSR_ZRP"); //expecting value M_EXP in mem[0xCC]
+            check_reg(P_EXP, P, "P", "LSR_ZRP");
+            break;  
+        }
+
+        case LSR_ZRPX: //M[zrp+X] <- [M[zrp+X] >> 1], original bit #0 is stored to carry flag
+        {
+            printRegs();
+            check_mem(0xCC+X, M_EXP, "LSR_ZRPX"); //expecting value M_EXP in mem[0xCC]
+            check_reg(P_EXP, P, "P", "LSR_ZRPX");
+            break;  
+        }
+
+        case LSR_ABS: //M[abcd] <- [M[abcd] >> 1], original bit #0 is stored to carry flag
+        {
+            printRegs();
+            check_mem(0xDCBA, M_EXP, "LSR_ABS"); //expecting value M_EXP in mem[0xabcd]
+            check_reg(P_EXP, P, "P", "LSR_ABS");
+            break;  
+        }        
+
+        case LSR_ABSX: //M[abcd+X] <- [M[abcd+X] >> 1], original bit #0 is stored to carry flag
+        {
+            printRegs();
+            check_mem(0xDCBA+X, M_EXP, "LSR_ABSX"); //expecting value M_EXP in mem[0xabcd+X]
+            check_reg(P_EXP, P, "P", "LSR_ABSX");
+            break;  
+        }        
+
 
 
         //############################# LOGIC INSTRUCTIONS #############################

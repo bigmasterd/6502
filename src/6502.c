@@ -963,6 +963,72 @@ int main(int argc, char *argv[])
                 TEST(ASL_ABSX);
                 break;        
             }
+
+            case LSR_ACCU: 
+            {
+                PREPTEST(LSR_ACCU);
+            
+                PC++;                //target next opcode
+                lsr_accu();          //execute opcode
+            
+                TEST(LSR_ACCU);
+                break;        
+            }
+
+            case LSR_ZRP: 
+            {
+                PREPTEST(LSR_ZRP);
+                
+                address a = getZrpAddr();       //get address from zeropage                 
+                PC += 2;                        //target next opcode                
+                lsr(a);                         //execute opcode
+
+                TEST(LSR_ZRP);
+                break;        
+            }
+            
+            case LSR_ZRPX: 
+            {
+                PREPTEST(LSR_ZRPX);
+                
+                address a = getZrpXAddr();      //get address from zeropage+X                 
+                PC += 2;                        //target next opcode                
+                lsr(a);                         //execute opcode
+
+                TEST(LSR_ZRPX);
+                break;        
+            }
+
+            case LSR_ABS: 
+            {
+                PREPTEST(LSR_ABS);
+                
+                address a = getAbsAddr();       //get absoulte address                 
+                PC += 3;                        //target next opcode                
+                lsr(a);                         //execute opcode
+
+                TEST(LSR_ABS);
+                break;        
+            }
+
+            case LSR_ABSX: 
+            {
+                PREPTEST(LSR_ABSX);
+                
+                address a = getAbsXAddr();      //get absoulte+X address                 
+                PC += 3;                        //target next opcode                
+                lsr(a);                         //execute opcode
+
+                TEST(LSR_ABSX);
+                break;        
+            }
+
+
+// #define LSR_ACCU    0x4A                   
+// #define LSR_ZRP     0x46 
+// #define LSR_ZRPX    0x56 
+// #define LSR_ABS     0x4E 
+// #define LSR_ABSX    0x5E
             
                 
             //############################# LOGIC INSTRUCTIONS #############################
@@ -1303,7 +1369,7 @@ void asl_accu(void)
 {   
     setC(getBit(A, 7)); //before shifting, save bit #7 to carry
     
-    A = A << 1;  //the actual shift operation   
+    A = A << 1; //the actual shift operation   
 
     setN(A);
     setZ(A); 
@@ -1319,7 +1385,35 @@ void asl(address a)
     
     w = w << 1; //the actual shift operation
 
-    mwr(w, a); // write back updated word
+    mwr(w, a); //write back updated word
+
+    setN(w);
+    setZ(w); 
+}
+
+//A <- (A >> 1), original bit #0 is stored to carry flag
+//affects N, Z, C
+void lsr_accu(void)
+{   
+    setC(getBit(A, 0)); //before shifting, save bit #0 to carry
+    
+    A = A >> 1; //the actual shift operation   
+
+    setN(A);
+    setZ(A); 
+}
+
+//M[a] <- (M[a] >> 1), original bit #0 is stored to carry flag
+//affects N, Z, C
+void lsr(address a)
+{   
+    word w = mrd(a); //get word stored at address
+
+    setC(getBit(w, 0)); //before shifting, save bit #0 to carry
+    
+    w = w >> 1; //the actual shift operation
+
+    mwr(w, a); //write back updated word
 
     setN(w);
     setZ(w); 

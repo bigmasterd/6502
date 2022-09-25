@@ -87,10 +87,10 @@
                 
 //SHIFT & ROTATE INSTRUCTIONS
 #define ASL_ACCU    0x0A    //ok           
-#define ASL_ZRP     0x06 
-#define ASL_ZRPX    0x16 
-#define ASL_ABS     0x0E 
-#define ASL_ABSX    0x1E 
+#define ASL_ZRP     0x06    //ok
+#define ASL_ZRPX    0x16    //ok
+#define ASL_ABS     0x0E    //ok
+#define ASL_ABSX    0x1E    //ok
                  
 #define LSR_ACCU    0x4A                   
 #define LSR_ZRP     0x46 
@@ -253,15 +253,12 @@ void dey    (void);
                 
                 
 //SHIFT & ROTATE INSTRUCTIONS
-void asl_accu (void); //done                 
-void asl (address a);  
+void asl_accu(void); //done                 
+void asl(address a); //done
                  
-void lsr_accu    (void);                    
-void lsr_zrp     (void);  
-void lsr_zrpx    (void);  
-void lsr_abs     (void);   
-void lsr_absx    (void);   
-                
+void lsr_accu(void);                    
+void lsr(address a);  
+
 void rol_accu    (void);                     
 void rol_zrp     (void);   
 void rol_zrpx    (void);   
