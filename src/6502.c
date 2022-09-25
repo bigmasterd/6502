@@ -41,7 +41,7 @@ void reset()
     P   =   0x30; //00110000 = (N V - B D I Z C) // - always 1, B is 1 too because NES does not use decimal mode D at all
     IR  =   0x0;    
     SP  =   0x0;     
-	PC  =   START_ADDRESS;
+    PC  =   START_ADDRESS;
 }
 
 
@@ -213,14 +213,11 @@ address getAbsYAddr(void)
     return lohi2addr(lo,hi) + Y;        //convert lo byte and hi byte to a 16bit address and add Y 
 }
 
-
-
 word getImdOp(void)
 {
     word operand = mrd(PC+1);
     return operand;
 }
-
 
 word getZrpOp(void)
 {
@@ -228,7 +225,6 @@ word getZrpOp(void)
     word operand = mrd(a);              //get operand
     return operand;
 }
-
 
 word getZrpXOp(void)
 {
@@ -314,7 +310,7 @@ address getIndYOp(void)
     return operand;
 }
 
-
+//load given 6502 binary and emulate it
 int main(int argc, char *argv[])
 {	
     
@@ -968,8 +964,8 @@ int main(int argc, char *argv[])
             {
                 PREPTEST(LSR_ACCU);
             
-                PC++;                //target next opcode
-                lsr_accu();          //execute opcode
+                PC++;                           //target next opcode
+                lsr_accu();                     //execute opcode
             
                 TEST(LSR_ACCU);
                 break;        
@@ -1022,13 +1018,6 @@ int main(int argc, char *argv[])
                 TEST(LSR_ABSX);
                 break;        
             }
-
-
-// #define LSR_ACCU    0x4A                   
-// #define LSR_ZRP     0x46 
-// #define LSR_ZRPX    0x56 
-// #define LSR_ABS     0x4E 
-// #define LSR_ABSX    0x5E
             
                 
             //############################# LOGIC INSTRUCTIONS #############################
@@ -1157,7 +1146,6 @@ int main(int argc, char *argv[])
 printf("\nTestmode was on.\n");  
 #endif
 
-
 	return 0;
 }
 
@@ -1233,31 +1221,26 @@ void lda(word operand)
                 
     //set flags
     setN(A);
-    setZ(A); 
-    
-    //printRegs();
+    setZ(A);    
 }
 
 //A -> M
 //no flags
 void sta(address a)
 {      
-    mwr(A, a); //write contents of A to address a
-    //printRegs();
+    mwr(A, a); //write contents of A to address a   
 }
 
 //X -> M
 void stx(address a)
 {      
-    mwr(X, a); //write contents of X to address a
-    //printRegs();
+    mwr(X, a); //write contents of X to address a    
 }
 
 //Y -> M
 void sty(address a)
 {      
-    mwr(Y, a); //write contents of Y to address a
-    //printRegs();
+    mwr(Y, a); //write contents of Y to address a    
 }
 
 
@@ -1285,8 +1268,7 @@ void adc(word operand)
     //result > 255 => 8 bits were not sufficient => need 9th bit = carry, otherwise clear carry, which might be set (and used) before
     (A16 > 0xFF) ? setC(1) : setC(0); 
     
-    
-   
+       
     //TODO: test with http://skilldrick.github.io/easy6502/    
     printRegs();
 }
