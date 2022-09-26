@@ -1486,10 +1486,12 @@ void rol(address a)
 
     w = w | getC(); //copy carry to bit #0
 
+    mwr(w, a); //write back updated word
+
     setN(w);
     setZ(w); 
 }
-
+                        
 //C <-- 1
 //affects C
 void sec(void)
