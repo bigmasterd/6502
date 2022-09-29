@@ -259,8 +259,8 @@ void asl(address a); //done
 void lsr_accu(void); //done                
 void lsr(address a); //done
 
-void rol_accu(void);                     
-void rol(address a);   
+void rol_accu(void); //done              
+void rol(address a); //done
                 
 void ror_accu (void);                     
 void ror(address a);

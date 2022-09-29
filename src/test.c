@@ -677,7 +677,7 @@ void preptest(word opcode)
         {   
             A = 0b10010011; //init A with test value
             P = 0b10000000; //init P
-            A_EXP = 0b00100111; //rotated right, must change to 0b10100111
+            A_EXP = 0b00100111; //rotated left, must change to 0b10100111
             P_EXP = 0b00000001; //carry must be set, N must be cleared
             break;
         }
@@ -696,9 +696,7 @@ void preptest(word opcode)
 
             word z = 0b11111100 | 0;
 
-            X = 0x33;
             mwr(0b01111110, 0x01+X); // init memory location that will be rotated
-            z = mrd(0x01+X);
             M_EXP = 0b11111100; //expected value in memory after shift
             P = 0b0; //init P            
             P_EXP = 0b10000000; //carry must be NOT set, N flag must be set
@@ -725,33 +723,50 @@ void preptest(word opcode)
         }
 
 
-        case ROR_ACCU:  
+        case ROR_ACCU:
         {   
-            NO_TEST_PREP_IMPL_WARN(ROR_ACCU);        
+            A = 0b10010011; //init A with test value
+            P = 0b10000000; //init P
+            A_EXP = 0b11001001; //must change to this value after right rotation
+            P_EXP = 0b10000001; //carry must be set, N must be set
             break;
         }
 
-        case ROR_ZRP:  
+        case ROR_ZRP:
         {   
-            NO_TEST_PREP_IMPL_WARN(ROR_ZRP);        
+            mwr(0b00011000, 0x88); //init memory location that will be roteated
+            M_EXP = 0b00001100; //must change to this value after right rotation
+            P = 0x0; //init P
+            P_EXP = 0b0; //no flags must be set            
             break;
         }
 
-        case ROR_ZRPX:  
+        case ROR_ZRPX:
         {   
-            NO_TEST_PREP_IMPL_WARN(ROR_ZRPX);        
+            X = 0x33;
+            mwr(0b01111110, 0x01+X); // init memory location that will be rotated
+            M_EXP = 0b00111111; //must change to this value after right rotation
+            P = 0b0; //init P            
+            P_EXP = 0b00000000; //no flags set
             break;
         }
 
-        case ROR_ABS:  
+        case ROR_ABS:
         {   
-            NO_TEST_PREP_IMPL_WARN(ROR_ABS);        
+            mwr(0b11010000, 0x9999); // init memory location that will be rotated
+            M_EXP = 0b01101000; //must change to this value after right rotation
+            P = 0b11100111; //init P            
+            P_EXP = 0b01100100; //N must be cleared, Z must be cleared, carry must be set
             break;
         }
 
-        case ROR_ABSX:  
+        case ROR_ABSX:
         {   
-            NO_TEST_PREP_IMPL_WARN(ROR_ABSX);        
+            X = 0x44;
+            mwr(0b11010000, 0x9999+X); // init memory location that will be rotated
+            M_EXP = 0b01101000; //must change to this value after right rotation
+            P = 0b11100111; //init P            
+            P_EXP = 0b01100100; //carry and N must be cleared
             break;
         }
 
@@ -1627,6 +1642,46 @@ void test(word opcode)
             printRegs();
             check_mem(0x9999+X, M_EXP, "ROL_ABSX"); //expecting value M_EXP in mem[0x9999]
             check_reg(P_EXP, P, "P", "ROL_ABSX");
+            break;  
+        } 
+
+        case ROR_ACCU: //rotate A right, copy bit #0 to carry and to bit #7
+        {
+            printRegs();
+            check_reg(A_EXP, A, "A", "ROR_ACCU");
+            check_reg(P_EXP, P, "P", "ROR_ACCU");
+            break;  
+        }
+
+        case ROR_ZRP:
+        {
+            printRegs();
+            check_mem(0x88, M_EXP, "ROR_ZRP"); //expecting value M_EXP in mem[0x88]
+            check_reg(P_EXP, P, "P", "ROR_ZRP");
+            break;  
+        }
+
+        case ROR_ZRPX:
+        {
+            printRegs();
+            check_mem(0x01+X, M_EXP, "ROR_ZRPX"); //expecting value M_EXP in mem[0x01+X]
+            check_reg(P_EXP, P, "P", "ROR_ZRPX");
+            break;  
+        }
+
+        case ROR_ABS:
+        {
+            printRegs();
+            check_mem(0x9999, M_EXP, "ROR_ABS"); //expecting value M_EXP in mem[0x9999]
+            check_reg(P_EXP, P, "P", "ROR_ABS");
+            break;  
+        } 
+
+        case ROR_ABSX:
+        {
+            printRegs();
+            check_mem(0x9999+X, M_EXP, "ROR_ABSX"); //expecting value M_EXP in mem[0x9999]
+            check_reg(P_EXP, P, "P", "ROR_ABSX");
             break;  
         } 
 

@@ -1079,6 +1079,65 @@ int main(int argc, char *argv[])
             }
             
                 
+            case ROR_ACCU: 
+            {
+                PREPTEST(ROR_ACCU);
+            
+                PC++;                //target next opcode
+                ror_accu();          //execute opcode
+            
+                TEST(ROR_ACCU);
+                break;        
+            }
+
+            case ROR_ZRP: 
+            {
+                PREPTEST(ROR_ZRP);
+                
+                address a = getZrpAddr();       //get address from zeropage                 
+                PC += 2;                        //target next opcode                
+                ror(a);                         //execute opcode
+
+                TEST(ROR_ZRP);
+                break;        
+            }
+            
+            case ROR_ZRPX: 
+            {
+                PREPTEST(ROR_ZRPX);
+                
+                address a = getZrpXAddr();      //get address from zeropage+X                 
+                PC += 2;                        //target next opcode                
+                ror(a);                         //execute opcode
+
+                TEST(ROR_ZRPX);
+                break;        
+            }
+
+            case ROR_ABS: 
+            {
+                PREPTEST(ROR_ABS);
+                
+                address a = getAbsAddr();       //get absoulte address                 
+                PC += 3;                        //target next opcode                
+                ror(a);                         //execute opcode
+
+                TEST(ROR_ABS);
+                break;        
+            }
+
+            case ROR_ABSX: 
+            {
+                PREPTEST(ROR_ABSX);
+                
+                address a = getAbsXAddr();      //get absoulte+X address                 
+                PC += 3;                        //target next opcode                
+                ror(a);                         //execute opcode
+
+                TEST(ROR_ABSX);
+                break;        
+            }
+
             //############################# LOGIC INSTRUCTIONS #############################
             
             //############################# COMPARE AND TEST BIT INSTRUCTIONS #############################
@@ -1485,6 +1544,38 @@ void rol(address a)
     w = w << 1; //the actual shift operation
 
     w = w | getC(); //copy carry to bit #0
+
+    mwr(w, a); //write back updated word
+
+    setN(w);
+    setZ(w); 
+}
+
+//rotate right: shift A right, copy original bit #0 to carry and to bit #7 of A
+//affects N, Z, C
+void ror_accu(void)
+{   
+    setC(getBit(A, 0)); //before shifting, save bit #0 to carry
+    
+    A = A >> 1; //the actual shift operation
+
+    A = A | (getC() << 7); //copy carry to bit #7
+
+    setN(A);
+    setZ(A); 
+}
+
+//rotate right: shift M[a] rigth, copy original bit #0 to carry and to bit #7 of M[a]
+//affects N, Z, C
+void ror(address a)
+{   
+    word w = mrd(a); //get word stored at address
+
+    setC(getBit(w, 0)); //before shifting, save bit #0 to carry
+    
+    w = w >> 1; //the actual shift operation
+
+    w = w | (getC() << 7); //copy carry to bit #7
 
     mwr(w, a); //write back updated word
 
