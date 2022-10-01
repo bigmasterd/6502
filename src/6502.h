@@ -262,8 +262,8 @@ void lsr(address a); //done
 void rol_accu(void); //done              
 void rol(address a); //done
                 
-void ror_accu (void);                     
-void ror(address a);
+void ror_accu (void);//done               
+void ror(address a); //done
                 
 //LOGIC INSTRUCTIONS
 void and_immd    (void);   
@@ -321,7 +321,7 @@ void sed    (void);
                
 void sei	(void);  
                 
-void clc (void);
+void clc    (void);
                 
 void cld    (void);  
                 
@@ -357,13 +357,13 @@ void bvc_rel     (void);
 void bvs_rel     (void);  
                 
 //STACK INSTRUCTIONS
-void pha_impl    (void);  
+void pha_impl(void);  
                  
-void pla_impl    (void);  
+void pla_impl(void);  
                  
-void php_impl    (void);  
+void php_impl(void);  
                 
-void plp_impl    (void);  
+void plp_impl(void);  
                 
 //MISC INSTRUCTIONS
 //void nop_impl    (void); //no function needed, just do do anything on NOP_IMPL (0xEA)  

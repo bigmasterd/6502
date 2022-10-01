@@ -9,7 +9,9 @@
 #include "utils.h"
 #include "test.h"
 
-#define START_ADDRESS 0x0
+#define START_ADDRESS 0x0000 //start address of the programm (PC init)
+#define STACK_MIN 0x01FF //stack grows downwards starting at this address
+#define STACK_MAX 0x0100 //end of stack range, next lower address results in stack overflow
 
 //enable/disable test mode here
 #define TEST_MODE
@@ -28,7 +30,7 @@ word 	Y;  //Y indexing register
 word 	A;  //accumulator
 word 	P;  //processor status word with the flags (N V - B D I Z C)
 word 	IR; //instruction register, contains instruction to be decoded, i.e. IR == mrd(PC)
-word  	SP; //6502's stack of 256 bytes range is located at 0100 to 01FF (hard wired). that is the 2nd frame in the RAM
+address SP; //6502's stack has a range of 256 and is hard wired to 2nd memory page 0100 to 01FF (9 bit address)
 address PC; //program counter, NOTE: PC contains always the instruction to be fetched next !!!
 
 
@@ -1232,7 +1234,51 @@ int main(int argc, char *argv[])
             }
                 
             //############################# STACK INSTRUCTIONS #############################
-                
+            case PHA_IMPL:
+            {
+                PREPTEST(PHA_IMPL);
+
+                PC++;
+                pha_impl();
+
+                TEST(PHA_IMPL);
+                break;           
+            }    
+
+            case PLA_IMPL:
+            {
+                PREPTEST(PLA_IMPL);
+
+                PC++;
+                pla_impl();
+
+                TEST(PLA_IMPL);
+                break;           
+            } 
+
+            case PHP_IMPL:
+            {
+                PREPTEST(PHP_IMPL);
+
+                PC++;
+                php_impl();
+
+                TEST(PHP_IMPL);
+                break;           
+            } 
+
+            case PLP_IMPL:
+            {
+                PREPTEST(PLP_IMPL);
+
+                PC++;
+                plp_impl();
+
+                TEST(PLP_IMPL);
+                break;           
+            } 
+
+
             //############################# MISC INSTRUCTIONS #############################
             case NOP_IMPL: //do nothing, 1 byte long
             {
@@ -1673,5 +1719,68 @@ void bne_rel(void)
         PC = PC+(operand); //PC <- PC+operand, operand is in [-128, 127]        
     }
 }
+
+//push A to stack, i.e. mem[SP] <- A
+//no flags affected
+void pha_impl(void)
+{
+    mwr(A, SP); //write A to stack
+    SP--; //point to next free stack location
+
+    //oh, oh... pushing beyond MAX
+    if (SP < STACK_MAX)
+    {
+        printf("WARNING: PHA instruction at 0x%.4X resulted in stack overflow.\nStack pointer is now at: 0x%.4X.\n\n", PC-1, SP);
+    }
+}
+
+//pull value from stack into A, i.e. A <- mem[SP+1]
+//affects N and Z
+void pla_impl(void)
+{
+    SP++; //target value on top of the stack
+
+    A = mrd(SP); //copy value from stack into A, value in SP is free to be overwritten by next push operation
+
+    //set flags
+    setN(A);
+    setZ(A); 
+
+    //oh, oh... pulling beyond MIN
+    if (SP > STACK_MIN)
+    {
+        printf("WARNING: PLA instruction at 0x%.4X resulted in stack underflow.\nStack pointer is now at: 0x%.4X.\n\n", PC-1, SP);
+    }
+}
+
+//push P to stack, i.e. mem[SP] <- P
+//no flags affected
+void php_impl(void)
+{
+    mwr(P, SP); //write P to stack
+    SP--; //point to next free stack location
+
+    //oh, oh... pushing beyond MAX
+    if (SP < STACK_MAX)
+    {
+        printf("WARNING: PHA instruction at 0x%.4X resulted in stack overflow.\nStack pointer is now at: 0x%.4X.\n\n", PC-1, SP);
+    }
+}
+
+//pull value from stack into P, i.e. P <- mem[SP+1]
+//affects all bits in P, because a new value is fetched into P
+void plp_impl(void)
+{
+    SP++; //target value on top of the stack
+
+    P = mrd(SP); //copy value from stack into P, value in SP is free to be overwritten by next push operation
+
+    //oh, oh... pulling beyond MIN
+    if (SP > STACK_MIN)
+    {
+        printf("WARNING: PLP instruction at 0x%.4X resulted in stack underflow.\nStack pointer is now at: 0x%.4X.\n\n", PC-1, SP);
+    }
+}
+                 
 
 

@@ -12,16 +12,17 @@ extern word 	Y;  //Y indexing register
 extern word 	A;  //accumulator
 extern word 	P;  //processor status word with the flags (N V - B D I Z C)
 extern word 	IR; //instruction register, contains instruction to be decoded, i.e. IR == mrd(PC)
-extern word  	SP; //6502's stack of 256 bytes range is located at 0100 to 01FF (hard wired). that is the 2nd frame in the RAM
-extern address PC;  //program counter, NOTE: PC contains always the instruction to be fetched next !!!
+extern address 	SP; //6502's stack has a range of 256 and is hard wired to 2nd memory page 0100 to 01FF (9 bit address)
+extern address  PC; //program counter, NOTE: PC contains always the instruction to be fetched next !!!
 
-word X_EXP;  //expected value in register X after test run
-word Y_EXP;  //expected value in register Y after test run
-word A_EXP;  //expected value in accumulator after test run
-word P_EXP;  //expected value in status register after test run
-word IR_EXP; //expected value in instruction register after test run
-word SP_EXP; //expected value in stack pointer register after test run
-word M_EXP;  //expected value in memory location
+//test specific expected values
+word X_EXP;   //expected value in register X after test run
+word Y_EXP;   //expected value in register Y after test run
+word A_EXP;   //expected value in accumulator after test run
+word P_EXP;   //expected value in status register after test run
+word IR_EXP;  //expected value in instruction register after test run
+dword SP_EXP; //expected value in stack pointer register after test run
+word M_EXP;   //expected value in memory location
 
 #define DEF_X   0b00000001
 #define DEF_Y   0b00000010
@@ -36,9 +37,7 @@ word M_EXP;  //expected value in memory location
 void preptest(word opcode)
 {
     switch(opcode)
-	{
-
-        
+	{        
         //############################# TRANSFER INSTRUCTIONS #############################        
 
         case TAX_IMPL:
@@ -1166,25 +1165,41 @@ void preptest(word opcode)
                 
         case PHA_IMPL:
         {   
-            NO_TEST_PREP_IMPL_WARN(PHA_IMPL);
+            SP = 0x01AA;    //current stack pointer position
+            A = DEF_A;      //init A with some value
+            M_EXP = DEF_A;  //after reading memory at address SP-1, we must read back the stored A
+            SP_EXP = SP-1;  //after pushing the value to stack, stack pointer must decrease 
             break;
         }
         
         case PLA_IMPL:
         {   
-            NO_TEST_PREP_IMPL_WARN(PLA_IMPL);
+            SP = 0x01AA;            //current stack pointer position
+            mwr(0b10110000, SP+1);  //put value 0b10110000 on top of the stack, this value is to be pulled into A
+            A = 0;                  //init A with zero
+            A_EXP = 0b10110000;     //expecting the value from stack in A
+            SP_EXP = SP+1;          //after pulling the value from stack, stack pointer must increase
+            P = 0b00011010;         //init P with some value
+            P_EXP = 0b10011000;     //N must be set, Z must be cleared, other bits must be unchanged
             break;
         }
 
         case PHP_IMPL:
         {   
-            NO_TEST_PREP_IMPL_WARN(PHP_IMPL);
+            SP = 0x0177;    //current stack pointer position
+            P = DEF_P;      //init P with some value
+            M_EXP = DEF_P;  //after reading memory at address SP-1, we must read back the stored P
+            SP_EXP = SP-1;  //after pushing the value to stack, stack pointer must decrease
             break;
         }
         
         case PLP_IMPL:
         {   
-            NO_TEST_PREP_IMPL_WARN(PLP_IMPL);
+            SP = 0x0177;            //current stack pointer position
+            mwr(0b10110000, SP+1);  //put value 0b10110000 on top of the stack, this value is to be pulled into P
+            P = 0xFF;               //init P with some dummy value, to be overwritten by pulled value
+            P_EXP = 0b10110000;     //expecting the value from stack in P
+            SP_EXP = SP+1;          //after pulling the value from stack, stack pointer must increase
             break;
         }
     
@@ -1743,6 +1758,43 @@ void test(word opcode)
 
         //############################# STACK INSTRUCTIONS #############################
 
+        case PHA_IMPL:
+        {
+            check_reg(DEF_A, A, "A", "PHA_IMPL");   //A must be unchanged
+            check_sp(SP_EXP, SP, "PHA_IMPL");       //stack pointer must have decreaded
+            check_mem(SP+2, 0, "PHA_IMPL");         //make sure nothing was pushed above the initial SP
+            check_mem(SP+1, M_EXP, "PHA_IMPL");     //expecting pushed value M_EXP (=A) in mem[SP+1]
+            check_mem(SP, 0, "PHA_IMPL");           //make sure nothing was pushed to current SP            
+            break;
+        }
+
+        case PLA_IMPL:
+        {
+            check_reg(A_EXP, A, "A", "PLA_IMPL");   //expected value in A
+            check_reg(P_EXP, P, "P", "PLA_IMPL");   //expected value in P    
+            check_sp(SP_EXP, SP, "PLA_IMPL");       //stack pointer must have increased
+            check_mem(SP, A_EXP, "PLA_IMPL");       //check if current SP points to value that was pulled (this value is now free to be overwritten)
+            break;
+        }
+
+        case PHP_IMPL:
+        {
+            check_reg(DEF_P, P, "P", "PHP_IMPL");    //P must be unchanged
+            check_sp(SP_EXP, SP, "PHP_IMPL");        //stack pointer must have decreaded
+            check_mem(SP+2, 0, "PHP_IMPL");          //make sure nothing was pushed above the initial SP
+            check_mem(SP+1, M_EXP, "PHP_IMPL");      //expecting pushed value M_EXP (=P) in mem[SP+1]
+            check_mem(SP, 0, "PHP_IMPL");            //make sure nothing was pushed to current SP            
+            break;
+        }
+
+        case PLP_IMPL:
+        {
+            check_reg(P_EXP, P, "P", "PLP_IMPL");   //expected value in P
+            check_sp(SP_EXP, SP, "PLP_IMPL");       //stack pointer must have increased
+            check_mem(SP, P_EXP, "PLP_IMPL");       //check if current SP points to value that was pulled (this value is now free to be overwritten)
+            break;
+        }
+
         //############################# MISC INSTRUCTIONS #############################
 
         
@@ -1763,11 +1815,23 @@ void check_reg(word exp_reg_val, word act_reg_value, char* reg_name, char* opcod
 {
     if (exp_reg_val != act_reg_value)
     {
-        printf("%s: FAILED. Expected value in %s: 0x%x, but actual value: 0x%x.\n", opcode_name, reg_name, exp_reg_val, act_reg_value);
+        printf("%s: FAILED. Expected value in %s: 0x%.2X, but actual value: 0x%.2X.\n", opcode_name, reg_name, exp_reg_val, act_reg_value);
     }
     else
     {
-        printf("%s: PASSED. Value in %s is just as expected: 0x%x.\n", opcode_name, reg_name, exp_reg_val);
+        printf("%s: PASSED. Value in %s is just as expected: 0x%.2X.\n", opcode_name, reg_name, exp_reg_val);
+    }
+}
+
+void check_sp(dword exp_reg_val, dword act_reg_value, char* opcode_name)
+{
+    if (exp_reg_val != act_reg_value)
+    {
+        printf("%s: FAILED. Expected value in %s: 0x%.4X, but actual value: 0x%.4X.\n", opcode_name, "SP", exp_reg_val, act_reg_value);
+    }
+    else
+    {
+        printf("%s: PASSED. Value in %s is just as expected: 0x%.4X.\n", opcode_name, "SP", exp_reg_val);
     }
 }
 
@@ -1777,10 +1841,10 @@ void check_mem(address addr, word exp_mem_val, char* opcode_name)
     
     if (exp_mem_val != act_mem_value)
     {
-        printf("%s: FAILED. Expected value in mem[0x%x]: 0x%x, but actual value: 0x%x.\n", opcode_name, addr, exp_mem_val, act_mem_value);
+        printf("%s: FAILED. Expected value in mem[0x%.2X]: 0x%.2X, but actual value: 0x%.2X.\n", opcode_name, addr, exp_mem_val, act_mem_value);
     }
     else
     {
-        printf("%s: PASSED. Value in mem[0x%x] is just as expected: 0x%x.\n", opcode_name, addr, exp_mem_val);
+        printf("%s: PASSED. Value in mem[0x%.2X] is just as expected: 0x%.2X.\n", opcode_name, addr, exp_mem_val);
     }
 }
