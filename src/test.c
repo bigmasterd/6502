@@ -1239,107 +1239,107 @@ void test(word opcode)
         //############################# TRANSFER INSTRUCTIONS #############################
 	    case TAX_IMPL:  //X <- A, 1 byte long, affects N and Z
         {
-            check_reg(DEF_A, X, "X", "TAX_IMPL");
-            check_reg(DEF_P, P, "P", "TAX_IMPL"); //P unchanged, since A was non negative and was not 0 (defaut case in preptest())
+            checkReg(DEF_A, X, "X", "TAX_IMPL");
+            checkReg(DEF_P, P, "P", "TAX_IMPL"); //P unchanged, since A was non negative and was not 0 (defaut case in preptest())
             break;
         }
         
         case TXA_IMPL:  //A <- X, 1 byte long, affects N and Z
         {
-            check_reg(0, A, "A", "TXA_IMPL");
-            check_reg(0b00110010, P, "P", "TXA_IMPL"); //P changed, since X was 0
+            checkReg(0, A, "A", "TXA_IMPL");
+            checkReg(0b00110010, P, "P", "TXA_IMPL"); //P changed, since X was 0
             break;
         }
             
         case TAY_IMPL:  //Y <- A, 1 byte long, affects N and Z
         {
-            check_reg(-42, Y, "Y", "TAY_IMPL");
-            check_reg(0b10110000, P, "P", "TAY_IMPL"); //P changed, since A was negative
+            checkReg(-42, Y, "Y", "TAY_IMPL");
+            checkReg(0b10110000, P, "P", "TAY_IMPL"); //P changed, since A was negative
             break;
         }
             
         case TYA_IMPL:  //A <- Y, 1 byte long, affects N and Z
         {
-            check_reg(DEF_Y, A, "A", "TYA_IMPL");
-            check_reg(DEF_P, P, "P", "TYA_IMPL"); 
+            checkReg(DEF_Y, A, "A", "TYA_IMPL");
+            checkReg(DEF_P, P, "P", "TYA_IMPL"); 
             break;
         }
             
         case TSX_IMPL:  //X <- SP, 1 byte long, affects N and Z
         {
-            check_reg(DEF_SP, X, "X", "TSX_IMPL");
-            check_reg(DEF_P, P, "P", "TSX_IMPL"); 
+            checkReg(DEF_SP, X, "X", "TSX_IMPL");
+            checkReg(DEF_P, P, "P", "TSX_IMPL"); 
             break;
         }
             
         case TXS_IMPL:  //SP <- X, 1 byte long, no flags
         {
-            check_reg(DEF_X, SP, "SP", "TSX_IMPL");            
+            checkReg(DEF_X, SP, "SP", "TSX_IMPL");            
             break;
         }
             
         case INX_IMPL:  //X++, 1 byte long, affects N and Z
         {
-            check_reg(DEF_X+1, X, "X", "INX_IMPL");            
-            check_reg(DEF_P, P, "P", "INX_IMPL"); 
+            checkReg(DEF_X+1, X, "X", "INX_IMPL");            
+            checkReg(DEF_P, P, "P", "INX_IMPL"); 
             break;
         }
             
         case INY_IMPL:  //Y++, 1 byte long, affects N and Z
         {
-            check_reg( 0, Y, "Y", "INY_IMPL");            
-            check_reg(DEF_P | 0b00000010, P, "P", "INY_IMPL"); //zero flag changed sinse 0b11111111 + 1 = 0 
+            checkReg( 0, Y, "Y", "INY_IMPL");            
+            checkReg(DEF_P | 0b00000010, P, "P", "INY_IMPL"); //zero flag changed sinse 0b11111111 + 1 = 0 
             break;
         }
             
         case DEX_IMPL:  //X--, 1 byte long, affects N and Z
         {
-            check_reg(DEF_X-1, X, "X", "DEX_IMPL");            
-            check_reg(DEF_P | 0b00000010, P, "P", "DEX_IMPL"); //zero flag changed sinse 1 - 1 = 0 
+            checkReg(DEF_X-1, X, "X", "DEX_IMPL");            
+            checkReg(DEF_P | 0b00000010, P, "P", "DEX_IMPL"); //zero flag changed sinse 1 - 1 = 0 
             break;
         }
             
         case DEY_IMPL:  //Y--, 1 byte long, affects N and Z
         {
-            check_reg(DEF_Y-1, Y, "Y", "DEY_IMPL");            
-            check_reg(DEF_P, P, "P", "DEY_IMPL");  
+            checkReg(DEF_Y-1, Y, "Y", "DEY_IMPL");            
+            checkReg(DEF_P, P, "P", "DEY_IMPL");  
             break;
         }
 
         //############################# STORAGE INSTRUCTIONS #############################        
         case LDA_IMMD: //A <- M, 2 bytes long
         {
-            check_reg(0x23, A, "A", "LDA_IMMD"); 
+            checkReg(0x23, A, "A", "LDA_IMMD"); 
             break;  
         }         
             
         case LDA_ZRP: //A <- M[zrp], 2 bytes long
         {
-            check_reg(0x77, A, "A", "LDA_ZRP"); 
+            checkReg(0x77, A, "A", "LDA_ZRP"); 
             break;  
         }
             
         case LDA_ZRPX: //A <- M[zrp+X], 2 bytes long
         {
-            check_reg(0x78, A, "A", "LDA_ZRPX"); 
+            checkReg(0x78, A, "A", "LDA_ZRPX"); 
             break;  
         }
             
         case LDA_ABS: //A <- M[abcd], 3 bytes long
         {
-            check_reg(0x79, A, "A", "LDA_ABS"); 
+            checkReg(0x79, A, "A", "LDA_ABS"); 
             break;  
         }
             
         case LDA_ABSX: //A <- M[abcd+X], 3 bytes long
         {
-            check_reg(0x80, A, "A", "LDA_ABSX"); 
+            checkReg(0x80, A, "A", "LDA_ABSX"); 
             break;  
         }
             
         case LDA_ABSY: //A <- M[abcd+Y], 3 bytes long
         {
-            check_reg(0x81, A, "A", "LDA_ABSY"); 
+            checkReg(0x81, A, "A", "LDA_ABSY"); 
             break;  
         }
             
@@ -1357,33 +1357,33 @@ void test(word opcode)
 
         case LDX_IMMD: //X <- M, 2 bytes long
         {
-            check_reg(0x23, X, "X", "LDX_IMMD"); 
+            checkReg(0x23, X, "X", "LDX_IMMD"); 
             break;  
         }      
             
         case LDX_ZRP: //X <- M[zrp], 2 bytes long
         {
-            check_reg(0x77, X, "X", "LDX_ZRP"); 
+            checkReg(0x77, X, "X", "LDX_ZRP"); 
             break;  
         }
             
         case LDX_ZRPY: //X <- M[zrp+Y], 2 bytes long
         {
-            check_reg(0xcc, X, "X", "LDX_ZRPY"); 
+            checkReg(0xcc, X, "X", "LDX_ZRPY"); 
             break;  
         }
             
         case LDX_ABS: //X <- M[abcd], 3 bytes long
         {
-            check_reg(0x12, X, "X", "LDX_ABS"); 
+            checkReg(0x12, X, "X", "LDX_ABS"); 
             break;  
         }
             
         case LDX_ABSY: //X <- M[1234+Y], 3 bytes long
         {
             printRegs();
-            check_reg(0xFA, X, "X", "LDX_ABSY"); 
-            check_reg(0b10110000, P, "P", "LDX_ABSY"); //P changed, since value in mem was negative (0xFA)
+            checkReg(0xFA, X, "X", "LDX_ABSY"); 
+            checkReg(0b10110000, P, "P", "LDX_ABSY"); //P changed, since value in mem was negative (0xFA)
             break;  
         }
              
@@ -1391,72 +1391,72 @@ void test(word opcode)
         case LDY_IMMD: //Y <- M, 2 bytes long
         {
             printRegs();
-            check_reg(0x23, Y, "Y", "LDY_IMMD"); 
+            checkReg(0x23, Y, "Y", "LDY_IMMD"); 
             break;  
         }      
             
         case LDY_ZRP: //Y <- M[zrp], 2 bytes long
         {
             printRegs();
-            check_reg(0x77, Y, "Y", "LDY_ZRP"); 
+            checkReg(0x77, Y, "Y", "LDY_ZRP"); 
             break;  
         }
             
         case LDY_ZRPX: //Y <- M[zrp+Y], 2 bytes long
         {
             printRegs();
-            check_reg(0xcc, Y, "Y", "LDY_ZRPX"); 
+            checkReg(0xcc, Y, "Y", "LDY_ZRPX"); 
             break;  
         }
             
         case LDY_ABS: //Y <- M[abcd], 3 bytes long
         {
             printRegs();
-            check_reg(0x12, Y, "Y", "LDY_ABS"); 
+            checkReg(0x12, Y, "Y", "LDY_ABS"); 
             break;  
         }
             
         case LDY_ABSX: //Y <- M[1234+Y], 3 bytes long
         {
             printRegs();
-            check_reg(0xFA, Y, "Y", "LDY_ABSX"); 
-            check_reg(0b10110000, P, "P", "LDY_ABSX"); //P changed, since value in mem was negative (0xFA)
+            checkReg(0xFA, Y, "Y", "LDY_ABSX"); 
+            checkReg(0b10110000, P, "P", "LDY_ABSX"); //P changed, since value in mem was negative (0xFA)
             break;  
         }
             
         case STA_ZRP: //M[zrp] <--A, 2 bytes long
         {
             printRegs();
-            check_mem(0xab, 0x47, "STA_ZRP"); //expecting value 0x47 in mem[0xab]
+            checkMem(0xab, 0x47, "STA_ZRP"); //expecting value 0x47 in mem[0xab]
             break;  
         }
             
         case STA_ZRPX: //M[zrp+X] <--A, 2 bytes long
         {
             printRegs();
-            check_mem(0xab+X, 0x48, "STA_ZRPX"); //expecting value 0x48 in mem[0xab+X]
-            check_reg(DEF_P, P, "P", "STA_ZRPX"); //P unchanged!           
+            checkMem(0xab+X, 0x48, "STA_ZRPX"); //expecting value 0x48 in mem[0xab+X]
+            checkReg(DEF_P, P, "P", "STA_ZRPX"); //P unchanged!           
             break;  
         }
             
         case STA_ABS: //M[abcd] <--A, 3 bytes long
         {
             printRegs();
-            check_mem(0x6666, 0x99, "STA_ABS"); //expecting value 0x99 in mem[0x6666]
+            checkMem(0x6666, 0x99, "STA_ABS"); //expecting value 0x99 in mem[0x6666]
             break;  
         }
             
         case STA_ABSX: //M[abcd+X] <--A, 3 bytes long
         {
             printRegs();
-            check_mem(0x6666+X, 0x99, "STA_ABSX"); //expecting value 0x99 in mem[0x6666+X]
+            checkMem(0x6666+X, 0x99, "STA_ABSX"); //expecting value 0x99 in mem[0x6666+X]
             break;  
         }
             
         case STA_ABSY: //M[abcd+Y] <--A, 3 bytes long
         {
             printRegs();
-            check_mem(0x6666+Y, 0x88, "STA_ABSY"); //expecting value 0x88 in mem[0x6666+Y]
+            checkMem(0x6666+Y, 0x88, "STA_ABSY"); //expecting value 0x88 in mem[0x6666+Y]
             break;  
         }
             
@@ -1473,42 +1473,42 @@ void test(word opcode)
         case STX_ZRP: //M[zrp] <--X, 2 bytes long
         {
             printRegs();
-            check_mem(0xab, 0xcc, "STX_ZRP"); //expecting value 0xcc in mem[0xab]
+            checkMem(0xab, 0xcc, "STX_ZRP"); //expecting value 0xcc in mem[0xab]
             break;  
         }
             
         case STX_ZRPY: //M[zrp+Y] <--X, 2 bytes long
         {
             printRegs();
-            check_mem(0xab+Y, 0xcc, "STX_ZRPY"); //expecting value 0xcc in mem[0xab+Y]
+            checkMem(0xab+Y, 0xcc, "STX_ZRPY"); //expecting value 0xcc in mem[0xab+Y]
             break;  
         }
             
         case STX_ABS: //M[abcd] <--X, 3 bytes long
         {
             printRegs();
-            check_mem(0x1234, 0x33, "STX_ABS"); //expecting value 0x33 in mem[0x1234]
+            checkMem(0x1234, 0x33, "STX_ABS"); //expecting value 0x33 in mem[0x1234]
             break;  
         }
             
         case STY_ZRP: //M[zrp] <--Y, 2 bytes long
         {
             printRegs();
-            check_mem(0xab, 0xcc, "STY_ZRP"); //expecting value 0xcc in mem[0xab]
+            checkMem(0xab, 0xcc, "STY_ZRP"); //expecting value 0xcc in mem[0xab]
             break;  
         }
             
         case STY_ZRPX: //M[zrp+X] <--Y, 2 bytes long
         {
             printRegs();
-            check_mem(0xab+X, 0xcc, "STY_ZRPX"); //expecting value 0xcc in mem[0xab+X]
+            checkMem(0xab+X, 0xcc, "STY_ZRPX"); //expecting value 0xcc in mem[0xab+X]
             break;  
         }
             
         case STY_ABS: //M[abcd] <--Y, 3 bytes long
         {
             printRegs();
-            check_mem(0x1234, 0x33, "STY_ABS"); //expecting value 0x33 in mem[0x1234]
+            checkMem(0x1234, 0x33, "STY_ABS"); //expecting value 0x33 in mem[0x1234]
             break;  
         }        
 
@@ -1518,22 +1518,22 @@ void test(word opcode)
         case INC_ZRP: //M[zrp] <- M[zrp]+1, 3 bytes long
         {
             printRegs();
-            check_mem(0xAA, 0x61, "INC_ZRP"); //expecting value 0x61 in mem[0xAA]
+            checkMem(0xAA, 0x61, "INC_ZRP"); //expecting value 0x61 in mem[0xAA]
             break;  
         }
 
         case INC_ZRPX: //M[zrp+X] <- M[zrp]+1, 2 bytes long
         {
             printRegs();
-            check_mem(0xAA+0x5, 0xf1, "INC_ZRPX"); //expecting value 0xf1 in mem[0xAF]
-            check_reg(0b10110000, P, "P", "INC_ZRPX"); //P changed, since value in mem was negative (0xF1)
+            checkMem(0xAA+0x5, 0xf1, "INC_ZRPX"); //expecting value 0xf1 in mem[0xAF]
+            checkReg(0b10110000, P, "P", "INC_ZRPX"); //P changed, since value in mem was negative (0xF1)
             break;  
         }
             
         case INC_ABS: //M[abcd] <- M[abcd]+1, 3 bytes long
         {
             printRegs();
-            check_mem(0x1234, 0x13, "INC_ABS"); //expecting value 0x12+1 in mem[0x1234]
+            checkMem(0x1234, 0x13, "INC_ABS"); //expecting value 0x12+1 in mem[0x1234]
             break;  
         }
 
@@ -1543,160 +1543,160 @@ void test(word opcode)
         case ASL_ACCU: //A <- [A << 1], original bit #7 is stored to carry flag
         {
             printRegs();
-            check_reg(A_EXP, A, "A", "ASL_ACCU");
-            check_reg(P_EXP, P, "P", "ASL_ACCU");
+            checkReg(A_EXP, A, "A", "ASL_ACCU");
+            checkReg(P_EXP, P, "P", "ASL_ACCU");
             break;  
         }
 
         case ASL_ZRP: //M[zrp] <- [M[zrp] << 1], original bit #7 is stored to carry flag
         {
             printRegs();
-            check_mem(0x0A, M_EXP, "ASL_ZRP"); //expecting value M_EXP in mem[0x0A]
-            check_reg(P_EXP, P, "P", "ASL_ZRP");
+            checkMem(0x0A, M_EXP, "ASL_ZRP"); //expecting value M_EXP in mem[0x0A]
+            checkReg(P_EXP, P, "P", "ASL_ZRP");
             break;  
         }        
 
         case ASL_ZRPX: //M[zrp+X] <- [M[zrp+X] << 1], original bit #7 is stored to carry flag
         {
             printRegs();
-            check_mem(0x0A+X, M_EXP, "ASL_ZRP"); //expecting value M_EXP in mem[0x0A+X]
-            check_reg(P_EXP, P, "P", "ASL_ZRP");
+            checkMem(0x0A+X, M_EXP, "ASL_ZRP"); //expecting value M_EXP in mem[0x0A+X]
+            checkReg(P_EXP, P, "P", "ASL_ZRP");
             break;  
         }        
 
         case ASL_ABS: //M[abcd] <- [M[abcd] << 1], original bit #7 is stored to carry flag
         {
             printRegs();
-            check_mem(0x6789, M_EXP, "ASL_ABS"); //expecting value M_EXP in mem[0xabcd]
-            check_reg(P_EXP, P, "P", "ASL_ABS");
+            checkMem(0x6789, M_EXP, "ASL_ABS"); //expecting value M_EXP in mem[0xabcd]
+            checkReg(P_EXP, P, "P", "ASL_ABS");
             break;  
         }        
 
         case ASL_ABSX: //M[abcd+X] <- [M[abcd+X] << 1], original bit #7 is stored to carry flag
         {
             printRegs();
-            check_mem(0x6789+X, M_EXP, "ASL_ABSX"); //expecting value M_EXP in mem[0xabcd+X]
-            check_reg(P_EXP, P, "P", "ASL_ABSX");
+            checkMem(0x6789+X, M_EXP, "ASL_ABSX"); //expecting value M_EXP in mem[0xabcd+X]
+            checkReg(P_EXP, P, "P", "ASL_ABSX");
             break;  
         }
 
         case LSR_ACCU: //A <- [A >> 1], original bit #0 is stored to carry flag
         {
             printRegs();
-            check_reg(A_EXP, A, "A", "LSR_ACCU");
-            check_reg(P_EXP, P, "P", "LSR_ACCU");
+            checkReg(A_EXP, A, "A", "LSR_ACCU");
+            checkReg(P_EXP, P, "P", "LSR_ACCU");
             break;  
         }
 
         case LSR_ZRP: //M[zrp] <- [M[zrp] >> 1], original bit #0 is stored to carry flag
         {
             printRegs();
-            check_mem(0xCC, M_EXP, "LSR_ZRP"); //expecting value M_EXP in mem[0xCC]
-            check_reg(P_EXP, P, "P", "LSR_ZRP");
+            checkMem(0xCC, M_EXP, "LSR_ZRP"); //expecting value M_EXP in mem[0xCC]
+            checkReg(P_EXP, P, "P", "LSR_ZRP");
             break;  
         }
 
         case LSR_ZRPX: //M[zrp+X] <- [M[zrp+X] >> 1], original bit #0 is stored to carry flag
         {
             printRegs();
-            check_mem(0xCC+X, M_EXP, "LSR_ZRPX"); //expecting value M_EXP in mem[0xCC]
-            check_reg(P_EXP, P, "P", "LSR_ZRPX");
+            checkMem(0xCC+X, M_EXP, "LSR_ZRPX"); //expecting value M_EXP in mem[0xCC]
+            checkReg(P_EXP, P, "P", "LSR_ZRPX");
             break;  
         }
 
         case LSR_ABS: //M[abcd] <- [M[abcd] >> 1], original bit #0 is stored to carry flag
         {
             printRegs();
-            check_mem(0xDCBA, M_EXP, "LSR_ABS"); //expecting value M_EXP in mem[0xabcd]
-            check_reg(P_EXP, P, "P", "LSR_ABS");
+            checkMem(0xDCBA, M_EXP, "LSR_ABS"); //expecting value M_EXP in mem[0xabcd]
+            checkReg(P_EXP, P, "P", "LSR_ABS");
             break;  
         }        
 
         case LSR_ABSX: //M[abcd+X] <- [M[abcd+X] >> 1], original bit #0 is stored to carry flag
         {
             printRegs();
-            check_mem(0xDCBA+X, M_EXP, "LSR_ABSX"); //expecting value M_EXP in mem[0xabcd+X]
-            check_reg(P_EXP, P, "P", "LSR_ABSX");
+            checkMem(0xDCBA+X, M_EXP, "LSR_ABSX"); //expecting value M_EXP in mem[0xabcd+X]
+            checkReg(P_EXP, P, "P", "LSR_ABSX");
             break;  
         }        
 
         case ROL_ACCU: //rotate A left, copy bit #7 to carry and to bit #0
         {
             printRegs();
-            check_reg(A_EXP, A, "A", "ROL_ACCU");
-            check_reg(P_EXP, P, "P", "ROL_ACCU");
+            checkReg(A_EXP, A, "A", "ROL_ACCU");
+            checkReg(P_EXP, P, "P", "ROL_ACCU");
             break;  
         }
 
         case ROL_ZRP: //rotate M[zrp] left, copy bit #7 to carry and to bit #0
         {
             printRegs();
-            check_mem(0x88, M_EXP, "ROL_ZRP"); //expecting value M_EXP in mem[0x88]
-            check_reg(P_EXP, P, "P", "ROL_ZRP");
+            checkMem(0x88, M_EXP, "ROL_ZRP"); //expecting value M_EXP in mem[0x88]
+            checkReg(P_EXP, P, "P", "ROL_ZRP");
             break;  
         }
 
         case ROL_ZRPX: //rotate M[zrp+X] left, copy bit #7 to carry and to bit #0
         {
             printRegs();
-            check_mem(0x01+X, M_EXP, "ROL_ZRPX"); //expecting value M_EXP in mem[0x01+X]
-            check_reg(P_EXP, P, "P", "ROL_ZRPX");
+            checkMem(0x01+X, M_EXP, "ROL_ZRPX"); //expecting value M_EXP in mem[0x01+X]
+            checkReg(P_EXP, P, "P", "ROL_ZRPX");
             break;  
         }
 
         case ROL_ABS: //rotate M[abcd] left, copy bit #7 to carry and to bit #0
         {
             printRegs();
-            check_mem(0x9999, M_EXP, "ROL_ABS"); //expecting value M_EXP in mem[0x9999]
-            check_reg(P_EXP, P, "P", "ROL_ABS");
+            checkMem(0x9999, M_EXP, "ROL_ABS"); //expecting value M_EXP in mem[0x9999]
+            checkReg(P_EXP, P, "P", "ROL_ABS");
             break;  
         } 
 
         case ROL_ABSX: //rotate M[abcd] left, copy bit #7 to carry and to bit #0
         {
             printRegs();
-            check_mem(0x9999+X, M_EXP, "ROL_ABSX"); //expecting value M_EXP in mem[0x9999]
-            check_reg(P_EXP, P, "P", "ROL_ABSX");
+            checkMem(0x9999+X, M_EXP, "ROL_ABSX"); //expecting value M_EXP in mem[0x9999]
+            checkReg(P_EXP, P, "P", "ROL_ABSX");
             break;  
         } 
 
         case ROR_ACCU: //rotate A right, copy bit #0 to carry and to bit #7
         {
             printRegs();
-            check_reg(A_EXP, A, "A", "ROR_ACCU");
-            check_reg(P_EXP, P, "P", "ROR_ACCU");
+            checkReg(A_EXP, A, "A", "ROR_ACCU");
+            checkReg(P_EXP, P, "P", "ROR_ACCU");
             break;  
         }
 
         case ROR_ZRP:
         {
             printRegs();
-            check_mem(0x88, M_EXP, "ROR_ZRP"); //expecting value M_EXP in mem[0x88]
-            check_reg(P_EXP, P, "P", "ROR_ZRP");
+            checkMem(0x88, M_EXP, "ROR_ZRP"); //expecting value M_EXP in mem[0x88]
+            checkReg(P_EXP, P, "P", "ROR_ZRP");
             break;  
         }
 
         case ROR_ZRPX:
         {
             printRegs();
-            check_mem(0x01+X, M_EXP, "ROR_ZRPX"); //expecting value M_EXP in mem[0x01+X]
-            check_reg(P_EXP, P, "P", "ROR_ZRPX");
+            checkMem(0x01+X, M_EXP, "ROR_ZRPX"); //expecting value M_EXP in mem[0x01+X]
+            checkReg(P_EXP, P, "P", "ROR_ZRPX");
             break;  
         }
 
         case ROR_ABS:
         {
             printRegs();
-            check_mem(0x9999, M_EXP, "ROR_ABS"); //expecting value M_EXP in mem[0x9999]
-            check_reg(P_EXP, P, "P", "ROR_ABS");
+            checkMem(0x9999, M_EXP, "ROR_ABS"); //expecting value M_EXP in mem[0x9999]
+            checkReg(P_EXP, P, "P", "ROR_ABS");
             break;  
         } 
 
         case ROR_ABSX:
         {
             printRegs();
-            check_mem(0x9999+X, M_EXP, "ROR_ABSX"); //expecting value M_EXP in mem[0x9999]
-            check_reg(P_EXP, P, "P", "ROR_ABSX");
+            checkMem(0x9999+X, M_EXP, "ROR_ABSX"); //expecting value M_EXP in mem[0x9999]
+            checkReg(P_EXP, P, "P", "ROR_ABSX");
             break;  
         } 
 
@@ -1709,43 +1709,43 @@ void test(word opcode)
             
         case SEC_IMPL:  //C <- 1, 1 byte long, affects C
         {
-            check_reg(DEF_P | 0b00000001, P, "P", "SEC_IMPL"); //carry changed in P from 0 to 1  
+            checkReg(DEF_P | 0b00000001, P, "P", "SEC_IMPL"); //carry changed in P from 0 to 1  
             break;
         } 
             
         case SED_IMPL:  //D <- 1, 1 byte long, affects D
         {
-            check_reg(DEF_P | 0b00001000, P, "P", "SED_IMPL"); //decimal flag changed in P from 0 to 1  
+            checkReg(DEF_P | 0b00001000, P, "P", "SED_IMPL"); //decimal flag changed in P from 0 to 1  
             break;
         } 
             
         case SEI_IMPL:  //I <- 1, 1 byte long, affects I
         {
-            check_reg(DEF_P | 0b00000100, P, "P", "SEI_IMPL"); //interrupt flag changed in P from 0 to 1  
+            checkReg(DEF_P | 0b00000100, P, "P", "SEI_IMPL"); //interrupt flag changed in P from 0 to 1  
             break;
         }
          
         case CLC_IMPL:  //C <- 0, 1 byte long, affects C
         {
-            check_reg(DEF_P, P, "P", "CLC_IMPL"); //carry flag set from 1 to 0   
+            checkReg(DEF_P, P, "P", "CLC_IMPL"); //carry flag set from 1 to 0   
             break;
         }
             
         case CLD_IMPL:  //D <- 0, 1 byte long, affects D
         {
-            check_reg(DEF_P, P, "P", "CLD_IMPL"); //decimal flag set from 1 to 0   
+            checkReg(DEF_P, P, "P", "CLD_IMPL"); //decimal flag set from 1 to 0   
             break;
         }
             
         case CLI_IMPL:  //I <- 0, 1 byte long, affects I
         {
-            check_reg(DEF_P, P, "P", "CLI_IMPL"); //interrupt flag set from 1 to 0   
+            checkReg(DEF_P, P, "P", "CLI_IMPL"); //interrupt flag set from 1 to 0   
             break;
         }
             
         case CLV_IMPL:  //V <- 0, 1 byte long, affects V
         {
-            check_reg(DEF_P, P, "P", "CLV_IMPL"); //overflow flag set from 1 to 0   
+            checkReg(DEF_P, P, "P", "CLV_IMPL"); //overflow flag set from 1 to 0   
             break;
         }
         
@@ -1760,38 +1760,38 @@ void test(word opcode)
 
         case PHA_IMPL:
         {
-            check_reg(DEF_A, A, "A", "PHA_IMPL");   //A must be unchanged
-            check_sp(SP_EXP, SP, "PHA_IMPL");       //stack pointer must have decreaded
-            check_mem(SP+2, 0, "PHA_IMPL");         //make sure nothing was pushed above the initial SP
-            check_mem(SP+1, M_EXP, "PHA_IMPL");     //expecting pushed value M_EXP (=A) in mem[SP+1]
-            check_mem(SP, 0, "PHA_IMPL");           //make sure nothing was pushed to current SP            
+            checkReg(DEF_A, A, "A", "PHA_IMPL");   //A must be unchanged
+            checkSP(SP_EXP, SP, "PHA_IMPL");       //stack pointer must have decreaded
+            checkMem(SP+2, 0, "PHA_IMPL");         //make sure nothing was pushed above the initial SP
+            checkMem(SP+1, M_EXP, "PHA_IMPL");     //expecting pushed value M_EXP (=A) in mem[SP+1]
+            checkMem(SP, 0, "PHA_IMPL");           //make sure nothing was pushed to current SP            
             break;
         }
 
         case PLA_IMPL:
         {
-            check_reg(A_EXP, A, "A", "PLA_IMPL");   //expected value in A
-            check_reg(P_EXP, P, "P", "PLA_IMPL");   //expected value in P    
-            check_sp(SP_EXP, SP, "PLA_IMPL");       //stack pointer must have increased
-            check_mem(SP, A_EXP, "PLA_IMPL");       //check if current SP points to value that was pulled (this value is now free to be overwritten)
+            checkReg(A_EXP, A, "A", "PLA_IMPL");   //expected value in A
+            checkReg(P_EXP, P, "P", "PLA_IMPL");   //expected value in P    
+            checkSP(SP_EXP, SP, "PLA_IMPL");       //stack pointer must have increased
+            checkMem(SP, A_EXP, "PLA_IMPL");       //check if current SP points to value that was pulled (this value is now free to be overwritten)
             break;
         }
 
         case PHP_IMPL:
         {
-            check_reg(DEF_P, P, "P", "PHP_IMPL");    //P must be unchanged
-            check_sp(SP_EXP, SP, "PHP_IMPL");        //stack pointer must have decreaded
-            check_mem(SP+2, 0, "PHP_IMPL");          //make sure nothing was pushed above the initial SP
-            check_mem(SP+1, M_EXP, "PHP_IMPL");      //expecting pushed value M_EXP (=P) in mem[SP+1]
-            check_mem(SP, 0, "PHP_IMPL");            //make sure nothing was pushed to current SP            
+            checkReg(DEF_P, P, "P", "PHP_IMPL");    //P must be unchanged
+            checkSP(SP_EXP, SP, "PHP_IMPL");        //stack pointer must have decreaded
+            checkMem(SP+2, 0, "PHP_IMPL");          //make sure nothing was pushed above the initial SP
+            checkMem(SP+1, M_EXP, "PHP_IMPL");      //expecting pushed value M_EXP (=P) in mem[SP+1]
+            checkMem(SP, 0, "PHP_IMPL");            //make sure nothing was pushed to current SP            
             break;
         }
 
         case PLP_IMPL:
         {
-            check_reg(P_EXP, P, "P", "PLP_IMPL");   //expected value in P
-            check_sp(SP_EXP, SP, "PLP_IMPL");       //stack pointer must have increased
-            check_mem(SP, P_EXP, "PLP_IMPL");       //check if current SP points to value that was pulled (this value is now free to be overwritten)
+            checkReg(P_EXP, P, "P", "PLP_IMPL");   //expected value in P
+            checkSP(SP_EXP, SP, "PLP_IMPL");       //stack pointer must have increased
+            checkMem(SP, P_EXP, "PLP_IMPL");       //check if current SP points to value that was pulled (this value is now free to be overwritten)
             break;
         }
 
@@ -1811,7 +1811,7 @@ void test(word opcode)
 	
 }
 
-void check_reg(word exp_reg_val, word act_reg_value, char* reg_name, char* opcode_name)
+void checkReg(word exp_reg_val, word act_reg_value, char* reg_name, char* opcode_name)
 {
     if (exp_reg_val != act_reg_value)
     {
@@ -1823,7 +1823,7 @@ void check_reg(word exp_reg_val, word act_reg_value, char* reg_name, char* opcod
     }
 }
 
-void check_sp(dword exp_reg_val, dword act_reg_value, char* opcode_name)
+void checkSP(dword exp_reg_val, dword act_reg_value, char* opcode_name)
 {
     if (exp_reg_val != act_reg_value)
     {
@@ -1835,7 +1835,7 @@ void check_sp(dword exp_reg_val, dword act_reg_value, char* opcode_name)
     }
 }
 
-void check_mem(address addr, word exp_mem_val, char* opcode_name)
+void checkMem(address addr, word exp_mem_val, char* opcode_name)
 {
     word act_mem_value = mrd(addr);
     
