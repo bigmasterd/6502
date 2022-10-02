@@ -312,6 +312,21 @@ address getIndYOp(void)
     return operand;
 }
 
+void warnStackOverflow(const char* opcode_name, address opcode_address)
+{
+    if (SP < STACK_MAX) 
+        printf("WARNING: %s instruction at 0x%.4X resulted in stack overflow.\nStack pointer is now at: 0x%.4X.\n\n", opcode_name, opcode_address, SP);
+}
+
+void warnStackUnderflow(const char* opcode_name, address opcode_address)
+{
+    if (SP > STACK_MIN)    
+        printf("WARNING: %s instruction at 0x%.4X resulted in stack underflow.\nStack pointer is now at: 0x%.4X.\n\n", opcode_name, opcode_address, SP);
+}
+
+
+    
+
 //load given 6502 binary and emulate it
 int main(int argc, char *argv[])
 {	
@@ -1225,7 +1240,66 @@ int main(int argc, char *argv[])
             }
                 
             //############################# JUMP AND SUBROUTINE INSTRUCTIONS #############################
-                
+
+            case JMP_ABS: //TODO
+            {
+                PREPTEST(JMP_ABS);
+            
+                // PC++;   //target next opcode
+                // jmp();  //execute opcode
+            
+                TEST(JMP_ABS);
+                break; 
+            }
+
+            case JMP_IND: //TODO
+            {
+                PREPTEST(JMP_IND);
+            
+                // PC++;   //target next opcode
+                // jmp();  //execute opcode
+            
+                TEST(JMP_IND);
+                break; 
+            }
+
+            case JSR_ABS: //TODO
+            {
+                PREPTEST(JSR_ABS);
+
+                address a = getAbsAddr();       //get absoulte address                 
+
+                PC += 2;                        //it's a 3-byte opcode, but JSR increments PC only by 2 because after 
+                                                //each JSR follows an RTS, which increments the PC again!
+
+                jsr(a);                         //execute opcode
+            
+                TEST(JSR_ABS);
+                break; 
+            }
+
+            case RTS_IMPL: //TODO
+            {
+                PREPTEST(RTS_IMPL);
+            
+                // PC++;   //target next opcode
+                // jsr();  //execute opcode
+            
+                TEST(RTS_IMPL);
+                break; 
+            }
+
+            case RTI_IMPL: //TODO
+            {
+                PREPTEST(RTI_IMPL);
+            
+                // PC++;   //target next opcode
+                // jsr();  //execute opcode
+            
+                TEST(RTI_IMPL);
+                break; 
+            }                      
+                            
             //############################# BRANCH INSTRUCTIONS #############################
             case BNE_REL: 
             {
@@ -1679,6 +1753,23 @@ void clv(void)
     setV(0); //clear V
 }
 
+//jump to subroutine: push PC to stack and load PC with jump address a
+//note that PC, before pushed to stack, points to JSR's 2nd operand (a-HI) rather than to the instruction after JSR
+//after returning from subroutine, RTS will increment the PC so that the proper instruction will be targeted
+void jsr(address a)
+{
+    mwr(PC & 0xF0, SP); //push PC-HI to stack
+    SP--;               //point to next free stack location
+
+    mwr(PC & 0x0F, SP); //push PC-LO to stack
+    SP--;               //point to next free stack location
+
+    PC = a;             //store jump address to PC
+
+    //pushing beyond MAX?
+    warnStackOverflow("JSR", PC-2);
+}
+
 //X <- M
 //affects N and Z
 void ldx(word operand)
@@ -1724,62 +1815,46 @@ void bne_rel(void)
 //no flags affected
 void pha_impl(void)
 {
-    mwr(A, SP); //write A to stack
-    SP--; //point to next free stack location
-
-    //oh, oh... pushing beyond MAX
-    if (SP < STACK_MAX)
-    {
-        printf("WARNING: PHA instruction at 0x%.4X resulted in stack overflow.\nStack pointer is now at: 0x%.4X.\n\n", PC-1, SP);
-    }
+    mwr(A, SP);     //push A to stack
+    SP--;           //point to next free stack location
+    
+    warnStackOverflow("PHA", PC-1); //pushing beyond MAX?
 }
 
 //pull value from stack into A, i.e. A <- mem[SP+1]
 //affects N and Z
 void pla_impl(void)
 {
-    SP++; //target value on top of the stack
+    SP++;           //target value on top of the stack
 
-    A = mrd(SP); //copy value from stack into A, value in SP is free to be overwritten by next push operation
+    A = mrd(SP);    //copy value from stack into A, value in SP is free to be overwritten by next push operation
 
     //set flags
     setN(A);
     setZ(A); 
 
-    //oh, oh... pulling beyond MIN
-    if (SP > STACK_MIN)
-    {
-        printf("WARNING: PLA instruction at 0x%.4X resulted in stack underflow.\nStack pointer is now at: 0x%.4X.\n\n", PC-1, SP);
-    }
+    warnStackUnderflow("PLP", PC-1); //pushing beyond MIN?
 }
 
 //push P to stack, i.e. mem[SP] <- P
 //no flags affected
 void php_impl(void)
 {
-    mwr(P, SP); //write P to stack
-    SP--; //point to next free stack location
+    mwr(P, SP); //push P to stack
+    SP--;       //point to next free stack location
 
-    //oh, oh... pushing beyond MAX
-    if (SP < STACK_MAX)
-    {
-        printf("WARNING: PHA instruction at 0x%.4X resulted in stack overflow.\nStack pointer is now at: 0x%.4X.\n\n", PC-1, SP);
-    }
+    warnStackOverflow("PHP", PC-1); //pushing beyond MAX?
 }
 
 //pull value from stack into P, i.e. P <- mem[SP+1]
 //affects all bits in P, because a new value is fetched into P
 void plp_impl(void)
 {
-    SP++; //target value on top of the stack
+    SP++;        //target value on top of the stack
 
     P = mrd(SP); //copy value from stack into P, value in SP is free to be overwritten by next push operation
 
-    //oh, oh... pulling beyond MIN
-    if (SP > STACK_MIN)
-    {
-        printf("WARNING: PLP instruction at 0x%.4X resulted in stack underflow.\nStack pointer is now at: 0x%.4X.\n\n", PC-1, SP);
-    }
+    warnStackUnderflow("PLP", PC-1); //pushing beyond MIN?
 }
                  
 

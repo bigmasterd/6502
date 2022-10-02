@@ -333,7 +333,7 @@ void clv    (void);
 void jmp_abs     (void);  
 void jmp_ind     (void);  
                 
-void jsr_abs     (void);  
+void jsr (address a);  
                  
 void rts_impl    (void);  
                 
@@ -357,16 +357,16 @@ void bvc_rel     (void);
 void bvs_rel     (void);  
                 
 //STACK INSTRUCTIONS
-void pha_impl(void);  
+void pha_impl(void);  //done
                  
-void pla_impl(void);  
+void pla_impl(void);  //done
                  
-void php_impl(void);  
+void php_impl(void);  //done
                 
-void plp_impl(void);  
+void plp_impl(void);  //done
                 
 //MISC INSTRUCTIONS
-//void nop_impl    (void); //no function needed, just do do anything on NOP_IMPL (0xEA)  
+//void nop_impl    (void); //no function needed, just don't do anything on NOP_IMPL (0xEA)  
                 
 void brk_impl    (void);  
                 
