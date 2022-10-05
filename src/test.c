@@ -16,13 +16,16 @@ extern address 	SP; //6502's stack has a range of 256 and is hard wired to 2nd m
 extern address  PC; //program counter, NOTE: PC contains always the instruction to be fetched next !!!
 
 //test specific expected values
-word X_EXP;   //expected value in register X after test run
-word Y_EXP;   //expected value in register Y after test run
-word A_EXP;   //expected value in accumulator after test run
-word P_EXP;   //expected value in status register after test run
-word IR_EXP;  //expected value in instruction register after test run
-dword SP_EXP; //expected value in stack pointer register after test run
-word M_EXP;   //expected value in memory location
+word X_EXP;     //expected value in register X after test run
+word Y_EXP;     //expected value in register Y after test run
+word A_EXP;     //expected value in accumulator after test run
+word P_EXP;     //expected value in status register after test run
+word IR_EXP;    //expected value in instruction register after test run
+dword SP_EXP;   //expected value in stack pointer register after test run
+address PC_EXP; //expected value in PC register after test run
+word M_EXP1;    //expected value in memory location 1
+word M_EXP2;    //expected value in memory location 2
+
 
 #define DEF_X   0b00000001
 #define DEF_Y   0b00000010
@@ -32,6 +35,34 @@ word M_EXP;   //expected value in memory location
 
 #define NO_TEST_PREP_IMPL_WARN(opcode) printf("NO TEST PREPARATION FOR OPCODE %X\n", opcode);
 #define NO_TEST_IMPL_WARN(opcode) printf("NO TEST FOR OPCODE %X\n", opcode);
+
+
+void checkReg(dword exp_reg_val, dword act_reg_value, char* reg_name, char* opcode_name)
+{
+    if (exp_reg_val != act_reg_value)
+    {
+        printf("%s: FAILED. Expected value in %s: 0x%.4X, but actual value: 0x%.4X.\n", opcode_name, reg_name, exp_reg_val, act_reg_value);
+    }
+    else
+    {
+        printf("%s: PASSED. Value in %s is just as expected: 0x%.4X.\n", opcode_name, reg_name, exp_reg_val);
+    }
+}
+
+
+void checkMem(address addr, word exp_mem_val, char* opcode_name)
+{
+    word act_mem_value = mrd(addr);
+    
+    if (exp_mem_val != act_mem_value)
+    {
+        printf("%s: FAILED. Expected value in mem[0x%.2X]: 0x%.2X, but actual value: 0x%.2X.\n", opcode_name, addr, exp_mem_val, act_mem_value);
+    }
+    else
+    {
+        printf("%s: PASSED. Value in mem[0x%.2X] is just as expected: 0x%.2X.\n", opcode_name, addr, exp_mem_val);
+    }
+}
 
 
 void preptest(word opcode)
@@ -590,7 +621,7 @@ void preptest(word opcode)
         case ASL_ZRP:  
         {   
             mwr(0b00010011, 0x0A); // init memory location that will be shifted
-            M_EXP = 0b00100110; //expected value in memory after shift
+            M_EXP1 = 0b00100110; //expected value in memory after shift
             P = 0b1001001; //init P            
             P_EXP = 0b1001000; //carry must be NOT set, other bits must be unchanged            
             break;
@@ -600,7 +631,7 @@ void preptest(word opcode)
         {   
             X = 0x07;
             mwr(0b00010011, 0x0A+X); // init memory location that will be shifted
-            M_EXP = 0b00100110; //expected value in memory after shift
+            M_EXP1 = 0b00100110; //expected value in memory after shift
             P = 0b1001001; //init P            
             P_EXP = 0b1001000; //carry must be NOT set, other bits must be unchanged            
             break;
@@ -609,7 +640,7 @@ void preptest(word opcode)
         case ASL_ABS:  
         {   
             mwr(0b11111110, 0x6789); // init memory location that will be shifted
-            M_EXP = 0b11111100; //expected value in memory after shift
+            M_EXP1 = 0b11111100; //expected value in memory after shift
             P = 0b11111101; //init P            
             P_EXP = 0b11111101; //carry must be set, other bits must be unchanged            
             break;
@@ -619,7 +650,7 @@ void preptest(word opcode)
         {   
             X = 0xEE;
             mwr(0b11111110, 0x6789+X); // init memory location that will be shifted
-            M_EXP = 0b11111100; //expected value in memory after shift
+            M_EXP1 = 0b11111100; //expected value in memory after shift
             P = 0b11111101; //init P            
             P_EXP = 0b11111101; //carry must be set, other bits must be unchanged            
             break;
@@ -637,7 +668,7 @@ void preptest(word opcode)
         case LSR_ZRP:
         {   
             mwr(0b00010010, 0xCC); //init memory location that will be shifted
-            M_EXP = 0b00001001; //expected value in memory after shift
+            M_EXP1 = 0b00001001; //expected value in memory after shift
             P = 0b01001001; //init P            
             P_EXP = 0b01001000; //carry must be NOT set, other bits must be unchanged            
             break;
@@ -647,7 +678,7 @@ void preptest(word opcode)
         {   
             X = 0x22;
             mwr(0b11111111, 0xCC+X); // init memory location that will be shifted
-            M_EXP = 0b01111111; //expected value in memory after shift
+            M_EXP1 = 0b01111111; //expected value in memory after shift
             P = 0b10000000; //init P            
             P_EXP = 0b00000001; //carry must be set, N flag must be NOT set
             break;
@@ -656,7 +687,7 @@ void preptest(word opcode)
         case LSR_ABS:  
         {   
             mwr(0b00001000, 0xDCBA); // init memory location that will be shifted
-            M_EXP = 0b00000100; //expected value in memory after shift
+            M_EXP1 = 0b00000100; //expected value in memory after shift
             P = DEF_P; //init P            
             P_EXP = DEF_P; //no changes in P expected            
             break;
@@ -666,7 +697,7 @@ void preptest(word opcode)
         {   
             X = 0x30;
             mwr(0b00001000, 0xDCBA+X); // init memory location that will be shifted
-            M_EXP = 0b00000100; //expected value in memory after shift
+            M_EXP1 = 0b00000100; //expected value in memory after shift
             P = DEF_P; //init P            
             P_EXP = DEF_P; //no changes in P expected            
             break;
@@ -684,7 +715,7 @@ void preptest(word opcode)
         case ROL_ZRP:
         {   
             mwr(0xFF, 0x88); //init memory location that will be roteated
-            M_EXP = 0xFF; //expected value in memory after rotate, still 0xFF
+            M_EXP1 = 0xFF; //expected value in memory after rotate, still 0xFF
             P = 0x0; //init P
             P_EXP = 0b10000001; //carry must be set, N must be set            
             break;
@@ -696,7 +727,7 @@ void preptest(word opcode)
             word z = 0b11111100 | 0;
 
             mwr(0b01111110, 0x01+X); // init memory location that will be rotated
-            M_EXP = 0b11111100; //expected value in memory after shift
+            M_EXP1 = 0b11111100; //expected value in memory after shift
             P = 0b0; //init P            
             P_EXP = 0b10000000; //carry must be NOT set, N flag must be set
             break;
@@ -705,7 +736,7 @@ void preptest(word opcode)
         case ROL_ABS:
         {   
             mwr(0b11010000, 0x9999); // init memory location that will be rotated
-            M_EXP = 0b10100001; //expected value in memory after shift
+            M_EXP1 = 0b10100001; //expected value in memory after shift
             P = 0b11100111; //init P            
             P_EXP = 0b11100101; //carry and N must be set, Z must be NOT set, other bits must be unchanged
             break;
@@ -715,7 +746,7 @@ void preptest(word opcode)
         {   
             X = 0x44;
             mwr(0b11010000, 0x9999+X); // init memory location that will be rotated
-            M_EXP = 0b10100001; //expected value in memory after shift
+            M_EXP1 = 0b10100001; //expected value in memory after shift
             P = 0b11100111; //init P            
             P_EXP = 0b11100101; //carry and N must be set, Z must be NOT set, other bits must be unchanged
             break;
@@ -734,7 +765,7 @@ void preptest(word opcode)
         case ROR_ZRP:
         {   
             mwr(0b00011000, 0x88); //init memory location that will be roteated
-            M_EXP = 0b00001100; //must change to this value after right rotation
+            M_EXP1 = 0b00001100; //must change to this value after right rotation
             P = 0x0; //init P
             P_EXP = 0b0; //no flags must be set            
             break;
@@ -744,7 +775,7 @@ void preptest(word opcode)
         {   
             X = 0x33;
             mwr(0b01111110, 0x01+X); // init memory location that will be rotated
-            M_EXP = 0b00111111; //must change to this value after right rotation
+            M_EXP1 = 0b00111111; //must change to this value after right rotation
             P = 0b0; //init P            
             P_EXP = 0b00000000; //no flags set
             break;
@@ -753,7 +784,7 @@ void preptest(word opcode)
         case ROR_ABS:
         {   
             mwr(0b11010000, 0x9999); // init memory location that will be rotated
-            M_EXP = 0b01101000; //must change to this value after right rotation
+            M_EXP1 = 0b01101000; //must change to this value after right rotation
             P = 0b11100111; //init P            
             P_EXP = 0b01100100; //N must be cleared, Z must be cleared, carry must be set
             break;
@@ -763,7 +794,7 @@ void preptest(word opcode)
         {   
             X = 0x44;
             mwr(0b11010000, 0x9999+X); // init memory location that will be rotated
-            M_EXP = 0b01101000; //must change to this value after right rotation
+            M_EXP1 = 0b01101000; //must change to this value after right rotation
             P = 0b11100111; //init P            
             P_EXP = 0b01100100; //carry and N must be cleared
             break;
@@ -1093,7 +1124,14 @@ void preptest(word opcode)
 
         case JSR_ABS:
         {   
-            NO_TEST_PREP_IMPL_WARN(JSR_ABS);
+            //JSR: - address of next instruction after subroutine exit is stored on stack (this is PC+3)
+            //     - then the PC is loaded with a given absolute jump address
+            
+            SP = 0x01AA;                        //init SP with some value
+            M_EXP1 = (PC + 3) & 0x00FF;         //expected value on top of the stack is LO byte of return address
+            M_EXP2 = ((PC + 3) & 0xFF00) >> 2;  //expected value on top-1 of the stack is HI byte of return address
+            PC_EXP = 0x1234;                    //expected address in PC after JSR (PC must be loaded with this jump adddress)
+            
             break;
         }
 
@@ -1167,7 +1205,7 @@ void preptest(word opcode)
         {   
             SP = 0x01AA;    //current stack pointer position
             A = DEF_A;      //init A with some value
-            M_EXP = DEF_A;  //after reading memory at address SP-1, we must read back the stored A
+            M_EXP1 = DEF_A;  //after reading memory at address SP-1, we must read back the stored A
             SP_EXP = SP-1;  //after pushing the value to stack, stack pointer must decrease 
             break;
         }
@@ -1188,7 +1226,7 @@ void preptest(word opcode)
         {   
             SP = 0x0177;    //current stack pointer position
             P = DEF_P;      //init P with some value
-            M_EXP = DEF_P;  //after reading memory at address SP-1, we must read back the stored P
+            M_EXP1 = DEF_P;  //after reading memory at address SP-1, we must read back the stored P
             SP_EXP = SP-1;  //after pushing the value to stack, stack pointer must decrease
             break;
         }
@@ -1551,7 +1589,7 @@ void test(word opcode)
         case ASL_ZRP: //M[zrp] <- [M[zrp] << 1], original bit #7 is stored to carry flag
         {
             printRegs();
-            checkMem(0x0A, M_EXP, "ASL_ZRP"); //expecting value M_EXP in mem[0x0A]
+            checkMem(0x0A, M_EXP1, "ASL_ZRP"); //expecting value M_EXP1 in mem[0x0A]
             checkReg(P_EXP, P, "P", "ASL_ZRP");
             break;  
         }        
@@ -1559,7 +1597,7 @@ void test(word opcode)
         case ASL_ZRPX: //M[zrp+X] <- [M[zrp+X] << 1], original bit #7 is stored to carry flag
         {
             printRegs();
-            checkMem(0x0A+X, M_EXP, "ASL_ZRP"); //expecting value M_EXP in mem[0x0A+X]
+            checkMem(0x0A+X, M_EXP1, "ASL_ZRP"); //expecting value M_EXP1 in mem[0x0A+X]
             checkReg(P_EXP, P, "P", "ASL_ZRP");
             break;  
         }        
@@ -1567,7 +1605,7 @@ void test(word opcode)
         case ASL_ABS: //M[abcd] <- [M[abcd] << 1], original bit #7 is stored to carry flag
         {
             printRegs();
-            checkMem(0x6789, M_EXP, "ASL_ABS"); //expecting value M_EXP in mem[0xabcd]
+            checkMem(0x6789, M_EXP1, "ASL_ABS"); //expecting value M_EXP1 in mem[0xabcd]
             checkReg(P_EXP, P, "P", "ASL_ABS");
             break;  
         }        
@@ -1575,7 +1613,7 @@ void test(word opcode)
         case ASL_ABSX: //M[abcd+X] <- [M[abcd+X] << 1], original bit #7 is stored to carry flag
         {
             printRegs();
-            checkMem(0x6789+X, M_EXP, "ASL_ABSX"); //expecting value M_EXP in mem[0xabcd+X]
+            checkMem(0x6789+X, M_EXP1, "ASL_ABSX"); //expecting value M_EXP1 in mem[0xabcd+X]
             checkReg(P_EXP, P, "P", "ASL_ABSX");
             break;  
         }
@@ -1591,7 +1629,7 @@ void test(word opcode)
         case LSR_ZRP: //M[zrp] <- [M[zrp] >> 1], original bit #0 is stored to carry flag
         {
             printRegs();
-            checkMem(0xCC, M_EXP, "LSR_ZRP"); //expecting value M_EXP in mem[0xCC]
+            checkMem(0xCC, M_EXP1, "LSR_ZRP"); //expecting value M_EXP1 in mem[0xCC]
             checkReg(P_EXP, P, "P", "LSR_ZRP");
             break;  
         }
@@ -1599,7 +1637,7 @@ void test(word opcode)
         case LSR_ZRPX: //M[zrp+X] <- [M[zrp+X] >> 1], original bit #0 is stored to carry flag
         {
             printRegs();
-            checkMem(0xCC+X, M_EXP, "LSR_ZRPX"); //expecting value M_EXP in mem[0xCC]
+            checkMem(0xCC+X, M_EXP1, "LSR_ZRPX"); //expecting value M_EXP1 in mem[0xCC]
             checkReg(P_EXP, P, "P", "LSR_ZRPX");
             break;  
         }
@@ -1607,7 +1645,7 @@ void test(word opcode)
         case LSR_ABS: //M[abcd] <- [M[abcd] >> 1], original bit #0 is stored to carry flag
         {
             printRegs();
-            checkMem(0xDCBA, M_EXP, "LSR_ABS"); //expecting value M_EXP in mem[0xabcd]
+            checkMem(0xDCBA, M_EXP1, "LSR_ABS"); //expecting value M_EXP1 in mem[0xabcd]
             checkReg(P_EXP, P, "P", "LSR_ABS");
             break;  
         }        
@@ -1615,7 +1653,7 @@ void test(word opcode)
         case LSR_ABSX: //M[abcd+X] <- [M[abcd+X] >> 1], original bit #0 is stored to carry flag
         {
             printRegs();
-            checkMem(0xDCBA+X, M_EXP, "LSR_ABSX"); //expecting value M_EXP in mem[0xabcd+X]
+            checkMem(0xDCBA+X, M_EXP1, "LSR_ABSX"); //expecting value M_EXP1 in mem[0xabcd+X]
             checkReg(P_EXP, P, "P", "LSR_ABSX");
             break;  
         }        
@@ -1631,7 +1669,7 @@ void test(word opcode)
         case ROL_ZRP: //rotate M[zrp] left, copy bit #7 to carry and to bit #0
         {
             printRegs();
-            checkMem(0x88, M_EXP, "ROL_ZRP"); //expecting value M_EXP in mem[0x88]
+            checkMem(0x88, M_EXP1, "ROL_ZRP"); //expecting value M_EXP1 in mem[0x88]
             checkReg(P_EXP, P, "P", "ROL_ZRP");
             break;  
         }
@@ -1639,7 +1677,7 @@ void test(word opcode)
         case ROL_ZRPX: //rotate M[zrp+X] left, copy bit #7 to carry and to bit #0
         {
             printRegs();
-            checkMem(0x01+X, M_EXP, "ROL_ZRPX"); //expecting value M_EXP in mem[0x01+X]
+            checkMem(0x01+X, M_EXP1, "ROL_ZRPX"); //expecting value M_EXP1 in mem[0x01+X]
             checkReg(P_EXP, P, "P", "ROL_ZRPX");
             break;  
         }
@@ -1647,7 +1685,7 @@ void test(word opcode)
         case ROL_ABS: //rotate M[abcd] left, copy bit #7 to carry and to bit #0
         {
             printRegs();
-            checkMem(0x9999, M_EXP, "ROL_ABS"); //expecting value M_EXP in mem[0x9999]
+            checkMem(0x9999, M_EXP1, "ROL_ABS"); //expecting value M_EXP1 in mem[0x9999]
             checkReg(P_EXP, P, "P", "ROL_ABS");
             break;  
         } 
@@ -1655,7 +1693,7 @@ void test(word opcode)
         case ROL_ABSX: //rotate M[abcd] left, copy bit #7 to carry and to bit #0
         {
             printRegs();
-            checkMem(0x9999+X, M_EXP, "ROL_ABSX"); //expecting value M_EXP in mem[0x9999]
+            checkMem(0x9999+X, M_EXP1, "ROL_ABSX"); //expecting value M_EXP1 in mem[0x9999]
             checkReg(P_EXP, P, "P", "ROL_ABSX");
             break;  
         } 
@@ -1671,7 +1709,7 @@ void test(word opcode)
         case ROR_ZRP:
         {
             printRegs();
-            checkMem(0x88, M_EXP, "ROR_ZRP"); //expecting value M_EXP in mem[0x88]
+            checkMem(0x88, M_EXP1, "ROR_ZRP"); //expecting value M_EXP1 in mem[0x88]
             checkReg(P_EXP, P, "P", "ROR_ZRP");
             break;  
         }
@@ -1679,7 +1717,7 @@ void test(word opcode)
         case ROR_ZRPX:
         {
             printRegs();
-            checkMem(0x01+X, M_EXP, "ROR_ZRPX"); //expecting value M_EXP in mem[0x01+X]
+            checkMem(0x01+X, M_EXP1, "ROR_ZRPX"); //expecting value M_EXP1 in mem[0x01+X]
             checkReg(P_EXP, P, "P", "ROR_ZRPX");
             break;  
         }
@@ -1687,7 +1725,7 @@ void test(word opcode)
         case ROR_ABS:
         {
             printRegs();
-            checkMem(0x9999, M_EXP, "ROR_ABS"); //expecting value M_EXP in mem[0x9999]
+            checkMem(0x9999, M_EXP1, "ROR_ABS"); //expecting value M_EXP1 in mem[0x9999]
             checkReg(P_EXP, P, "P", "ROR_ABS");
             break;  
         } 
@@ -1695,7 +1733,7 @@ void test(word opcode)
         case ROR_ABSX:
         {
             printRegs();
-            checkMem(0x9999+X, M_EXP, "ROR_ABSX"); //expecting value M_EXP in mem[0x9999]
+            checkMem(0x9999+X, M_EXP1, "ROR_ABSX"); //expecting value M_EXP1 in mem[0x9999]
             checkReg(P_EXP, P, "P", "ROR_ABSX");
             break;  
         } 
@@ -1707,43 +1745,43 @@ void test(word opcode)
 
         //############################# SET AND CLEAR INSTRUCTIONS #############################
             
-        case SEC_IMPL:  //C <- 1, 1 byte long, affects C
+        case SEC_IMPL:
         {
             checkReg(DEF_P | 0b00000001, P, "P", "SEC_IMPL"); //carry changed in P from 0 to 1  
             break;
         } 
             
-        case SED_IMPL:  //D <- 1, 1 byte long, affects D
+        case SED_IMPL:
         {
             checkReg(DEF_P | 0b00001000, P, "P", "SED_IMPL"); //decimal flag changed in P from 0 to 1  
             break;
         } 
             
-        case SEI_IMPL:  //I <- 1, 1 byte long, affects I
+        case SEI_IMPL:
         {
             checkReg(DEF_P | 0b00000100, P, "P", "SEI_IMPL"); //interrupt flag changed in P from 0 to 1  
             break;
         }
          
-        case CLC_IMPL:  //C <- 0, 1 byte long, affects C
+        case CLC_IMPL:
         {
-            checkReg(DEF_P, P, "P", "CLC_IMPL"); //carry flag set from 1 to 0   
+            checkReg(DEF_P, P, "P", "CLC_IMPL");
             break;
         }
             
-        case CLD_IMPL:  //D <- 0, 1 byte long, affects D
+        case CLD_IMPL:
         {
             checkReg(DEF_P, P, "P", "CLD_IMPL"); //decimal flag set from 1 to 0   
             break;
         }
             
-        case CLI_IMPL:  //I <- 0, 1 byte long, affects I
+        case CLI_IMPL:
         {
             checkReg(DEF_P, P, "P", "CLI_IMPL"); //interrupt flag set from 1 to 0   
             break;
         }
             
-        case CLV_IMPL:  //V <- 0, 1 byte long, affects V
+        case CLV_IMPL:
         {
             checkReg(DEF_P, P, "P", "CLV_IMPL"); //overflow flag set from 1 to 0   
             break;
@@ -1751,6 +1789,16 @@ void test(word opcode)
         
 
         //############################# JUMP AND SUBROUTINE INSTRUCTIONS #############################
+
+        case JSR_ABS:
+        {
+            checkMem(SP+1, M_EXP1, "JSR_ABS");          //1st value on stack must be M_EXP1, which is LO byte of saved PC
+            checkMem(SP+2, M_EXP2, "JSR_ABS");          //2nd value on stack must be M_EXP2, which is HI byte of saved PC
+            checkReg(PC_EXP, 0x1234, "PC", "JSR_ABS");  //PC must be loaded with the new address (absolute value from test file)
+            break;
+        }
+       
+
 
             
         //############################# BRANCH INSTRUCTIONS #############################    
@@ -1761,9 +1809,9 @@ void test(word opcode)
         case PHA_IMPL:
         {
             checkReg(DEF_A, A, "A", "PHA_IMPL");   //A must be unchanged
-            checkSP(SP_EXP, SP, "PHA_IMPL");       //stack pointer must have decreaded
+            checkReg(SP_EXP, SP, "SP", "PHA_IMPL");//stack pointer must have decreaded
             checkMem(SP+2, 0, "PHA_IMPL");         //make sure nothing was pushed above the initial SP
-            checkMem(SP+1, M_EXP, "PHA_IMPL");     //expecting pushed value M_EXP (=A) in mem[SP+1]
+            checkMem(SP+1, M_EXP1, "PHA_IMPL");    //expecting pushed value M_EXP1 (=A) in mem[SP+1]
             checkMem(SP, 0, "PHA_IMPL");           //make sure nothing was pushed to current SP            
             break;
         }
@@ -1772,7 +1820,7 @@ void test(word opcode)
         {
             checkReg(A_EXP, A, "A", "PLA_IMPL");   //expected value in A
             checkReg(P_EXP, P, "P", "PLA_IMPL");   //expected value in P    
-            checkSP(SP_EXP, SP, "PLA_IMPL");       //stack pointer must have increased
+            checkReg(SP_EXP, SP, "SP", "PLA_IMPL");//stack pointer must have increased
             checkMem(SP, A_EXP, "PLA_IMPL");       //check if current SP points to value that was pulled (this value is now free to be overwritten)
             break;
         }
@@ -1780,9 +1828,9 @@ void test(word opcode)
         case PHP_IMPL:
         {
             checkReg(DEF_P, P, "P", "PHP_IMPL");    //P must be unchanged
-            checkSP(SP_EXP, SP, "PHP_IMPL");        //stack pointer must have decreaded
+            checkReg(SP_EXP, SP, "SP", "PHP_IMPL"); //stack pointer must have decreaded
             checkMem(SP+2, 0, "PHP_IMPL");          //make sure nothing was pushed above the initial SP
-            checkMem(SP+1, M_EXP, "PHP_IMPL");      //expecting pushed value M_EXP (=P) in mem[SP+1]
+            checkMem(SP+1, M_EXP1, "PHP_IMPL");     //expecting pushed value M_EXP1 (=P) in mem[SP+1]
             checkMem(SP, 0, "PHP_IMPL");            //make sure nothing was pushed to current SP            
             break;
         }
@@ -1790,7 +1838,7 @@ void test(word opcode)
         case PLP_IMPL:
         {
             checkReg(P_EXP, P, "P", "PLP_IMPL");   //expected value in P
-            checkSP(SP_EXP, SP, "PLP_IMPL");       //stack pointer must have increased
+            checkReg(SP_EXP, SP, "SP", "PLP_IMPL");//stack pointer must have increased
             checkMem(SP, P_EXP, "PLP_IMPL");       //check if current SP points to value that was pulled (this value is now free to be overwritten)
             break;
         }
@@ -1811,40 +1859,4 @@ void test(word opcode)
 	
 }
 
-void checkReg(word exp_reg_val, word act_reg_value, char* reg_name, char* opcode_name)
-{
-    if (exp_reg_val != act_reg_value)
-    {
-        printf("%s: FAILED. Expected value in %s: 0x%.2X, but actual value: 0x%.2X.\n", opcode_name, reg_name, exp_reg_val, act_reg_value);
-    }
-    else
-    {
-        printf("%s: PASSED. Value in %s is just as expected: 0x%.2X.\n", opcode_name, reg_name, exp_reg_val);
-    }
-}
 
-void checkSP(dword exp_reg_val, dword act_reg_value, char* opcode_name)
-{
-    if (exp_reg_val != act_reg_value)
-    {
-        printf("%s: FAILED. Expected value in %s: 0x%.4X, but actual value: 0x%.4X.\n", opcode_name, "SP", exp_reg_val, act_reg_value);
-    }
-    else
-    {
-        printf("%s: PASSED. Value in %s is just as expected: 0x%.4X.\n", opcode_name, "SP", exp_reg_val);
-    }
-}
-
-void checkMem(address addr, word exp_mem_val, char* opcode_name)
-{
-    word act_mem_value = mrd(addr);
-    
-    if (exp_mem_val != act_mem_value)
-    {
-        printf("%s: FAILED. Expected value in mem[0x%.2X]: 0x%.2X, but actual value: 0x%.2X.\n", opcode_name, addr, exp_mem_val, act_mem_value);
-    }
-    else
-    {
-        printf("%s: PASSED. Value in mem[0x%.2X] is just as expected: 0x%.2X.\n", opcode_name, addr, exp_mem_val);
-    }
-}

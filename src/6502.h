@@ -335,7 +335,7 @@ void jmp_ind     (void);
                 
 void jsr (address a);  
                  
-void rts_impl    (void);  
+void rts (void);  
                 
 void rti_impl    (void);  
                 

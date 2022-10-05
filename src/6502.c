@@ -9,9 +9,9 @@
 #include "utils.h"
 #include "test.h"
 
-#define START_ADDRESS 0x0000 //start address of the programm (PC init)
-#define STACK_MIN 0x01FF //stack grows downwards starting at this address
-#define STACK_MAX 0x0100 //end of stack range, next lower address results in stack overflow
+#define START_ADDRESS 0x0000    //start address of the programm (PC init)
+#define STACK_MIN 0x01FF        //stack grows downwards starting at this address
+#define STACK_MAX 0x0100        //end of stack range, next lower address results in stack overflow
 
 //enable/disable test mode here
 #define TEST_MODE
@@ -34,9 +34,9 @@ address SP; //6502's stack has a range of 256 and is hard wired to 2nd memory pa
 address PC; //program counter, NOTE: PC contains always the instruction to be fetched next !!!
 
 
+//set initial register values
 void reset()
 {
-
     X   =   0x0;
     Y   =   0x0;
     A   =   0x0;
@@ -63,7 +63,7 @@ void setN(word reg)
     }
 }
 
-//set V in P = (N V - B D I Z C) 
+//set V in P = (N V - B D I Z C)
 void setV(uint8_t flag)
 {
     if (flag >= 1) P = P | 0b01000000; //V = 1 => overflow occured
@@ -95,7 +95,7 @@ void setI(uint8_t flag)
 void setZ(word reg)
 {
     if (reg == 0) P = P | 0b00000010; //register is zero => set Z to 1
-    else P = P & 0b11111101; //register is non zero => set Z to 0
+    else P = P & 0b11111101;          //register is non zero => set Z to 0
 }
 
 //set C in P = (N V - B D I Z C) 
@@ -312,12 +312,14 @@ address getIndYOp(void)
     return operand;
 }
 
+//just in case, print a brief warning that opcode <opcode_name> at address <opcode_address> caused a stack overflow
 void warnStackOverflow(const char* opcode_name, address opcode_address)
 {
     if (SP < STACK_MAX) 
         printf("WARNING: %s instruction at 0x%.4X resulted in stack overflow.\nStack pointer is now at: 0x%.4X.\n\n", opcode_name, opcode_address, SP);
 }
 
+//just in case, print a brief warning that opcode <opcode_name> at address <opcode_address> caused a stack underflow
 void warnStackUnderflow(const char* opcode_name, address opcode_address)
 {
     if (SP > STACK_MIN)    
@@ -1263,27 +1265,23 @@ int main(int argc, char *argv[])
                 break; 
             }
 
-            case JSR_ABS: //TODO
+            case JSR_ABS:
             {
                 PREPTEST(JSR_ABS);
 
-                address a = getAbsAddr();       //get absoulte address                 
-
-                PC += 2;                        //it's a 3-byte opcode, but JSR increments PC only by 2 because after 
-                                                //each JSR follows an RTS, which increments the PC again!
-
+                address a = getAbsAddr();       //get absoulte address
+                PC += 3;                        //target next opcode                                                
                 jsr(a);                         //execute opcode
             
                 TEST(JSR_ABS);
                 break; 
             }
 
-            case RTS_IMPL: //TODO
+            case RTS_IMPL:
             {
                 PREPTEST(RTS_IMPL);
             
-                // PC++;   //target next opcode
-                // jsr();  //execute opcode
+                rts();  //execute opcode
             
                 TEST(RTS_IMPL);
                 break; 
@@ -1754,21 +1752,45 @@ void clv(void)
 }
 
 //jump to subroutine: push PC to stack and load PC with jump address a
-//note that PC, before pushed to stack, points to JSR's 2nd operand (a-HI) rather than to the instruction after JSR
-//after returning from subroutine, RTS will increment the PC so that the proper instruction will be targeted
+//note: before calling jsr(), the PC was incremented by 3 to target next opcode (because it's a 3-byte opcode)
+//however, in real HW implementation of the JSR instruction, the PC is incremented only by 2 and RTS increments the PC later 
+//no flags affected
 void jsr(address a)
 {
-    mwr(PC & 0xF0, SP); //push PC-HI to stack
-    SP--;               //point to next free stack location
+    mwr((PC & 0xFF00)>>2, SP);  //push PC-HI to stack
 
-    mwr(PC & 0x0F, SP); //push PC-LO to stack
-    SP--;               //point to next free stack location
+    SP--;                       //point to next free stack location
 
-    PC = a;             //store jump address to PC
+    mwr(PC & 0x00FF, SP);       //push PC-LO to stack
+
+    SP--;                       //point to next free stack location
+    
+    PC = a;                     //store jump address to PC
 
     //pushing beyond MAX?
-    warnStackOverflow("JSR", PC-2);
+    warnStackOverflow("JSR", PC-3);
 }
+
+//return from subroutine: pull previously saved PC from stack
+//note: in real HW implementation, RTS increments the PC after pulling it from stack
+//this is not necessray in the emulation, because JRS did increment the PC already by 3 bytes
+//no flags affected
+void rts(void)
+{    
+    SP++;                       //target value on top of the stack
+
+    word pclo = mrd(SP);        //pull value from stack, the value should be LO byte of the previously pushed PC register
+    
+    SP++;                       //target next stack value that will be pulled
+    
+    word pchi = mrd(SP);        //pull value from stack, the value should be HI byte of the previously pushed PC register
+
+    PC = lohi2addr(pclo, pchi); //from LO byte and HI byte, construct address and store it into PC register (PC is then restored after JSR)
+
+    //pulling beyond MIN?
+    warnStackUnderflow("RTS", PC);
+}
+
 
 //X <- M
 //affects N and Z
