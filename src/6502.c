@@ -14,7 +14,7 @@
 #define STACK_MAX 0x0100        //end of stack range, next lower address results in stack overflow
 
 //enable/disable test mode here
-#define TEST_MODE
+//#define TEST_MODE
 
 #ifdef TEST_MODE 
     #define PREPTEST(opcode) preptest(opcode)
@@ -42,7 +42,7 @@ void reset()
     A   =   0x0;
     P   =   0x30; //00110000 = (N V - B D I Z C) // - always 1, B is 1 too because NES does not use decimal mode D at all
     IR  =   0x0;    
-    SP  =   0x0;     
+    SP  =   STACK_MIN;  
     PC  =   START_ADDRESS;
 }
 
@@ -1357,6 +1357,7 @@ int main(int argc, char *argv[])
             case NOP_IMPL: //do nothing, 1 byte long
             {
                 PC++; //nothing to do, just target next operand
+                break;
             }
 
 
