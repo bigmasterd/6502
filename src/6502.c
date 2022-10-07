@@ -341,7 +341,7 @@ int main(int argc, char *argv[])
     }
     
     //load binary into emu-RAM
-    int load_status = load(argv[1], START_ADDRESS);
+    int load_status = load(argv[1]);
     
     //exit if loading failed
     if (load_status != 0) return -1;
