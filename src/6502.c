@@ -1270,7 +1270,7 @@ int main(int argc, char *argv[])
                 PREPTEST(JSR_ABS);
 
                 address a = getAbsAddr();       //get absoulte address
-                PC += 3;                        //target next opcode                                                
+                PC += 2;                        //it's 3-byte opcode but we must increment only by 2 (corresponding RTS will increment the PC later)
                 jsr(a);                         //execute opcode
             
                 TEST(JSR_ABS);
@@ -1280,8 +1280,10 @@ int main(int argc, char *argv[])
             case RTS_IMPL:
             {
                 PREPTEST(RTS_IMPL);
-            
+                            
                 rts();  //execute opcode
+                PC++;   //PC must be incremented after pulling it from stack 
+                        //because it still points to JSR's 2nd parameter rather than to the next opcode
             
                 TEST(RTS_IMPL);
                 break; 
@@ -1752,8 +1754,8 @@ void clv(void)
 }
 
 //jump to subroutine: push PC to stack and load PC with jump address a
-//note: before calling jsr(), the PC was incremented by 3 to target next opcode (because it's a 3-byte opcode)
-//however, in real HW implementation of the JSR instruction, the PC is incremented only by 2 and RTS increments the PC later 
+//note: JSR instruction increments the PC only by 2 (according to real HW implementation)
+//the PC is incremented to proper address later by corresponding RTS
 //no flags affected
 void jsr(address a)
 {
@@ -1768,16 +1770,15 @@ void jsr(address a)
     PC = a;                     //store jump address to PC
 
     //pushing beyond MAX?
-    warnStackOverflow("JSR", PC-3);
+    warnStackOverflow("JSR", PC-2);
 }
 
-//return from subroutine: pull previously saved PC from stack
-//note: in real HW implementation, RTS increments the PC after pulling it from stack
-//this is not necessray in the emulation, because JRS did increment the PC already by 3 bytes
+//return from subroutine: pull previously saved PC value from stack and loat it into PC register
+//note: after pulling the PC from stack it must be incremented (according to real HW implementation)
 //no flags affected
 void rts(void)
 {    
-    SP++;                       //target value on top of the stack
+    SP++;                       //target value on stack that will be pulled
 
     word pclo = mrd(SP);        //pull value from stack, the value should be LO byte of the previously pushed PC register
     

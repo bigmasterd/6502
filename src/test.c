@@ -1137,7 +1137,14 @@ void preptest(word opcode)
 
         case RTS_IMPL:
         {   
-            NO_TEST_PREP_IMPL_WARN(RTS_IMPL);
+            //RTS: - pull PC-LO and PC-HI from stack
+            //     - make address from PC-LO and PC-HI and store it into PC register
+
+            SP = 0x01AA;        //init SP with some value
+            mwr(0x34, SP+1);    //put PC-LO test value to stack
+            mwr(0x12, SP+2);    //put PC-HI test value to stack
+            PC_EXP = 0x1234+1;  //after pulling both PC bytes, we expect 0x1234+1 in PC (+1 because RTS increments the pulled PC!)
+            SP_EXP = SP+2;      //pulled two words, SP must move by two bytes
             break;
         }
 
@@ -1797,8 +1804,13 @@ void test(word opcode)
             checkReg(PC_EXP, 0x1234, "PC", "JSR_ABS");  //PC must be loaded with the new address (absolute value from test file)
             break;
         }
-       
 
+        case RTS_IMPL:
+        {
+            checkReg(PC_EXP, PC, "PC", "RTS_IMPL");  //PC must be loaded with the address restored from stack +1
+            checkReg(SP_EXP, SP, "SP", "RTS_IMPL");  //SP must have moved two bytes up
+            break;
+        }
 
             
         //############################# BRANCH INSTRUCTIONS #############################    
