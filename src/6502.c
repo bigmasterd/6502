@@ -14,7 +14,7 @@
 #define STACK_MAX 0x0100        //end of stack range, next lower address results in stack overflow
 
 //enable/disable test mode here
-//#define TEST_MODE
+#define TEST_MODE
 
 #ifdef TEST_MODE 
     #define PREPTEST(opcode) preptest(opcode)
@@ -870,6 +870,18 @@ int main(int argc, char *argv[])
                 inc(a);                         //execute opcode
 
                 TEST(INC_ABS);
+                break;
+            }
+
+            case INC_ABSX: //3 bytes long
+            {
+                PREPTEST(INC_ABSX);
+
+                address a = getAbsXAddr();      //get absolute address                
+                PC += 3;                        //target next opcode
+                inc(a);                         //execute opcode
+
+                TEST(INC_ABSX);
                 break;
             }
             

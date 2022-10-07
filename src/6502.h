@@ -66,14 +66,14 @@
 #define SBC_INDX    0xE1 
 #define SBC_INDY    0xF1 
                 
-#define INC_ZRP     0xE6    //OK
-#define INC_ZRPX    0xF6 
-#define INC_ABS     0xEE 
-#define INC_ABSX    0xFE 
+#define INC_ZRP     0xE6    //done
+#define INC_ZRPX    0xF6    //done
+#define INC_ABS     0xEE    //done
+#define INC_ABSX    0xFE    //done
                 
-#define INX_IMPL    0xE8 
+#define INX_IMPL    0xE8    //done
                 
-#define INY_IMPL    0xC8 
+#define INY_IMPL    0xC8    //done
                 
 #define DEC_ZRP     0xC6 
 #define DEC_ZRPX    0xD6 
@@ -202,13 +202,13 @@
 #define BVS_REL     0x70
                 
 //STACK INSTRUCTIONS
-#define PHA_IMPL    0x48
+#define PHA_IMPL    0x48    //done
                  
-#define PLA_IMPL    0x68
+#define PLA_IMPL    0x68    //done
                  
-#define PHP_IMPL    0x08
+#define PHP_IMPL    0x08    //done
                 
-#define PLP_IMPL    0x28
+#define PLP_IMPL    0x28    //done
                 
 //MISC INSTRUCTIONS
 #define NOP_IMPL    0xEA	//done

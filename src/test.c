@@ -27,11 +27,11 @@ word M_EXP1;    //expected value in memory location 1
 word M_EXP2;    //expected value in memory location 2
 
 
-#define DEF_X   0b00000001
-#define DEF_Y   0b00000010
-#define DEF_A   0b00000011
-#define DEF_P   0b00110000 //normal default value: (N V - B D I Z C) // - always 1, B is 1 too because NES does not use decimal mode D at all
-#define DEF_SP  0b00000100
+#define X_DEF   0b00000001
+#define Y_DEF   0b00000010
+#define A_DEF   0b00000011
+#define P_DEF   0b00110000 //normal default value: (N V - B D I Z C) // - always 1, B is 1 too because NES does not use decimal mode D at all
+#define SP_DEF  0b00000100
 
 #define NO_TEST_PREP_IMPL_WARN(opcode) printf("NO TEST PREPARATION FOR OPCODE %X\n", opcode);
 #define NO_TEST_IMPL_WARN(opcode) printf("NO TEST FOR OPCODE %X\n", opcode);
@@ -80,20 +80,20 @@ void preptest(word opcode)
         case TXA_IMPL:  
         {
             X   =   0;
-            Y   =   DEF_Y;
-            A   =   DEF_A;
-            P   =   DEF_P; 
-            SP  =   DEF_SP;
+            Y   =   Y_DEF;
+            A   =   A_DEF;
+            P   =   P_DEF; 
+            SP  =   SP_DEF;
             break;
         }
             
         case TAY_IMPL:  
         {
-            X   =   DEF_X;
-            Y   =   DEF_Y;
+            X   =   X_DEF;
+            Y   =   Y_DEF;
             A   =   -42;
-            P   =   DEF_P; 
-            SP  =   DEF_SP;
+            P   =   P_DEF; 
+            SP  =   SP_DEF;
             break;
         }
 
@@ -120,21 +120,21 @@ void preptest(word opcode)
 
         case LDA_IMMD:  
         {
-            X   =   DEF_X;
-            Y   =   DEF_Y;
-            A   =   DEF_A;  //will change to 0x23 after load
-            P   =   DEF_P;  
-            SP  =   DEF_SP;
+            X   =   X_DEF;
+            Y   =   Y_DEF;
+            A   =   A_DEF;  //will change to 0x23 after load
+            P   =   P_DEF;  
+            SP  =   SP_DEF;
             break;
         }
             
         case LDA_ZRP:  
         {
-            X   =   DEF_X;
-            Y   =   DEF_Y;
-            A   =   DEF_A;  //will change to 0x77 after load
-            P   =   DEF_P;  
-            SP  =   DEF_SP;
+            X   =   X_DEF;
+            Y   =   Y_DEF;
+            A   =   A_DEF;  //will change to 0x77 after load
+            P   =   P_DEF;  
+            SP  =   SP_DEF;
             mwr(0x77, 0xab); //M[0x00ab] <- 0x77
             break;
         }
@@ -142,21 +142,21 @@ void preptest(word opcode)
         case LDA_ZRPX:
         {
             X   =   0x7;
-            Y   =   DEF_Y;
-            A   =   DEF_A;  //will change to 0x78 after load
-            P   =   DEF_P;  
-            SP  =   DEF_SP;
+            Y   =   Y_DEF;
+            A   =   A_DEF;  //will change to 0x78 after load
+            P   =   P_DEF;  
+            SP  =   SP_DEF;
             mwr(0x78, 0xab+X); //M[0x00ab+X] <- 0x78
             break;
         } 
             
         case LDA_ABS:
         {
-            X   =   DEF_X;
-            Y   =   DEF_Y;
-            A   =   DEF_A;  //will change to 0x79 after load
-            P   =   DEF_P;  
-            SP  =   DEF_SP;
+            X   =   X_DEF;
+            Y   =   Y_DEF;
+            A   =   A_DEF;  //will change to 0x79 after load
+            P   =   P_DEF;  
+            SP  =   SP_DEF;
             mwr(0x79, 0xabcd); //M[0xabcd] <- 0x79
             break;
         } 
@@ -164,21 +164,21 @@ void preptest(word opcode)
         case LDA_ABSX:
         {
             X   =   0x8;
-            Y   =   DEF_Y;
-            A   =   DEF_A;  //will change to 0x80 after load
-            P   =   DEF_P;  
-            SP  =   DEF_SP;
+            Y   =   Y_DEF;
+            A   =   A_DEF;  //will change to 0x80 after load
+            P   =   P_DEF;  
+            SP  =   SP_DEF;
             mwr(0x80, 0xabcd+X); //M[0xabcd+X] <- 0x80
             break;
         } 
             
         case LDA_ABSY:
         {
-            X   =   DEF_X;
+            X   =   X_DEF;
             Y   =   0xaa;
-            A   =   DEF_A;  //will change to 0x81 after load
-            P   =   DEF_P;  
-            SP  =   DEF_SP;
+            A   =   A_DEF;  //will change to 0x81 after load
+            P   =   P_DEF;  
+            SP  =   SP_DEF;
             mwr(0x81, 0xabcd+Y); //M[0xabcd+Y] <- 0x81
             break;
         } 
@@ -197,43 +197,43 @@ void preptest(word opcode)
             
         case LDX_IMMD:  
         {
-            X   =   DEF_X; //will change to 0x23 after load
-            Y   =   DEF_Y;
-            A   =   DEF_A;  
-            P   =   DEF_P;  
-            SP  =   DEF_SP;
+            X   =   X_DEF; //will change to 0x23 after load
+            Y   =   Y_DEF;
+            A   =   A_DEF;  
+            P   =   P_DEF;  
+            SP  =   SP_DEF;
             break;
         }
             
         case LDX_ZRP:  
         {
-            X   =   DEF_X; //will change to 0x77 after load
-            Y   =   DEF_Y;
-            A   =   DEF_A;  
-            P   =   DEF_P;  
-            SP  =   DEF_SP;
+            X   =   X_DEF; //will change to 0x77 after load
+            Y   =   Y_DEF;
+            A   =   A_DEF;  
+            P   =   P_DEF;  
+            SP  =   SP_DEF;
             mwr(0x77, 0xab); //M[0x00ab] <- 0x77
             break;
         }
             
         case LDX_ZRPY:  
         {
-            X   =   DEF_X; //will change to 0xcc after load
+            X   =   X_DEF; //will change to 0xcc after load
             Y   =   0xaa;  //offset
-            A   =   DEF_A;  
-            P   =   DEF_P;  
-            SP  =   DEF_SP;
+            A   =   A_DEF;  
+            P   =   P_DEF;  
+            SP  =   SP_DEF;
             mwr(0xcc, 0x42+Y); //M[0x0042+0x00aa] <- 0xcc
             break;
         }
             
         case LDX_ABS:
         {
-            X   =   DEF_X; //will change to 0x12 after load
-            Y   =   DEF_Y;
-            A   =   DEF_A;  
-            P   =   DEF_P;  
-            SP  =   DEF_SP;
+            X   =   X_DEF; //will change to 0x12 after load
+            Y   =   Y_DEF;
+            A   =   A_DEF;  
+            P   =   P_DEF;  
+            SP  =   SP_DEF;
             mwr(0x12, 0xabcd); //M[0xabcd] <- 0x12
             break;
         }
@@ -241,11 +241,11 @@ void preptest(word opcode)
             
         case LDX_ABSY:
         {
-            X   =   DEF_X; //will change to 0xFA after load
+            X   =   X_DEF; //will change to 0xFA after load
             Y   =   0xbb;
-            A   =   DEF_A;  
-            P   =   DEF_P;  
-            SP  =   DEF_SP;
+            A   =   A_DEF;  
+            P   =   P_DEF;  
+            SP  =   SP_DEF;
             mwr(0xFA, 0x1234+Y); //M[0xabcd+Y] <- 0xFA //negative
             break;
         } 
@@ -253,21 +253,21 @@ void preptest(word opcode)
            
         case LDY_IMMD:  
         {
-            X   =   DEF_X; 
-            Y   =   DEF_Y; //will change to 0x23 after load
-            A   =   DEF_A;  
-            P   =   DEF_P;  
-            SP  =   DEF_SP;
+            X   =   X_DEF; 
+            Y   =   Y_DEF; //will change to 0x23 after load
+            A   =   A_DEF;  
+            P   =   P_DEF;  
+            SP  =   SP_DEF;
             break;
         }
             
         case LDY_ZRP:  
         {
-            X   =   DEF_X; 
-            Y   =   DEF_Y; //will change to 0x77 after load
-            A   =   DEF_A;  
-            P   =   DEF_P;  
-            SP  =   DEF_SP;
+            X   =   X_DEF; 
+            Y   =   Y_DEF; //will change to 0x77 after load
+            A   =   A_DEF;  
+            P   =   P_DEF;  
+            SP  =   SP_DEF;
             mwr(0x77, 0xab); //M[0x00ab] <- 0x77
             break;
         }
@@ -275,21 +275,21 @@ void preptest(word opcode)
         case LDY_ZRPX:  
         {
             X   =   0xaa;  //offset
-            Y   =   DEF_Y; //will change to 0xcc after load
-            A   =   DEF_A;  
-            P   =   DEF_P;  
-            SP  =   DEF_SP;
+            Y   =   Y_DEF; //will change to 0xcc after load
+            A   =   A_DEF;  
+            P   =   P_DEF;  
+            SP  =   SP_DEF;
             mwr(0xcc, 0x42+X); //M[0x0042+0x00aa] <- 0xcc
             break;
         }
             
         case LDY_ABS:
         {
-            X   =   DEF_X; 
-            Y   =   DEF_Y; //will change to 0x12 after load
-            A   =   DEF_A;  
-            P   =   DEF_P;  
-            SP  =   DEF_SP;
+            X   =   X_DEF; 
+            Y   =   Y_DEF; //will change to 0x12 after load
+            A   =   A_DEF;  
+            P   =   P_DEF;  
+            SP  =   SP_DEF;
             mwr(0x12, 0xabcd); //M[0xabcd] <- 0x12
             break;
         }
@@ -298,61 +298,61 @@ void preptest(word opcode)
         case LDY_ABSX:
         {
             X   =   0xbb; 
-            Y   =   DEF_Y; //will change to 0xFA after load
-            A   =   DEF_A;  
-            P   =   DEF_P;  
-            SP  =   DEF_SP;
+            Y   =   Y_DEF; //will change to 0xFA after load
+            A   =   A_DEF;  
+            P   =   P_DEF;  
+            SP  =   SP_DEF;
             mwr(0xFA, 0x1234+X); //M[0xabcd+X] <- 0xFA //negative
             break;
         }
             
         case STA_ZRP:  
         {
-            X   =   DEF_X;
-            Y   =   DEF_Y;
+            X   =   X_DEF;
+            Y   =   Y_DEF;
             A   =   0x47;  
-            P   =   DEF_P;  
-            SP  =   DEF_SP;            
+            P   =   P_DEF;  
+            SP  =   SP_DEF;            
             break;
         }
             
         case STA_ZRPX:  
         {
             X   =   0x33;
-            Y   =   DEF_Y;
+            Y   =   Y_DEF;
             A   =   0x48;  
-            P   =   DEF_P;  
-            SP  =   DEF_SP;            
+            P   =   P_DEF;  
+            SP  =   SP_DEF;            
             break;
         }
             
         case STA_ABS:  
         {
-            X   =   DEF_X;
-            Y   =   DEF_Y;
+            X   =   X_DEF;
+            Y   =   Y_DEF;
             A   =   0x99;  
-            P   =   DEF_P;  
-            SP  =   DEF_SP;            
+            P   =   P_DEF;  
+            SP  =   SP_DEF;            
             break;
         }
             
         case STA_ABSX:  
         {
             X   =   0x33;
-            Y   =   DEF_Y;
+            Y   =   Y_DEF;
             A   =   0x99;  
-            P   =   DEF_P;  
-            SP  =   DEF_SP;            
+            P   =   P_DEF;  
+            SP  =   SP_DEF;            
             break;
         }
             
         case STA_ABSY:  
         {
-            X   =   DEF_X;
+            X   =   X_DEF;
             Y   =   0x44;
             A   =   0x88;  
-            P   =   DEF_P;  
-            SP  =   DEF_SP;            
+            P   =   P_DEF;  
+            SP  =   SP_DEF;            
             break;
         }
             
@@ -371,10 +371,10 @@ void preptest(word opcode)
         case STX_ZRP:  
         {
             X   =   0xcc;
-            Y   =   DEF_Y;
-            A   =   DEF_A;  
-            P   =   DEF_P;  
-            SP  =   DEF_SP;            
+            Y   =   Y_DEF;
+            A   =   A_DEF;  
+            P   =   P_DEF;  
+            SP  =   SP_DEF;            
             break;
         }
             
@@ -382,29 +382,29 @@ void preptest(word opcode)
         {
             X   =   0xcc;
             Y   =   0x01;
-            A   =   DEF_A;  
-            P   =   DEF_P;  
-            SP  =   DEF_SP;            
+            A   =   A_DEF;  
+            P   =   P_DEF;  
+            SP  =   SP_DEF;            
             break;
         }
             
         case STX_ABS:  
         {
             X   =   0x33;
-            Y   =   DEF_Y;
-            A   =   DEF_A;  
-            P   =   DEF_P;  
-            SP  =   DEF_SP;            
+            Y   =   Y_DEF;
+            A   =   A_DEF;  
+            P   =   P_DEF;  
+            SP  =   SP_DEF;            
             break;
         }
             
         case STY_ZRP:  
         {
-            X   =   DEF_X;
+            X   =   X_DEF;
             Y   =   0xcc;
-            A   =   DEF_A;  
-            P   =   DEF_P;  
-            SP  =   DEF_SP;            
+            A   =   A_DEF;  
+            P   =   P_DEF;  
+            SP  =   SP_DEF;            
             break;
         }
             
@@ -412,19 +412,19 @@ void preptest(word opcode)
         {
             X   =   0x01; 
             Y   =   0xcc;
-            A   =   DEF_A;  
-            P   =   DEF_P;  
-            SP  =   DEF_SP;            
+            A   =   A_DEF;  
+            P   =   P_DEF;  
+            SP  =   SP_DEF;            
             break;
         }
             
         case STY_ABS:  
         {
-            X   =   DEF_X;
+            X   =   X_DEF;
             Y   =   0x33;
-            A   =   DEF_A;  
-            P   =   DEF_P;  
-            SP  =   DEF_SP;            
+            A   =   A_DEF;  
+            P   =   P_DEF;  
+            SP  =   SP_DEF;            
             break;
         }
 
@@ -548,25 +548,30 @@ void preptest(word opcode)
         }
 
 
-        case INC_ABSX:  
+        case INC_ABSX:
         {   
-            NO_TEST_PREP_IMPL_WARN(INC_ABSX);        
+            X = 0x77;            
+            mwr(0b10001111, 0x1234+X);  
+            M_EXP1 = 0b10001111+1;      //expecting increased value in memory
+            P = 0b00110011;             //init P with some value
+            P_EXP = 0b10110001;         //N must be set, Z must be cleared, other flags must be unchanged
             break;
         }
 
         case INX_IMPL:  
         {   
-            NO_TEST_PREP_IMPL_WARN(INX_IMPL);        
+            X = X_DEF;
+            X_EXP = X+1;    //X must be incremented
+            P_EXP = P_DEF;  //P must be unchanged
             break;
         }
 
         case INY_IMPL:  
         {
-            X   =   DEF_X;
-            Y   =   0b11111111; //will turn into 0 after increment
-            A   =   DEF_A;
-            P   =   DEF_P; 
-            SP  =   DEF_SP;
+            Y  =   0b11111111;      //will turn into 0 after increment
+            Y_EXP = Y + 1;          //0
+            P =  P_DEF; 
+            P_EXP = P | 0b00000010; //Z must be set
             break;
         }
 
@@ -688,8 +693,8 @@ void preptest(word opcode)
         {   
             mwr(0b00001000, 0xDCBA); // init memory location that will be shifted
             M_EXP1 = 0b00000100; //expected value in memory after shift
-            P = DEF_P; //init P            
-            P_EXP = DEF_P; //no changes in P expected            
+            P = P_DEF; //init P            
+            P_EXP = P_DEF; //no changes in P expected            
             break;
         }
 
@@ -698,8 +703,8 @@ void preptest(word opcode)
             X = 0x30;
             mwr(0b00001000, 0xDCBA+X); // init memory location that will be shifted
             M_EXP1 = 0b00000100; //expected value in memory after shift
-            P = DEF_P; //init P            
-            P_EXP = DEF_P; //no changes in P expected            
+            P = P_DEF; //init P            
+            P_EXP = P_DEF; //no changes in P expected            
             break;
         }
 
@@ -1069,41 +1074,41 @@ void preptest(word opcode)
 
         case CLC_IMPL:  
         {
-            X   =   DEF_X;
-            Y   =   DEF_Y;
-            A   =   DEF_A;
-            P   =   DEF_P | 0b00000001; //set carry to 1, to be deleted by CLC_IMPL 
-            SP  =   DEF_SP;
+            X   =   X_DEF;
+            Y   =   Y_DEF;
+            A   =   A_DEF;
+            P   =   P_DEF | 0b00000001; //set carry to 1, to be deleted by CLC_IMPL 
+            SP  =   SP_DEF;
             break;
         }
             
         case CLD_IMPL:  
         {
-            X   =   DEF_X;
-            Y   =   DEF_Y;
-            A   =   DEF_A;
-            P   =   DEF_P | 0b00001000; //set decimal flag to 1, to be deleted by CLD_IMPL 
-            SP  =   DEF_SP;
+            X   =   X_DEF;
+            Y   =   Y_DEF;
+            A   =   A_DEF;
+            P   =   P_DEF | 0b00001000; //set decimal flag to 1, to be deleted by CLD_IMPL 
+            SP  =   SP_DEF;
             break;
         }
             
         case CLI_IMPL:  
         {
-            X   =   DEF_X;
-            Y   =   DEF_Y;
-            A   =   DEF_A;
-            P   =   DEF_P | 0b00000100; //set interrupt-disable flag to 1, to be deleted by CLI_IMPL 
-            SP  =   DEF_SP;
+            X   =   X_DEF;
+            Y   =   Y_DEF;
+            A   =   A_DEF;
+            P   =   P_DEF | 0b00000100; //set interrupt-disable flag to 1, to be deleted by CLI_IMPL 
+            SP  =   SP_DEF;
             break;
         }
             
         case CLV_IMPL:  
         {
-            X   =   DEF_X;
-            Y   =   DEF_Y;
-            A   =   DEF_A;
-            P   =   DEF_P | 0b01000000; //set overflow flag to 1, to be deleted by CLV_IMPL 
-            SP  =   DEF_SP;
+            X   =   X_DEF;
+            Y   =   Y_DEF;
+            A   =   A_DEF;
+            P   =   P_DEF | 0b01000000; //set overflow flag to 1, to be deleted by CLV_IMPL 
+            SP  =   SP_DEF;
             break;
         }
 
@@ -1211,8 +1216,8 @@ void preptest(word opcode)
         case PHA_IMPL:
         {   
             SP = 0x01AA;    //current stack pointer position
-            A = DEF_A;      //init A with some value
-            M_EXP1 = DEF_A;  //after reading memory at address SP-1, we must read back the stored A
+            A = A_DEF;      //init A with some value
+            M_EXP1 = A_DEF;  //after reading memory at address SP-1, we must read back the stored A
             SP_EXP = SP-1;  //after pushing the value to stack, stack pointer must decrease 
             break;
         }
@@ -1232,8 +1237,8 @@ void preptest(word opcode)
         case PHP_IMPL:
         {   
             SP = 0x0177;    //current stack pointer position
-            P = DEF_P;      //init P with some value
-            M_EXP1 = DEF_P;  //after reading memory at address SP-1, we must read back the stored P
+            P = P_DEF;      //init P with some value
+            M_EXP1 = P_DEF;  //after reading memory at address SP-1, we must read back the stored P
             SP_EXP = SP-1;  //after pushing the value to stack, stack pointer must decrease
             break;
         }
@@ -1266,11 +1271,11 @@ void preptest(word opcode)
 
         default:
         {
-            X   =   DEF_X;
-            Y   =   DEF_Y;
-            A   =   DEF_A;
-            P   =   DEF_P; 
-            SP  =   DEF_SP;    
+            X   =   X_DEF;
+            Y   =   Y_DEF;
+            A   =   A_DEF;
+            P   =   P_DEF; 
+            SP  =   SP_DEF;    
             break;
         }
     }
@@ -1284,8 +1289,8 @@ void test(word opcode)
         //############################# TRANSFER INSTRUCTIONS #############################
 	    case TAX_IMPL:  //X <- A, 1 byte long, affects N and Z
         {
-            checkReg(DEF_A, X, "X", "TAX_IMPL");
-            checkReg(DEF_P, P, "P", "TAX_IMPL"); //P unchanged, since A was non negative and was not 0 (defaut case in preptest())
+            checkReg(A_DEF, X, "X", "TAX_IMPL");
+            checkReg(P_DEF, P, "P", "TAX_IMPL"); //P unchanged, since A was non negative and was not 0 (defaut case in preptest())
             break;
         }
         
@@ -1305,49 +1310,49 @@ void test(word opcode)
             
         case TYA_IMPL:  //A <- Y, 1 byte long, affects N and Z
         {
-            checkReg(DEF_Y, A, "A", "TYA_IMPL");
-            checkReg(DEF_P, P, "P", "TYA_IMPL"); 
+            checkReg(Y_DEF, A, "A", "TYA_IMPL");
+            checkReg(P_DEF, P, "P", "TYA_IMPL"); 
             break;
         }
             
         case TSX_IMPL:  //X <- SP, 1 byte long, affects N and Z
         {
-            checkReg(DEF_SP, X, "X", "TSX_IMPL");
-            checkReg(DEF_P, P, "P", "TSX_IMPL"); 
+            checkReg(SP_DEF, X, "X", "TSX_IMPL");
+            checkReg(P_DEF, P, "P", "TSX_IMPL"); 
             break;
         }
             
         case TXS_IMPL:  //SP <- X, 1 byte long, no flags
         {
-            checkReg(DEF_X, SP, "SP", "TSX_IMPL");            
+            checkReg(X_DEF, SP, "SP", "TSX_IMPL");            
             break;
         }
             
         case INX_IMPL:  //X++, 1 byte long, affects N and Z
         {
-            checkReg(DEF_X+1, X, "X", "INX_IMPL");            
-            checkReg(DEF_P, P, "P", "INX_IMPL"); 
+            checkReg(X_EXP, X, "X", "INX_IMPL");            
+            checkReg(P_EXP, P, "P", "INX_IMPL"); 
             break;
         }
             
         case INY_IMPL:  //Y++, 1 byte long, affects N and Z
         {
-            checkReg( 0, Y, "Y", "INY_IMPL");            
-            checkReg(DEF_P | 0b00000010, P, "P", "INY_IMPL"); //zero flag changed sinse 0b11111111 + 1 = 0 
+            checkReg(Y_EXP, Y, "Y", "INY_IMPL");            
+            checkReg(P_EXP, P, "P", "INY_IMPL"); //zero flag changed sinse 0b11111111 + 1 = 0 
             break;
         }
             
         case DEX_IMPL:  //X--, 1 byte long, affects N and Z
         {
-            checkReg(DEF_X-1, X, "X", "DEX_IMPL");            
-            checkReg(DEF_P | 0b00000010, P, "P", "DEX_IMPL"); //zero flag changed sinse 1 - 1 = 0 
+            checkReg(X_DEF-1, X, "X", "DEX_IMPL");            
+            checkReg(P_DEF | 0b00000010, P, "P", "DEX_IMPL"); //zero flag changed sinse 1 - 1 = 0 
             break;
         }
             
         case DEY_IMPL:  //Y--, 1 byte long, affects N and Z
         {
-            checkReg(DEF_Y-1, Y, "Y", "DEY_IMPL");            
-            checkReg(DEF_P, P, "P", "DEY_IMPL");  
+            checkReg(Y_DEF-1, Y, "Y", "DEY_IMPL");            
+            checkReg(P_DEF, P, "P", "DEY_IMPL");  
             break;
         }
 
@@ -1480,7 +1485,7 @@ void test(word opcode)
         {
             printRegs();
             checkMem(0xab+X, 0x48, "STA_ZRPX"); //expecting value 0x48 in mem[0xab+X]
-            checkReg(DEF_P, P, "P", "STA_ZRPX"); //P unchanged!           
+            checkReg(P_DEF, P, "P", "STA_ZRPX"); //P unchanged!           
             break;  
         }
             
@@ -1579,6 +1584,13 @@ void test(word opcode)
         {
             printRegs();
             checkMem(0x1234, 0x13, "INC_ABS"); //expecting value 0x12+1 in mem[0x1234]
+            break;  
+        }
+
+        case INC_ABSX: //M[abcd+X] <- M[abcd+X]+1, 3 bytes long
+        {
+            checkMem(0x1234+X, M_EXP1, "INC_ABSX"); //expecting value M_EXP1 in mem[0x1234+X]
+            checkReg(P_EXP, P, "P", "INC_ABSX");    //P changed
             break;  
         }
 
@@ -1754,43 +1766,43 @@ void test(word opcode)
             
         case SEC_IMPL:
         {
-            checkReg(DEF_P | 0b00000001, P, "P", "SEC_IMPL"); //carry changed in P from 0 to 1  
+            checkReg(P_DEF | 0b00000001, P, "P", "SEC_IMPL"); //carry changed in P from 0 to 1  
             break;
         } 
             
         case SED_IMPL:
         {
-            checkReg(DEF_P | 0b00001000, P, "P", "SED_IMPL"); //decimal flag changed in P from 0 to 1  
+            checkReg(P_DEF | 0b00001000, P, "P", "SED_IMPL"); //decimal flag changed in P from 0 to 1  
             break;
         } 
             
         case SEI_IMPL:
         {
-            checkReg(DEF_P | 0b00000100, P, "P", "SEI_IMPL"); //interrupt flag changed in P from 0 to 1  
+            checkReg(P_DEF | 0b00000100, P, "P", "SEI_IMPL"); //interrupt flag changed in P from 0 to 1  
             break;
         }
          
         case CLC_IMPL:
         {
-            checkReg(DEF_P, P, "P", "CLC_IMPL");
+            checkReg(P_DEF, P, "P", "CLC_IMPL");
             break;
         }
             
         case CLD_IMPL:
         {
-            checkReg(DEF_P, P, "P", "CLD_IMPL"); //decimal flag set from 1 to 0   
+            checkReg(P_DEF, P, "P", "CLD_IMPL"); //decimal flag set from 1 to 0   
             break;
         }
             
         case CLI_IMPL:
         {
-            checkReg(DEF_P, P, "P", "CLI_IMPL"); //interrupt flag set from 1 to 0   
+            checkReg(P_DEF, P, "P", "CLI_IMPL"); //interrupt flag set from 1 to 0   
             break;
         }
             
         case CLV_IMPL:
         {
-            checkReg(DEF_P, P, "P", "CLV_IMPL"); //overflow flag set from 1 to 0   
+            checkReg(P_DEF, P, "P", "CLV_IMPL"); //overflow flag set from 1 to 0   
             break;
         }
         
@@ -1820,7 +1832,7 @@ void test(word opcode)
 
         case PHA_IMPL:
         {
-            checkReg(DEF_A, A, "A", "PHA_IMPL");   //A must be unchanged
+            checkReg(A_DEF, A, "A", "PHA_IMPL");   //A must be unchanged
             checkReg(SP_EXP, SP, "SP", "PHA_IMPL");//stack pointer must have decreaded
             checkMem(SP+2, 0, "PHA_IMPL");         //make sure nothing was pushed above the initial SP
             checkMem(SP+1, M_EXP1, "PHA_IMPL");    //expecting pushed value M_EXP1 (=A) in mem[SP+1]
@@ -1839,7 +1851,7 @@ void test(word opcode)
 
         case PHP_IMPL:
         {
-            checkReg(DEF_P, P, "P", "PHP_IMPL");    //P must be unchanged
+            checkReg(P_DEF, P, "P", "PHP_IMPL");    //P must be unchanged
             checkReg(SP_EXP, SP, "SP", "PHP_IMPL"); //stack pointer must have decreaded
             checkMem(SP+2, 0, "PHP_IMPL");          //make sure nothing was pushed above the initial SP
             checkMem(SP+1, M_EXP1, "PHP_IMPL");     //expecting pushed value M_EXP1 (=P) in mem[SP+1]
