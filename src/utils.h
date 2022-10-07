@@ -2,7 +2,7 @@
 
 void printRegs(void);
 
-int load(const char* file, address start_address);
+int load(const char* file);
 
 address lohi2addr(word lo, word hi);
 

@@ -35,31 +35,31 @@ void printRegs(void)
 }
 
 //load 6502 binary into emu-RAM
-int load(const char* file, address start_address)
+int load(const char* file)
 {
     FILE *f;
     
     f = fopen(file, "r");	
-    
-    word k;
-    address i = start_address;
-    
+        
     if (f == NULL)
     {
         printf("IO error: could not open file %s \n", file);
         return -1;
     }
 
+    word w;
+    address a = 0;
+    
     //load binary file into 6502 memory
-    while(fread(&k, sizeof(word), 1, f) == 1) //this avoids reading the last line twice
+    while(fread(&w, sizeof(word), 1, f) == 1) //this avoids reading the last line twice
     {
-        mwr(k, i++);
+        mwr(w, a++);
     }
     fclose(f);	
     
     //dump loaded binary file
     printf("\nLoaded 6502 binary:");
-    mdump(0, i);
+    mdump(0, a);
     
     return 0;    
 }
