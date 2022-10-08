@@ -727,10 +727,7 @@ void preptest(word opcode)
         }
 
         case ROL_ZRPX:
-        {   
-
-            word z = 0b11111100 | 0;
-
+        {  
             mwr(0b01111110, 0x01+X); // init memory location that will be rotated
             M_EXP1 = 0b11111100; //expected value in memory after shift
             P = 0b0; //init P            
