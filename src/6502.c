@@ -1383,14 +1383,13 @@ int main(int argc, char *argv[])
             
 			default: //invalid instruction
             { 
-                printf("\nError: unknown instruction: 0x%X. Emulation stopped. \n", IR); 
+                printf("\nError: unknown instruction: 0x%X at 0x%.4X. Emulation stopped. \n", IR, PC); 
                 running = 0;
-            }
+            }            
             
-            
-		} //switch
+		} //switch IR
 
-	}
+	} //while running
     
     
 #ifdef TEST_MODE 
