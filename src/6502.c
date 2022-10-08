@@ -434,7 +434,7 @@ int main(int argc, char *argv[])
             {
                 PREPTEST(LDA_IMMD);
             
-                word operand = getImdOp();      //target operand 
+                word operand = getImdOp();      //target operand
                 PC += 2;                        //target next opcode 
                 lda(operand);                   //execute opcode
             
@@ -553,6 +553,7 @@ int main(int argc, char *argv[])
                 TEST(LDX_ZRPY);
                 break; 
             }
+
             case LDX_ABS: //X <- M from [PChi,PClo], 3 bytes long
             {
                 PREPTEST(LDX_ABS);
@@ -589,6 +590,7 @@ int main(int argc, char *argv[])
                 TEST(LDY_IMMD);
                 break;  
             }
+
             case LDY_ZRP: //X <- M from zeropage, 2 bytes long
             {
                 PREPTEST(LDY_ZRP);
@@ -661,7 +663,8 @@ int main(int argc, char *argv[])
             
                 TEST(STA_ZRPX);
                 break;  
-            }                   
+            }       
+
             case STA_ABS: //A -> M from [PChi,PClo], 3 bytes long
             {
                 PREPTEST(STA_ABS);
@@ -743,8 +746,7 @@ int main(int argc, char *argv[])
                 TEST(STX_ZRPY);
                 break;  
             }
-                
-                
+                                
             case STX_ABS: //X -> M from [PChi,PClo], 3 bytes long
             {
                 PREPTEST(STX_ABS);
@@ -1170,7 +1172,43 @@ int main(int argc, char *argv[])
             }
 
             //############################# LOGIC INSTRUCTIONS #############################
-            
+            case AND_IMMD: 
+            {
+                PREPTEST(AND_IMMD);
+                
+                word operand = getImdOp();      //target operand
+                PC += 2;                        //target next opcode
+                and(operand);                   //execute opcode
+                
+                TEST(AND_IMMD);
+                break;        
+            }
+
+            case AND_ZRP: 
+            {
+                PREPTEST(AND_ZRP);
+                
+                word operand = getZrpOp();      //target operand
+                PC += 2;                        //target next opcode
+                and(operand);                   //execute opcode
+                
+                TEST(AND_ZRP);
+                break;        
+            }
+
+            case AND_ZRPX: 
+            {
+                PREPTEST(AND_ZRPX);
+                
+                word operand = getZrpXOp();     //target operand
+                PC += 2;                        //target next opcode
+                and(operand);                   //execute opcode
+                
+                TEST(AND_ZRPX);
+                break;        
+            }
+
+
             //############################# COMPARE AND TEST BIT INSTRUCTIONS #############################
                 
             //############################# SET AND CLEAR INSTRUCTIONS #############################
@@ -1713,6 +1751,16 @@ void ror(address a)
 
     setN(w);
     setZ(w); 
+}
+
+//A <-- A & operand
+//affects N, Z
+void and(word operand)
+{
+    A = A & operand;
+
+    setN(A);
+    setZ(A);
 }
                         
 //C <-- 1

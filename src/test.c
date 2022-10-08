@@ -807,21 +807,35 @@ void preptest(word opcode)
 
         case AND_IMMD:  
         {   
-            NO_TEST_PREP_IMPL_WARN(AND_IMMD);
+            A = 0b11111111;         //init A with some value
+            A_EXP = A & 0b00111100; //expected value in A after ANDing it with 0x3C
+            P = 0b11111111;         //init P with some value
+            P_EXP = 0b01111101;     //N and Z flags must be clreared, other flags must be unchanged
             break;
         }
 
         case AND_ZRP:  
         {   
-            NO_TEST_PREP_IMPL_WARN(AND_ZRP);
+            mwr(0xF0, 0x88);    //write 0xF0 to zeropage at mem[0x88]
+            A = 0x1F;           //init A with some value
+            A_EXP = A & 0xF0;   //expected value in A after ANDing it with 0xF0
+            P = 0b01111101;     //init P with some value
+            P_EXP = 0b01111101; //Z must be set, other flags must be unchanged
             break;
         }
 
         case AND_ZRPX:  
         {   
-            NO_TEST_PREP_IMPL_WARN(AND_ZRPX);
+            X = 77;
+            mwr(0xF0, 0x88+X);   //write 0xF0 to zeropage at mem[0x88+X]
+            A = 0xF1;           //init A with some value
+            A_EXP = A & 0xF0;   //expected value in A after ANDing it with 0xF0
+            P = 0b01111111;     //init P with some value
+            P_EXP = 0b11111101; //N must be set, Z must be cleared, other flags must be unchanged
             break;
         }
+
+
 
         case AND_ABS:  
         {   
@@ -1755,6 +1769,30 @@ void test(word opcode)
         } 
 
         //############################# LOGIC INSTRUCTIONS #############################
+        case AND_IMMD:
+        {
+            printRegs();
+            checkReg(A_EXP, A, "A", "AND_IMMD");
+            checkReg(P_EXP, P, "P", "AND_IMMD");
+            break;  
+        } 
+
+        case AND_ZRP:
+        {
+            printRegs();
+            checkReg(A_EXP, A, "A", "AND_ZRP");
+            checkReg(P_EXP, P, "P", "AND_ZRP");
+            break;  
+        }
+
+        case AND_ZRPX:
+        {
+            printRegs();
+            checkReg(A_EXP, A, "A", "AND_ZRPX");
+            checkReg(P_EXP, P, "P", "AND_ZRPX");
+            break;  
+        }
+
 
         //############################# COMPARE AND TEST BIT INSTRUCTIONS #############################
 

@@ -86,32 +86,32 @@
                 
                 
 //SHIFT & ROTATE INSTRUCTIONS
-#define ASL_ACCU    0x0A    //ok           
-#define ASL_ZRP     0x06    //ok
-#define ASL_ZRPX    0x16    //ok
-#define ASL_ABS     0x0E    //ok
-#define ASL_ABSX    0x1E    //ok
+#define ASL_ACCU    0x0A    //done  
+#define ASL_ZRP     0x06    //done
+#define ASL_ZRPX    0x16    //done
+#define ASL_ABS     0x0E    //done
+#define ASL_ABSX    0x1E    //done
                  
-#define LSR_ACCU    0x4A                   
-#define LSR_ZRP     0x46 
-#define LSR_ZRPX    0x56 
-#define LSR_ABS     0x4E 
-#define LSR_ABSX    0x5E 
+#define LSR_ACCU    0x4A    //done         
+#define LSR_ZRP     0x46    //done
+#define LSR_ZRPX    0x56    //done
+#define LSR_ABS     0x4E    //done
+#define LSR_ABSX    0x5E    //done
                 
-#define ROL_ACCU    0x2A                   
-#define ROL_ZRP     0x26 
-#define ROL_ZRPX    0x36 
-#define ROL_ABS     0x2E 
-#define ROL_ABSX    0x3E 
+#define ROL_ACCU    0x2A    //done         
+#define ROL_ZRP     0x26    //done
+#define ROL_ZRPX    0x36    //done
+#define ROL_ABS     0x2E    //done
+#define ROL_ABSX    0x3E    //done
                 
-#define ROR_ACCU    0x6A                   
-#define ROR_ZRP     0x66 
-#define ROR_ZRPX    0x76 
-#define ROR_ABS     0x6E 
-#define ROR_ABSX    0x7E 
+#define ROR_ACCU    0x6A    //done         
+#define ROR_ZRP     0x66    //done
+#define ROR_ZRPX    0x76    //done
+#define ROR_ABS     0x6E    //done
+#define ROR_ABSX    0x7E    //done
                 
 //LOGIC INSTRUCTIONS
-#define AND_IMMD    0x29 
+#define AND_IMMD    0x29    //done
 #define AND_ZRP     0x25 
 #define AND_ZRPX    0x35 
 #define AND_ABS     0x2D 
@@ -266,7 +266,7 @@ void ror_accu (void);//done
 void ror(address a); //done
                 
 //LOGIC INSTRUCTIONS
-void and_immd    (void);   
+void and(word operand);    
 void and_zrp     (void);   
 void and_zrpx    (void);   
 void and_abs     (void);   
