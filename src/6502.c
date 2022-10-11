@@ -194,24 +194,24 @@ address getZrpYAddr(void)
 //the actual mem address we want to access is ABCD though, hence convert little endian CDAB to address ABCD, then we can do mem[ABCD]
 address getAbsAddr(void)
 {
-    word lo = mrd(PC+1);                //get least significat byte of operand address (little endian)
-    word hi = mrd(PC+2);                //get most significat byte of operand address (little endian)
+    word lo = mrd(PC+1);                //get least significant byte of operand address (little endian)
+    word hi = mrd(PC+2);                //get most significant byte of operand address (little endian)
     return lohi2addr(lo,hi);            //convert lo byte and hi byte to a 16bit address    
 }
 
 //NOTE: no wrapping here if final address > 16bit, 6502 programmer must care by himself!!!
 address getAbsXAddr(void)
 {
-    word lo = mrd(PC+1);                //get least significat byte of operand address (little endian)
-    word hi = mrd(PC+2);                //get most significat byte of operand address (little endian)
+    word lo = mrd(PC+1);                //get least significant byte of operand address (little endian)
+    word hi = mrd(PC+2);                //get most significant byte of operand address (little endian)
     return lohi2addr(lo,hi) + X;        //convert lo byte and hi byte to a 16bit address and add X 
 }
 
 //NOTE: no wrapping here if final address > 16bit, 6502 programmer must care by himself!!!
 address getAbsYAddr(void)
 {
-    word lo = mrd(PC+1);                //get least significat byte of operand address (little endian)
-    word hi = mrd(PC+2);                //get most significat byte of operand address (little endian)
+    word lo = mrd(PC+1);                //get least significant byte of operand address (little endian)
+    word hi = mrd(PC+2);                //get most significant byte of operand address (little endian)
     return lohi2addr(lo,hi) + Y;        //convert lo byte and hi byte to a 16bit address and add Y 
 }
 
@@ -1176,7 +1176,7 @@ int main(int argc, char *argv[])
             {
                 PREPTEST(AND_IMMD);
                 
-                word operand = getImdOp();      //target operand
+                word operand = getImdOp();      //get immediate operand
                 PC += 2;                        //target next opcode
                 and(operand);                   //execute opcode
                 
@@ -1188,7 +1188,7 @@ int main(int argc, char *argv[])
             {
                 PREPTEST(AND_ZRP);
                 
-                word operand = getZrpOp();      //target operand
+                word operand = getZrpOp();      //get zeropage operand
                 PC += 2;                        //target next opcode
                 and(operand);                   //execute opcode
                 
@@ -1200,11 +1200,47 @@ int main(int argc, char *argv[])
             {
                 PREPTEST(AND_ZRPX);
                 
-                word operand = getZrpXOp();     //target operand
+                word operand = getZrpXOp();     //get zeropage+X operand
                 PC += 2;                        //target next opcode
                 and(operand);                   //execute opcode
                 
                 TEST(AND_ZRPX);
+                break;        
+            }
+
+            case AND_ABS: 
+            {
+                PREPTEST(AND_ABS);
+                
+                word operand =  getAbsOp();     //get absoulte operand
+                PC += 3;                        //target next opcode
+                and(operand);                   //execute opcode
+                
+                TEST(AND_ABS);
+                break;        
+            }
+
+            case AND_ABSX: 
+            {
+                PREPTEST(AND_ABSX);
+                
+                word operand =  getAbsXOp();    //get absolute+X operand
+                PC += 3;                        //target next opcode
+                and(operand);                   //execute opcode
+                
+                TEST(AND_ABSX);
+                break;        
+            }
+
+            case AND_ABSY: 
+            {
+                PREPTEST(AND_ABSY);
+                
+                word operand =  getAbsYOp();    //get absolute+Y operand
+                PC += 3;                        //target next opcode
+                and(operand);                   //execute opcode
+                
+                TEST(AND_ABSY);
                 break;        
             }
 

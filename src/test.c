@@ -827,7 +827,7 @@ void preptest(word opcode)
         case AND_ZRPX:  
         {   
             X = 77;
-            mwr(0xF0, 0x88+X);   //write 0xF0 to zeropage at mem[0x88+X]
+            mwr(0xF0, 0x88+X);  //write 0xF0 to zeropage at mem[0x88+X]
             A = 0xF1;           //init A with some value
             A_EXP = A & 0xF0;   //expected value in A after ANDing it with 0xF0
             P = 0b01111111;     //init P with some value
@@ -835,23 +835,35 @@ void preptest(word opcode)
             break;
         }
 
-
-
         case AND_ABS:  
         {   
-            NO_TEST_PREP_IMPL_WARN(AND_ABS);
+            mwr(0x45, 0x3322);  //write 0x45 to mem[0x3322]
+            A = 0x01;           //init A with some value
+            A_EXP = A & 0x45;   //expected value in A after ANDing it with 0x45
+            P = 0b10000000;     //init P with some value
+            P_EXP = 0b00000000; //Z must be cleared, other flags must be unchanged
             break;
         }
 
         case AND_ABSX:  
         {   
-            NO_TEST_PREP_IMPL_WARN(AND_ABSX);
+            X = 0XAA;
+            mwr(0x55, 0x3322+X);//write 0x55 to mem[0x3322+X]
+            A = 0x11;           //init A with some value
+            A_EXP = A & 0x55;   //expected value in A after ANDing it with 0x55
+            P = 0b10000011;     //init P with some value
+            P_EXP = 0b00000001; //Z must be cleared, N must be cleared, other flags must be unchanged
             break;
         }
 
         case AND_ABSY:  
         {   
-            NO_TEST_PREP_IMPL_WARN(AND_ABSY);
+            Y = 0X09;
+            mwr(0xFE, 0x3322+Y);//write 0xFE to mem[0x3322+Y]
+            A = 0xEF;           //init A with some value
+            A_EXP = A & 0xFE;   //expected value in A after ANDing it with 0xFE
+            P = 0b10000011;     //init P with some value
+            P_EXP = 0b10000001; //Z must be cleared, other flags must be unchanged
             break;
         }
 
@@ -1793,6 +1805,29 @@ void test(word opcode)
             break;  
         }
 
+        case AND_ABS:
+        {
+            printRegs();
+            checkReg(A_EXP, A, "A", "AND_ABS");
+            checkReg(P_EXP, P, "P", "AND_ABS");
+            break;  
+        }
+
+        case AND_ABSX:
+        {
+            printRegs();
+            checkReg(A_EXP, A, "A", "AND_ABSX");
+            checkReg(P_EXP, P, "P", "AND_ABSX");
+            break;  
+        }
+
+        case AND_ABSY:
+        {
+            printRegs();
+            checkReg(A_EXP, A, "A", "AND_ABSY");
+            checkReg(P_EXP, P, "P", "AND_ABSY");
+            break;  
+        }
 
         //############################# COMPARE AND TEST BIT INSTRUCTIONS #############################
 
