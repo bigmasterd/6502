@@ -183,9 +183,16 @@ void preptest(word opcode)
             break;
         } 
             
-        case LDA_INDX:
+        case LDA_XIND: //TODO CHECK WITH EASY6502 !!!
         {
-            NO_TEST_PREP_IMPL_WARN(LDA_INDX);
+            mwr(0x77, 0xABCD);  //store final value to be retrieved from mem
+            mwr(0xCD, 0x0A);    //store LO-byte of pointer to zeropage 0x0A
+            mwr(0xAB, 0x0B);    //store HI-byte of pointer to zeropage 0x0B
+            X = 0x06;           //let X be 6, so that in "LDA (OPER, X)" OPER+X will result in 0x0A
+                                //that is, code in test assembly must be: LDA ($04, X)
+            A_EXP = 0x77;       //after test, A must be loaded with this value            
+            P = 0xEE;           //1110.1110 some init value
+            P_EXP = 0x6C;       //0110.1100 N and Z must be cleared, other flags must be unchanged                                  
             break;
         }
             
@@ -356,9 +363,9 @@ void preptest(word opcode)
             break;
         }
             
-        case STA_INDX:  
+        case STA_XIND:  
         {
-            NO_TEST_PREP_IMPL_WARN(STA_INDX);
+            NO_TEST_PREP_IMPL_WARN(STA_XIND);
             break;
         }
             
@@ -467,9 +474,9 @@ void preptest(word opcode)
             break;
         }
 
-        case ADC_INDX:  
+        case ADC_XIND:  
         {   
-            NO_TEST_PREP_IMPL_WARN(ADC_INDX);        
+            NO_TEST_PREP_IMPL_WARN(ADC_XIND);        
             break;
         }
 
@@ -515,9 +522,9 @@ void preptest(word opcode)
             break;
         }
 
-        case SBC_INDX:  
+        case SBC_XIND:  
         {   
-            NO_TEST_PREP_IMPL_WARN(SBC_INDX);        
+            NO_TEST_PREP_IMPL_WARN(SBC_XIND);        
             break;
         }
 
@@ -867,9 +874,9 @@ void preptest(word opcode)
             break;
         }
 
-        case AND_INDX:  
+        case AND_XIND:  
         {   
-            NO_TEST_PREP_IMPL_WARN(AND_INDX);
+            NO_TEST_PREP_IMPL_WARN(AND_XIND);
             break;
         }
 
@@ -915,9 +922,9 @@ void preptest(word opcode)
             break;
         }
 
-        case ORA_INDX:  
+        case ORA_XIND:  
         {   
-            NO_TEST_PREP_IMPL_WARN(ORA_INDX);
+            NO_TEST_PREP_IMPL_WARN(ORA_XIND);
             break;
         }
 
@@ -963,9 +970,9 @@ void preptest(word opcode)
             break;
         }
 
-        case EOR_INDX:  
+        case EOR_XIND:  
         {   
-            NO_TEST_PREP_IMPL_WARN(EOR_INDX);
+            NO_TEST_PREP_IMPL_WARN(EOR_XIND);
             break;
         }
 
@@ -1014,9 +1021,9 @@ void preptest(word opcode)
             break;
         }
 
-        case CMP_INDX:
+        case CMP_XIND:
         {   
-            NO_TEST_PREP_IMPL_WARN(CMP_INDX);
+            NO_TEST_PREP_IMPL_WARN(CMP_XIND);
             break;
         }
 
@@ -1415,12 +1422,14 @@ void test(word opcode)
             checkReg(0x81, A, "A", "LDA_ABSY"); 
             break;  
         }
-            
-            
-        case LDA_INDX:
-        {
-            //TODO
-        }
+                        
+    
+        case LDA_XIND:
+        {            
+            checkReg(A_EXP, A, "A", "LDA_XIND"); 
+            checkReg(P_EXP, P, "P", "LDA_XIND"); 
+            break;
+        }        
             
         case LDA_INDY:
         {
@@ -1533,7 +1542,7 @@ void test(word opcode)
             break;  
         }
             
-        case STA_INDX:  
+        case STA_XIND:  
         {
             //TODO;
         }

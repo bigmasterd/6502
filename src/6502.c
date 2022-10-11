@@ -264,29 +264,23 @@ word getAbsYOp(void)
 }
 
 //The value in X is added to the specified zero page address for a sum address. 
-//The little-endian address stored at the two-byte pair of sum address (LSB) and sum address plus one (MSB) is loaded 
-//and the value at that address is used to perform the computation.
-//Example: The value $02 in X is added to $15 for a sum of $17. 
-//The address $D010 at addresses $0017 and $0018 will be where the value $0F in the accumulator is stored.
-//STA ($15,X)
-//...
-//Another descripion: This mode is only used with the X register. 
-//Consider a situation where the instruction is LDA ($20,X), X contains $04, and memory at $/24 contains 0024: 74 20, 
-//First, X is added to $20 to get $24. 
-//The target address will be fetched from $24 resulting in a target address of $2074. 
-//Register A will be loaded with the contents of memory at $2074.
-//If X + the immediate byte will wrap around to a zero-page address. 
-//So you could code that like targetAddress = X + opcode[1]) & 0xFF .
-//IN SHORT: get a 16bit pointer from Zeropage and use it to access operand somewhere else in Zeropage
-word getIndXOp(void)
+//The little-endian address stored at the two-byte pair of sum address (LSB) and sum address plus one (MSB) 
+//is loaded and the value at that address is used to perform the computation.
+//Example:
+//The value $02 in X is added to $15 for a sum of $17. 
+//The address $D010 at addresses $0017 and $0018 will be where the value $0F in the Accumulator is stored.
+//zeropage+X wraps to an address in zeropage again
+//in short: word operand = *(mem[PC+1]+X)
+word getXIndOp(void)
 {
-    //TODO: check and test this all, 
-    //TODO: check idea behind wrap around (0xFF)
-    word zrp_addr = mrd(PC+1);                                      //get address, it's an 8bit zero page address
-    word operand_addr_lo = (zrp_addr + (sword) X) & 0xFF;           //get lo part of the operand address
-    word operand_addr_hi = ((zrp_addr + (sword) X) + 1) & 0xFF;     //get hi part of the operand address
-    address a = lohi2addr(operand_addr_lo, operand_addr_hi);        //convert lo byte and hi byte to a 16bit address
-    word operand = mrd(a);                                          //finally, get operand
+    word zrp_addr = mrd(PC+1);                              //get base address from zeropage   
+    word zrp_addrx = (zrp_addr + X) & 0xFF;                 //add X offset and wrap to zeropage    
+    word operand_ptr_lo = zrp_addrx;                        //get lo part of the operand address address
+    word operand_ptr_hi = zrp_addrx + 1;                    //get hi part of the operand address address
+    word operand_addr_lo = mrd(operand_ptr_lo);             //get lo part of the operand address
+    word operand_addr_hi = mrd(operand_ptr_hi);             //get hi part of the operand address 
+    address a = lohi2addr(operand_addr_lo, operand_addr_hi);//convert lo byte and hi byte to a 16bit address
+    word operand = mrd(a);                                  //finally, get operand value
     return operand;
 }
 
@@ -307,7 +301,7 @@ address getIndYOp(void)
     word operand_addr_lo = zrp_addr;                            //get lo part of the operand address
     word operand_addr_hi = zrp_addr + 1;                        //get hi part of the operand address
     address a = lohi2addr(operand_addr_lo, operand_addr_hi);    //convert lo byte and hi byte to a 16bit address
-    a = a + (sword) Y;                                          //add Y to calculated address
+    a = a + Y;                                          //add Y to calculated address
     word operand = mrd(a);                                      //finally, get operand
     return operand;
 }
@@ -500,11 +494,15 @@ int main(int argc, char *argv[])
                 break;                          
             }
             //TODO/TOCHECK/LATER
-            case LDA_INDX: //A <- M [TODO], 2 bytes long
+            case LDA_XIND: //A <- M [TODO], 2 bytes long
             {
-                word operand = getIndXOp();
+                PREPTEST(LDA_XIND);
+
+                word operand = getXIndOp();
                 PC += 2;
                 lda(operand);
+
+                TEST(LDA_XIND);
                 break;
             }
             //TODO/TOCHECK/LATER
@@ -704,9 +702,9 @@ int main(int argc, char *argv[])
             //TODO/TOCHECK/LATER 
             /*
             //STA ($20,X)	Stores the content of the Accumulator to the address obtained from the address calculated from "$20 adding content of Index Register X"
-            case LDA_INDXX_TEMPLATE: //A -> M [TODO], 2 bytes long
+            case LDA_XINDX_TEMPLATE: //A -> M [TODO], 2 bytes long
             {
-                word operand = getIndXOp();
+                word operand = getXIndOp();
                 PC += 2;
                 lda(operand);
                 break;

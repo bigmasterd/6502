@@ -16,7 +16,7 @@
 #define LDA_ABS     0xAD	//done => 2test
 #define LDA_ABSX    0xBD	//done => 2test, DOITLATER 
 #define LDA_ABSY    0xB9	//done => 2test, DOITLATER 
-#define LDA_INDX    0xA1	//done => 2test, BUT EXTREMELY!!!, DOITLATER 
+#define LDA_XIND    0xA1	//done => 2test, BUT EXTREMELY!!!, DOITLATER 
 #define LDA_INDY    0xB1	//done => 2test, BUT EXTREMELY!!!, DOITLATER 
 
 #define LDX_IMMD    0xA2	//done => 2test
@@ -36,7 +36,7 @@
 #define STA_ABS     0x8D 	//done => 2test
 #define STA_ABSX    0x9D 	//done => 2test, DOITLATER 
 #define STA_ABSY    0x99 	//done => 2test, DOITLATER 
-#define STA_INDX    0x81 	//DOITLATER 
+#define STA_XIND    0x81 	//DOITLATER 
 #define STA_INDY    0x91 	//DOITLATER 
                 
 #define STX_ZRP     0x86 	//done => 2test
@@ -54,7 +54,7 @@
 #define ADC_ABS     0x6D 	//done => 2test
 #define ADC_ABSX    0x7D 	//DOITLATER
 #define ADC_ABSY    0x79 	//DOITLATER
-#define ADC_INDX    0x61 	//DOITLATER
+#define ADC_XIND    0x61 	//DOITLATER
 #define ADC_INDY    0x71 	//DOITLATER
                 
 #define SBC_IMMD    0xE9    //???
@@ -63,7 +63,7 @@
 #define SBC_ABS     0xED 
 #define SBC_ABSX    0xFD 
 #define SBC_ABSY    0xF9 
-#define SBC_INDX    0xE1 
+#define SBC_XIND    0xE1 
 #define SBC_INDY    0xF1 
                 
 #define INC_ZRP     0xE6    //done
@@ -112,12 +112,12 @@
                 
 //LOGIC INSTRUCTIONS
 #define AND_IMMD    0x29    //done
-#define AND_ZRP     0x25 
-#define AND_ZRPX    0x35 
-#define AND_ABS     0x2D 
-#define AND_ABSX    0x3D 
+#define AND_ZRP     0x25    //done
+#define AND_ZRPX    0x35    //done
+#define AND_ABS     0x2D    //done
+#define AND_ABSX    0x3D    //done
 #define AND_ABSY    0x39 
-#define AND_INDX    0x21 
+#define AND_XIND    0x21 
 #define AND_INDY    0x31 
                 
 #define ORA_IMMD    0x09                 
@@ -126,7 +126,7 @@
 #define ORA_ABS     0x0D                 
 #define ORA_ABSX    0x1D                 
 #define ORA_ABSY    0x19                 
-#define ORA_INDX    0x01                 
+#define ORA_XIND    0x01                 
 #define ORA_INDY    0x11 
                                 
 #define EOR_IMMD    0x49                                 
@@ -135,7 +135,7 @@
 #define EOR_ABS     0x4D                                
 #define EOR_ABSX    0x5D                               
 #define EOR_ABSY    0x59                               
-#define EOR_INDX    0x41                               
+#define EOR_XIND    0x41                               
 #define EOR_INDY    0x51
                 
 //COMPARE AND TEST BIT INSTRUCTIONS
@@ -145,7 +145,7 @@
 #define CMP_ABS     0xCD                                
 #define CMP_ABSX    0xDD                               
 #define CMP_ABSY    0xD9                               
-#define CMP_INDX    0xC1                               
+#define CMP_XIND    0xC1                               
 #define CMP_INDY    0xD1
                
 #define CPX_IMMD    0xE0                                
@@ -272,7 +272,7 @@ void and_zrpx    (void);
 void and_abs     (void);   
 void and_absx    (void);   
 void and_absy    (void);   
-void and_indx    (void);   
+void and_XIND    (void);   
 void and_indy    (void);   
                 
 void ora_immd    (void);                   
@@ -281,7 +281,7 @@ void ora_zrpx    (void);
 void ora_abs     (void);                   
 void ora_absx    (void);                   
 void ora_absy    (void);                   
-void ora_indx    (void);                   
+void ora_XIND    (void);                   
 void ora_indy    (void);   
                                 
 void eor_immd    (void);                                   
@@ -290,7 +290,7 @@ void eor_zrpx    (void);
 void eor_abs     (void);                                  
 void eor_absx    (void);                                 
 void eor_absy    (void);                                 
-void eor_indx    (void);                                 
+void eor_XIND    (void);                                 
 void eor_indy    (void);  
                 
 //COMPARE AND TEST BIT INSTRUCTIONS
@@ -300,7 +300,7 @@ void cmp_zrpx    (void);
 void cmp_abs     (void);                                  
 void cmp_absx    (void);                                 
 void cmp_absy    (void);                                 
-void cmp_indx    (void);                                 
+void cmp_XIND    (void);                                 
 void cmp_indy    (void);  
                
 void cpx_immd    (void);                                  
