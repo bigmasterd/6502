@@ -117,7 +117,7 @@
 #define AND_ABS     0x2D    //done
 #define AND_ABSX    0x3D    //done
 #define AND_ABSY    0x39    //done
-#define AND_XIND    0x21 
+#define AND_XIND    0x21    //done
 #define AND_INDY    0x31 
                 
 #define ORA_IMMD    0x09                 
@@ -267,22 +267,8 @@ void ror(address a); //done
                 
 //LOGIC INSTRUCTIONS
 void and(word operand);    
-void and_zrp     (void);   
-void and_zrpx    (void);   
-void and_abs     (void);   
-void and_absx    (void);   
-void and_absy    (void);   
-void and_XIND    (void);   
-void and_indy    (void);   
                 
-void ora_immd    (void);                   
-void ora_zrp     (void);                   
-void ora_zrpx    (void);                   
-void ora_abs     (void);                   
-void ora_absx    (void);                   
-void ora_absy    (void);                   
-void ora_XIND    (void);                   
-void ora_indy    (void);   
+void ora(word operand);
                                 
 void eor_immd    (void);                                   
 void eor_zrp     (void);                                   

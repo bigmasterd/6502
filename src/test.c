@@ -827,7 +827,7 @@ void preptest(word opcode)
             A = 0x1F;           //init A with some value
             A_EXP = A & 0xF0;   //expected value in A after ANDing it with 0xF0
             P = 0b01111101;     //init P with some value
-            P_EXP = 0b01111101; //Z must be set, other flags must be unchanged
+            P_EXP = 0b01111101; //all flags must be unchanged
             break;
         }
 
@@ -889,52 +889,82 @@ void preptest(word opcode)
             break;
         }
 
-        case AND_INDY:  
+         case ORA_IMMD:  
         {   
-            NO_TEST_PREP_IMPL_WARN(AND_INDY);
-            break;
-        }
-
-        case ORA_IMMD:  
-        {   
-            NO_TEST_PREP_IMPL_WARN(ORA_IMMD);
+            A = 0b11111111;         //init A with some value
+            A_EXP = A | 0b00111100; //expected value in A after ORing it with 0x3C
+            P = 0b11111111;         //init P with some value
+            P_EXP = 0b11111101;     //Z flags must be clreared, other flags must be unchanged
             break;
         }
 
         case ORA_ZRP:  
         {   
-            NO_TEST_PREP_IMPL_WARN(ORA_ZRP);
+            mwr(0xF1, 0x88);    //write 0xF0 to zeropage at mem[0x88]
+            A = 0x10;           //init A with some value
+            A_EXP = A | 0xF1;   //expected value in A after ORing it with 0xF0
+            P = 0b01111101;     //init P with some value
+            P_EXP = 0b11111101; //Z must be set, other flags must be unchanged
             break;
         }
 
         case ORA_ZRPX:  
         {   
-            NO_TEST_PREP_IMPL_WARN(ORA_ZRPX);
+            X = 77;
+            mwr(0xF0, 0x88+X);  //write 0xF0 to zeropage at mem[0x88+X]
+            A = 0xF1;           //init A with some value
+            A_EXP = A | 0xF0;   //expected value in A after ORing it with 0xF0
+            P = 0b01111111;     //init P with some value
+            P_EXP = 0b11111101; //N must be set, Z must be cleared, other flags must be unchanged
             break;
         }
 
         case ORA_ABS:  
         {   
-            NO_TEST_PREP_IMPL_WARN(ORA_ABS);
+            mwr(0x45, 0x3322);  //write 0x45 to mem[0x3322]
+            A = 0x01;           //init A with some value
+            A_EXP = A | 0x45;   //expected value in A after ORing it with 0x45
+            P = 0b10000000;     //init P with some value
+            P_EXP = 0b00000000; //Z must be cleared, other flags must be unchanged
             break;
         }
 
         case ORA_ABSX:  
         {   
-            NO_TEST_PREP_IMPL_WARN(ORA_ABSX);
+            X = 0XAA;
+            mwr(0x55, 0x3322+X);//write 0x55 to mem[0x3322+X]
+            A = 0x11;           //init A with some value
+            A_EXP = A | 0x55;   //expected value in A after ORing it with 0x55
+            P = 0b10000011;     //init P with some value
+            P_EXP = 0b00000001; //Z must be cleared, N must be cleared, other flags must be unchanged
             break;
         }
 
         case ORA_ABSY:  
         {   
-            NO_TEST_PREP_IMPL_WARN(ORA_ABSY);
+            Y = 0X09;
+            mwr(0xFE, 0x3322+Y);//write 0xFE to mem[0x3322+Y]
+            A = 0xEF;           //init A with some value
+            A_EXP = A | 0xFE;   //expected value in A after ORing it with 0xFE
+            P = 0b10000011;     //init P with some value
+            P_EXP = 0b10000001; //Z must be cleared, other flags must be unchanged
             break;
         }
 
-        case ORA_XIND:  
-        {   
-            NO_TEST_PREP_IMPL_WARN(ORA_XIND);
-            break;
+        //note: this test uses a way too big X-offset, so that operand+X will cause a wrap to stay within the zeropage
+        case ORA_XIND:
+        {
+            A = 0xAA;           //init A with some value
+
+            mwr(0x77, 0xABCD);  //store final value to be retrieved from mem and to perform OR with
+            mwr(0xCD, 0x03);    //store LO-byte of pointer to zeropage 0x03
+            mwr(0xAB, 0x04);    //store HI-byte of pointer to zeropage 0x04
+            X = 0xFF;           //let X be 0xFF, so that in "OR (OPER, X)" OPER+X will wrap over and result in 0x03
+                                //that is, code in test assembly must be: OR ($04, X) //because (0x04 + 0xFF) & 0xFF is 0x03
+            A_EXP = A | 0x77;   //after test, A must be loaded with this value
+            P = 0xEE;           //1110.1110 some init value
+            P_EXP = 0xEC;       //1110.1100 Z must be cleared, other flags must be unchanged   
+            break;            
         }
 
         case ORA_INDY:  
@@ -1852,6 +1882,62 @@ void test(word opcode)
             printRegs();
             checkReg(A_EXP, A, "A", "AND_XIND");
             checkReg(P_EXP, P, "P", "AND_XIND");
+            break;  
+        }
+
+        case ORA_IMMD:
+        {
+            printRegs();
+            checkReg(A_EXP, A, "A", "ORA_IMMD");
+            checkReg(P_EXP, P, "P", "ORA_IMMD");
+            break;  
+        } 
+
+        case ORA_ZRP:
+        {
+            printRegs();
+            checkReg(A_EXP, A, "A", "ORA_ZRP");
+            checkReg(P_EXP, P, "P", "ORA_ZRP");
+            break;  
+        }
+
+        case ORA_ZRPX:
+        {
+            printRegs();
+            checkReg(A_EXP, A, "A", "ORA_ZRPX");
+            checkReg(P_EXP, P, "P", "ORA_ZRPX");
+            break;  
+        }
+
+        case ORA_ABS:
+        {
+            printRegs();
+            checkReg(A_EXP, A, "A", "ORA_ABS");
+            checkReg(P_EXP, P, "P", "ORA_ABS");
+            break;  
+        }
+
+        case ORA_ABSX:
+        {
+            printRegs();
+            checkReg(A_EXP, A, "A", "ORA_ABSX");
+            checkReg(P_EXP, P, "P", "ORA_ABSX");
+            break;  
+        }
+
+        case ORA_ABSY:
+        {
+            printRegs();
+            checkReg(A_EXP, A, "A", "ORA_ABSY");
+            checkReg(P_EXP, P, "P", "ORA_ABSY");
+            break;  
+        }
+
+        case ORA_XIND:
+        {
+            printRegs();
+            checkReg(A_EXP, A, "A", "ORA_XIND");
+            checkReg(P_EXP, P, "P", "ORA_XIND");
             break;  
         }
 

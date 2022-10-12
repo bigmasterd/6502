@@ -1254,6 +1254,102 @@ int main(int argc, char *argv[])
                 break;        
             }
 
+            case AND_INDY: 
+            {
+             //TODO      
+             break;;  
+            }
+
+            case ORA_IMMD: 
+            {
+                PREPTEST(ORA_IMMD);
+                
+                word operand = getImdOp();      //get immediate operand
+                PC += 2;                        //target next opcode
+                ora(operand);                   //execute opcode
+                
+                TEST(ORA_IMMD);
+                break;        
+            }
+
+            case ORA_ZRP: 
+            {
+                PREPTEST(ORA_ZRP);
+                
+                word operand = getZrpOp();      //get zeropage operand
+                PC += 2;                        //target next opcode
+                ora(operand);                   //execute opcode
+                
+                TEST(ORA_ZRP);
+                break;        
+            }
+
+            case ORA_ZRPX: 
+            {
+                PREPTEST(ORA_ZRPX);
+                
+                word operand = getZrpXOp();     //get zeropage+X operand
+                PC += 2;                        //target next opcode
+                ora(operand);                   //execute opcode
+                
+                TEST(ORA_ZRPX);
+                break;        
+            }
+
+            case ORA_ABS: 
+            {
+                PREPTEST(ORA_ABS);
+                
+                word operand =  getAbsOp();     //get absoulte operand
+                PC += 3;                        //target next opcode
+                ora(operand);                   //execute opcode
+                
+                TEST(ORA_ABS);
+                break;        
+            }
+
+            case ORA_ABSX: 
+            {
+                PREPTEST(ORA_ABSX);
+                
+                word operand =  getAbsXOp();    //get absolute+X operand
+                PC += 3;                        //target next opcode
+                ora(operand);                   //execute opcode
+                
+                TEST(ORA_ABSX);
+                break;        
+            }
+
+            case ORA_ABSY: 
+            {
+                PREPTEST(ORA_ABSY);
+                
+                word operand =  getAbsYOp();    //get absolute+Y operand
+                PC += 3;                        //target next opcode
+                ora(operand);                   //execute opcode
+                
+                TEST(ORA_ABSY);
+                break;        
+            }
+
+            case ORA_XIND: 
+            {
+                PREPTEST(ORA_XIND);
+                
+                word operand =  getXIndOp();    //get X indexed indirect operand
+                PC += 2;                        //target next opcode
+                ora(operand);                   //execute opcode
+                
+                TEST(ORA_XIND);
+                break;        
+            }
+
+            case ORA_INDY: 
+            {
+             //TODO      
+             break;;  
+            }
+
 
             
 
@@ -1807,6 +1903,16 @@ void ror(address a)
 void and(word operand)
 {
     A = A & operand;
+
+    setN(A);
+    setZ(A);
+}
+
+//A <-- A » operand
+//affects N, Z
+void ora(word operand)
+{
+    A = A | operand;
 
     setN(A);
     setZ(A);
