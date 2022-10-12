@@ -16,7 +16,7 @@
 #define LDA_ABS     0xAD	//done => 2test
 #define LDA_ABSX    0xBD	//done => 2test, DOITLATER 
 #define LDA_ABSY    0xB9	//done => 2test, DOITLATER 
-#define LDA_XIND    0xA1	//done => 2test, BUT EXTREMELY!!!, DOITLATER 
+#define LDA_XIND    0xA1	//done
 #define LDA_INDY    0xB1	//done => 2test, BUT EXTREMELY!!!, DOITLATER 
 
 #define LDX_IMMD    0xA2	//done => 2test
@@ -116,7 +116,7 @@
 #define AND_ZRPX    0x35    //done
 #define AND_ABS     0x2D    //done
 #define AND_ABSX    0x3D    //done
-#define AND_ABSY    0x39 
+#define AND_ABSY    0x39    //done
 #define AND_XIND    0x21 
 #define AND_INDY    0x31 
                 

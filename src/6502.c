@@ -498,9 +498,9 @@ int main(int argc, char *argv[])
             {
                 PREPTEST(LDA_XIND);
 
-                word operand = getXIndOp();
-                PC += 2;
-                lda(operand);
+                word operand = getXIndOp();     //get X indexed indirect operand
+                PC += 2;                        //target next opcode
+                lda(operand);                   //execute opcode
 
                 TEST(LDA_XIND);
                 break;
@@ -1241,6 +1241,21 @@ int main(int argc, char *argv[])
                 TEST(AND_ABSY);
                 break;        
             }
+
+            case AND_XIND: 
+            {
+                PREPTEST(AND_XIND);
+                
+                word operand =  getXIndOp();    //get X indexed indirect operand
+                PC += 2;                        //target next opcode
+                and(operand);                   //execute opcode
+                
+                TEST(AND_XIND);
+                break;        
+            }
+
+
+            
 
 
             //############################# COMPARE AND TEST BIT INSTRUCTIONS #############################

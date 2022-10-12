@@ -183,7 +183,7 @@ void preptest(word opcode)
             break;
         } 
             
-        case LDA_XIND: //TODO CHECK WITH EASY6502 !!!
+        case LDA_XIND:
         {
             mwr(0x77, 0xABCD);  //store final value to be retrieved from mem
             mwr(0xCD, 0x0A);    //store LO-byte of pointer to zeropage 0x0A
@@ -876,7 +876,16 @@ void preptest(word opcode)
 
         case AND_XIND:  
         {   
-            NO_TEST_PREP_IMPL_WARN(AND_XIND);
+            A = 0xAA;           //init a with some value
+
+            mwr(0x77, 0xABCD);  //store final value to be retrieved from mem and to perform AND with
+            mwr(0xCD, 0x0A);    //store LO-byte of pointer to zeropage 0x0A
+            mwr(0xAB, 0x0B);    //store HI-byte of pointer to zeropage 0x0B
+            X = 0x06;           //let X be 6, so that in "AND (OPER, X)" OPER+X will result in 0x0A
+                                //that is, code in test assembly must be: AND ($04, X)
+            A_EXP = A & 0x77;   //after test, A must be loaded with this value
+            P = 0xEE;           //1110.1110 some init value
+            P_EXP = 0x6C;       //0110.1100 N and Z must be cleared, other flags must be unchanged   
             break;
         }
 
@@ -1835,6 +1844,14 @@ void test(word opcode)
             printRegs();
             checkReg(A_EXP, A, "A", "AND_ABSY");
             checkReg(P_EXP, P, "P", "AND_ABSY");
+            break;  
+        }
+
+        case AND_XIND:
+        {
+            printRegs();
+            checkReg(A_EXP, A, "A", "AND_XIND");
+            checkReg(P_EXP, P, "P", "AND_XIND");
             break;  
         }
 
