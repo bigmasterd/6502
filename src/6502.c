@@ -263,14 +263,10 @@ word getAbsYOp(void)
     return operand;
 }
 
-//The value in X is added to the specified zero page address for a sum address. 
-//The little-endian address stored at the two-byte pair of sum address (LSB) and sum address plus one (MSB) 
-//is loaded and the value at that address is used to perform the computation.
-//Example:
-//The value $02 in X is added to $15 for a sum of $17. 
-//The address $D010 at addresses $0017 and $0018 will be where the value $0F in the Accumulator is stored.
-//zeropage+X wraps to an address in zeropage again
-//in short: word operand = *(mem[PC+1]+X)
+//Indexing first, then indirection:
+//A1 is an 8bit zeropage address located at mem[PC+1].
+//A2 = A1+X is a zeropage address that contains the lo-byte of the 16bit target address (location of operand to be fetched).
+//Note: A2 must remain within zeropage (A2 &= 0xFF).
 word getXIndOp(void)
 {
     word zrp_addr = mrd(PC+1);                              //get base address from zeropage   
@@ -284,25 +280,18 @@ word getXIndOp(void)
     return operand;
 }
 
-//This mode is only used with the Y register. It differs in the order that Y is applied to the indirectly fetched address. 
-//An example instruction that uses indirect index addressing is LDA ($86),Y . 
-//To calculate the target address, the CPU will first fetch the address stored at zero page location $86. 
-//That address will be added to register Y to get the final target address. 
-//For LDA ($86),Y, if the address stored at $86 is $4028 (memory is 0086: 28 40, remember little endian) and register Y contains $10, 
-//then the final target address would be $4038. Register A will be loaded with the contents of memory at $4038.
-//Indirect Indexed instructions are 2 bytes - the second byte is the zero-page address - $20 in the example. 
-//(So the fetched address has to be stored in the zero page.)
-//IMPORTANT: While indexed indirect addressing will only generate a zero-page address, 
-//this mode's target address is not wrapped - it can be anywhere in the 16-bit address space.
-//IN SHORT: get a 16bit pointer from Zeropage and use it to access operand somewhere else in 16bit address range
+//Indirection first, then indexing:
+//A1 is a 16bit address, whose lo-byte is located at mem[PC+1].
+//A2 = A1+Y is the 16bit address that contains the operand to be fetched (=pointer).
+//(indirect first, then indexing)
 address getIndYOp(void)
 {
-    word zrp_addr = mrd(PC+1);                                  //get address, it's an 8bit zero page address   
-    word operand_addr_lo = zrp_addr;                            //get lo part of the operand address
-    word operand_addr_hi = zrp_addr + 1;                        //get hi part of the operand address
-    address a = lohi2addr(operand_addr_lo, operand_addr_hi);    //convert lo byte and hi byte to a 16bit address
-    a = a + Y;                                          //add Y to calculated address
-    word operand = mrd(a);                                      //finally, get operand
+    word zrp_addr = mrd(PC+1);                              //get address, it's an 8bit zero page address   
+    word operand_addr_lo = zrp_addr;                        //get lo part of the operand address
+    word operand_addr_hi = zrp_addr + 1;                    //get hi part of the operand address
+    address a = lohi2addr(operand_addr_lo, operand_addr_hi);//convert lo byte and hi byte to a 16bit address
+    a = a + Y;                                              //add Y offset to calculated address
+    word operand = mrd(a);                                  //finally, get operand
     return operand;
 }
 

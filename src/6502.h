@@ -120,14 +120,14 @@
 #define AND_XIND    0x21    //done
 #define AND_INDY    0x31 
                 
-#define ORA_IMMD    0x09                 
-#define ORA_ZRP     0x05                 
-#define ORA_ZRPX    0x15                 
-#define ORA_ABS     0x0D                 
-#define ORA_ABSX    0x1D                 
-#define ORA_ABSY    0x19                 
-#define ORA_XIND    0x01                 
-#define ORA_INDY    0x11 
+#define ORA_IMMD    0x09    //done       
+#define ORA_ZRP     0x05    //done       
+#define ORA_ZRPX    0x15    //done       
+#define ORA_ABS     0x0D    //done       
+#define ORA_ABSX    0x1D    //done
+#define ORA_ABSY    0x19    //done                 
+#define ORA_XIND    0x01    //done                 
+#define ORA_INDY    0x11     
                                 
 #define EOR_IMMD    0x49                                 
 #define EOR_ZRP     0x45                                 
@@ -276,7 +276,7 @@ void eor_zrpx    (void);
 void eor_abs     (void);                                  
 void eor_absx    (void);                                 
 void eor_absy    (void);                                 
-void eor_XIND    (void);                                 
+void eor_xind    (void);                                 
 void eor_indy    (void);  
                 
 //COMPARE AND TEST BIT INSTRUCTIONS
@@ -286,7 +286,7 @@ void cmp_zrpx    (void);
 void cmp_abs     (void);                                  
 void cmp_absx    (void);                                 
 void cmp_absy    (void);                                 
-void cmp_XIND    (void);                                 
+void cmp_xind    (void);                                 
 void cmp_indy    (void);  
                
 void cpx_immd    (void);                                  
