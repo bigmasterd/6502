@@ -902,7 +902,7 @@ void preptest(word opcode)
         {   
             mwr(0xF1, 0x88);    //write 0xF0 to zeropage at mem[0x88]
             A = 0x10;           //init A with some value
-            A_EXP = A | 0xF1;   //expected value in A after ORing it with 0xF0
+            A_EXP = A | 0xF1;   //expected value in A after ORing it with 0xF1
             P = 0b01111101;     //init P with some value
             P_EXP = 0b11111101; //Z must be set, other flags must be unchanged
             break;
@@ -913,7 +913,7 @@ void preptest(word opcode)
             X = 77;
             mwr(0xF0, 0x88+X);  //write 0xF0 to zeropage at mem[0x88+X]
             A = 0xF1;           //init A with some value
-            A_EXP = A | 0xF0;   //expected value in A after ORing it with 0xF0
+            A_EXP = A | 0xF0;   //expected value in A after ORing it with 0xF1
             P = 0b01111111;     //init P with some value
             P_EXP = 0b11111101; //N must be set, Z must be cleared, other flags must be unchanged
             break;
@@ -925,7 +925,7 @@ void preptest(word opcode)
             A = 0x01;           //init A with some value
             A_EXP = A | 0x45;   //expected value in A after ORing it with 0x45
             P = 0b10000000;     //init P with some value
-            P_EXP = 0b00000000; //Z must be cleared, other flags must be unchanged
+            P_EXP = 0b00000000; //N must be cleared, other flags must be unchanged
             break;
         }
 
@@ -975,44 +975,80 @@ void preptest(word opcode)
 
         case EOR_IMMD:  
         {   
-            NO_TEST_PREP_IMPL_WARN(EOR_IMMD);
+            A = 0b11111111;         //init A with some value
+            A_EXP = A ^ 0b00111100; //expected value in A after XORing it with 0x3C
+            P = 0b11111111;         //init P with some value
+            P_EXP = 0b11111101;     //Z flags must be clreared, other flags must be unchanged
             break;
         }
 
         case EOR_ZRP:  
         {   
-            NO_TEST_PREP_IMPL_WARN(EOR_ZRP);
+            mwr(0xF1, 0x88);    //write 0xF0 to zeropage at mem[0x88]
+            A = 0x10;           //init A with some value
+            A_EXP = A ^ 0xF1;   //expected value in A after XORing it with 0xF1
+            P = 0b01111101;     //init P with some value
+            P_EXP = 0b11111101; //Z must be set, other flags must be unchanged
             break;
         }
 
         case EOR_ZRPX:  
         {   
-            NO_TEST_PREP_IMPL_WARN(EOR_ZRPX);
+            X = 77;
+            mwr(0xF0, 0x88+X);  //write 0xF0 to zeropage at mem[0x88+X]
+            A = 0xF1;           //init A with some value
+            A_EXP = A ^ 0xF0;   //expected value in A after XORing it with 0xF0
+            P = 0b01111111;     //init P with some value
+            P_EXP = 0b01111101; //N must be cleared, Z must be cleared, other flags must be unchanged
             break;
         }
 
         case EOR_ABS:  
         {   
-            NO_TEST_PREP_IMPL_WARN(EOR_ABS);
+            mwr(0x45, 0x3322);  //write 0x45 to mem[0x3322]
+            A = 0x01;           //init A with some value
+            A_EXP = A ^ 0x45;   //expected value in A after XORing it with 0x45
+            P = 0b10000000;     //init P with some value
+            P_EXP = 0b00000000; //N must be cleared, other flags must be unchanged
             break;
         }
 
         case EOR_ABSX:  
         {   
-            NO_TEST_PREP_IMPL_WARN(EOR_ABSX);
+            X = 0XAA;
+            mwr(0x55, 0x3322+X);//write 0x55 to mem[0x3322+X]
+            A = 0x11;           //init A with some value
+            A_EXP = A ^ 0x55;   //expected value in A after XORing it with 0x55
+            P = 0b10000011;     //init P with some value
+            P_EXP = 0b00000001; //Z must be cleared, N must be cleared, other flags must be unchanged
             break;
         }
 
         case EOR_ABSY:  
         {   
-            NO_TEST_PREP_IMPL_WARN(EOR_ABSY);
+            Y = 0X09;
+            mwr(0xFE, 0x3322+Y);//write 0xFE to mem[0x3322+Y]
+            A = 0xEF;           //init A with some value
+            A_EXP = A ^ 0xFE;   //expected value in A after XORing it with 0xFE
+            P = 0b10000011;     //init P with some value
+            P_EXP = 0b00000001; //N must be cleared, Z must be cleared, other flags must be unchanged
             break;
         }
 
-        case EOR_XIND:  
-        {   
-            NO_TEST_PREP_IMPL_WARN(EOR_XIND);
-            break;
+        //note: this test uses a way too big X-offset, so that operand+X will cause a wrap to stay within the zeropage
+        case EOR_XIND:
+        {
+            A = 0xAA;           //init A with some value
+
+            mwr(0x77, 0xABCD);  //store final value to be retrieved from mem and to perform XOR with
+            mwr(0xCD, 0x03);    //store LO-byte of pointer to zeropage 0x03
+            mwr(0xAB, 0x04);    //store HI-byte of pointer to zeropage 0x04
+            X = 0xFF;           //let X be 0xFF, so that in "OR (OPER, X)" OPER+X will wrap over and result in 0x03
+                                //that is, code in test assembly must be: OR ($04, X) //because (0x04 + 0xFF) & 0xFF is 0x03
+            A_EXP = A ^ 0x77;   //after test, A must be loaded with this value
+            P = 0xEE;           //1110.1110 some init value
+            P_EXP = 0xEC;       //1110.1100 Z must be cleared, other flags must be unchanged   
+            break;            
         }
 
         case EOR_INDY:
@@ -1940,6 +1976,63 @@ void test(word opcode)
             checkReg(P_EXP, P, "P", "ORA_XIND");
             break;  
         }
+
+        case EOR_IMMD:
+        {
+            printRegs();
+            checkReg(A_EXP, A, "A", "EOR_IMMD");
+            checkReg(P_EXP, P, "P", "EOR_IMMD");
+            break;  
+        } 
+
+        case EOR_ZRP:
+        {
+            printRegs();
+            checkReg(A_EXP, A, "A", "EOR_ZRP");
+            checkReg(P_EXP, P, "P", "EOR_ZRP");
+            break;  
+        }
+
+        case EOR_ZRPX:
+        {
+            printRegs();
+            checkReg(A_EXP, A, "A", "EOR_ZRPX");
+            checkReg(P_EXP, P, "P", "EOR_ZRPX");
+            break;  
+        }
+
+        case EOR_ABS:
+        {
+            printRegs();
+            checkReg(A_EXP, A, "A", "EOR_ABS");
+            checkReg(P_EXP, P, "P", "EOR_ABS");
+            break;  
+        }
+
+        case EOR_ABSX:
+        {
+            printRegs();
+            checkReg(A_EXP, A, "A", "EOR_ABSX");
+            checkReg(P_EXP, P, "P", "EOR_ABSX");
+            break;  
+        }
+
+        case EOR_ABSY:
+        {
+            printRegs();
+            checkReg(A_EXP, A, "A", "EOR_ABSY");
+            checkReg(P_EXP, P, "P", "EOR_ABSY");
+            break;  
+        }
+
+        case EOR_XIND:
+        {
+            printRegs();
+            checkReg(A_EXP, A, "A", "EOR_XIND");
+            checkReg(P_EXP, P, "P", "EOR_XIND");
+            break;  
+        }
+
 
         //############################# COMPARE AND TEST BIT INSTRUCTIONS #############################
 

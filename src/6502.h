@@ -126,16 +126,16 @@
 #define ORA_ABS     0x0D    //done       
 #define ORA_ABSX    0x1D    //done
 #define ORA_ABSY    0x19    //done                 
-#define ORA_XIND    0x01    //done                 
+#define ORA_XIND    0x01    //done              
 #define ORA_INDY    0x11     
                                 
-#define EOR_IMMD    0x49                                 
-#define EOR_ZRP     0x45                                 
-#define EOR_ZRPX    0x55                               
-#define EOR_ABS     0x4D                                
-#define EOR_ABSX    0x5D                               
-#define EOR_ABSY    0x59                               
-#define EOR_XIND    0x41                               
+#define EOR_IMMD    0x49    //done                       
+#define EOR_ZRP     0x45    //done                       
+#define EOR_ZRPX    0x55    //done                     
+#define EOR_ABS     0x4D    //done                      
+#define EOR_ABSX    0x5D    //done
+#define EOR_ABSY    0x59    //done
+#define EOR_XIND    0x41    //done
 #define EOR_INDY    0x51
                 
 //COMPARE AND TEST BIT INSTRUCTIONS
@@ -270,14 +270,7 @@ void and(word operand);
                 
 void ora(word operand);
                                 
-void eor_immd    (void);                                   
-void eor_zrp     (void);                                   
-void eor_zrpx    (void);                                 
-void eor_abs     (void);                                  
-void eor_absx    (void);                                 
-void eor_absy    (void);                                 
-void eor_xind    (void);                                 
-void eor_indy    (void);  
+void eor(word operand);
                 
 //COMPARE AND TEST BIT INSTRUCTIONS
 void cmp_immd    (void);                                  

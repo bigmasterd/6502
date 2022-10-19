@@ -283,7 +283,6 @@ word getXIndOp(void)
 //Indirection first, then indexing:
 //A1 is a 16bit address, whose lo-byte is located at mem[PC+1].
 //A2 = A1+Y is the 16bit address that contains the operand to be fetched (=pointer).
-//(indirect first, then indexing)
 address getIndYOp(void)
 {
     word zrp_addr = mrd(PC+1);                              //get address, it's an 8bit zero page address   
@@ -1340,7 +1339,96 @@ int main(int argc, char *argv[])
             }
 
 
-            
+            case EOR_IMMD: 
+            {
+                PREPTEST(EOR_IMMD);
+                
+                word operand = getImdOp();      //get immediate operand
+                PC += 2;                        //target next opcode
+                eor(operand);                   //execute opcode
+                
+                TEST(EOR_IMMD);
+                break;        
+            }
+
+            case EOR_ZRP: 
+            {
+                PREPTEST(EOR_ZRP);
+                
+                word operand = getZrpOp();      //get zeropage operand
+                PC += 2;                        //target next opcode
+                eor(operand);                   //execute opcode
+                
+                TEST(EOR_ZRP);
+                break;        
+            }
+
+            case EOR_ZRPX: 
+            {
+                PREPTEST(EOR_ZRPX);
+                
+                word operand = getZrpXOp();     //get zeropage+X operand
+                PC += 2;                        //target next opcode
+                eor(operand);                   //execute opcode
+                
+                TEST(EOR_ZRPX);
+                break;        
+            }
+
+            case EOR_ABS: 
+            {
+                PREPTEST(EOR_ABS);
+                
+                word operand =  getAbsOp();     //get absoulte operand
+                PC += 3;                        //target next opcode
+                eor(operand);                   //execute opcode
+                
+                TEST(EOR_ABS);
+                break;        
+            }
+
+            case EOR_ABSX: 
+            {
+                PREPTEST(EOR_ABSX);
+                
+                word operand =  getAbsXOp();    //get absolute+X operand
+                PC += 3;                        //target next opcode
+                eor(operand);                   //execute opcode
+                
+                TEST(EOR_ABSX);
+                break;        
+            }
+
+            case EOR_ABSY: 
+            {
+                PREPTEST(EOR_ABSY);
+                
+                word operand =  getAbsYOp();    //get absolute+Y operand
+                PC += 3;                        //target next opcode
+                eor(operand);                   //execute opcode
+                
+                TEST(EOR_ABSY);
+                break;        
+            }
+
+            case EOR_XIND: 
+            {
+                PREPTEST(EOR_XIND);
+                
+                word operand =  getXIndOp();    //get X indexed indirect operand
+                PC += 2;                        //target next opcode
+                eor(operand);                   //execute opcode
+                
+                TEST(EOR_XIND);
+                break;        
+            }
+
+            case EOR_INDY: 
+            {
+             //TODO      
+             break;;  
+            }
+
 
 
             //############################# COMPARE AND TEST BIT INSTRUCTIONS #############################
@@ -1897,11 +1985,21 @@ void and(word operand)
     setZ(A);
 }
 
-//A <-- A » operand
+//A <-- A | operand
 //affects N, Z
 void ora(word operand)
 {
     A = A | operand;
+
+    setN(A);
+    setZ(A);
+}
+
+//A <-- A ^ operand
+//affects N, Z
+void eor(word operand)
+{
+    A = A ^ operand;
 
     setN(A);
     setZ(A);
