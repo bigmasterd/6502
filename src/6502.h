@@ -80,9 +80,9 @@
 #define DEC_ABS     0xCE 
 #define DEC_ABSX    0xDE 
                 
-#define DEX_IMPL    0xCA 
+#define DEX_IMPL    0xCA    //done
                                 
-#define DEY_IMPL    0x88 
+#define DEY_IMPL    0x88    //done
                 
                 
 //SHIFT & ROTATE INSTRUCTIONS
@@ -242,10 +242,7 @@ void inx    (void);
                 
 void iny    (void);  
                 
-void dec_zrp     (void);  
-void dec_zrpx    (void);  
-void dec_abs     (void);  
-void dec_absx    (void);  
+void dec(address a));  
                 
 void dex    (void);  
                                 

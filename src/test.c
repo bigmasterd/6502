@@ -582,9 +582,12 @@ void preptest(word opcode)
             break;
         }
 
-        case DEC_ZRP:  
+        case DEC_ZRP:
         {   
-            NO_TEST_PREP_IMPL_WARN(DEC_ZRP);        
+            mwr(0xAB, 0x91);    //write some test value to zeropage
+            M_EXP1 = 0xAA;      //expected value in memory after decrement
+            P = 0x55;           //0101.0101 some init value
+            P_EXP = 0xD5;       //1101.0101 N must be set, other flags must be unchanged
             break;
         }
 
@@ -1699,6 +1702,13 @@ void test(word opcode)
             checkMem(0x1234+X, M_EXP1, "INC_ABSX"); //expecting value M_EXP1 in mem[0x1234+X]
             checkReg(P_EXP, P, "P", "INC_ABSX");    //P changed
             break;  
+        }
+
+        case DEC_ZRP:
+        {
+            checkMem(0x91, M_EXP1, "DEC_ZRP");  //expecting value M_EXP1 in mem[0x91]
+            checkReg(P_EXP, P, "P", "DEC_ZRP"); //P changed
+            break;
         }
 
 

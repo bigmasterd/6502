@@ -895,6 +895,54 @@ int main(int argc, char *argv[])
                 TEST(INY_IMPL);
                 break;        
             }
+
+            case DEC_ZRP:
+            {
+                PREPTEST(DEC_ZRP);
+
+                address a = getZrpAddr();       //get address from zeropage                 
+                PC += 2;                        //target next opcode
+                dec(a);                         //execute opcode
+
+                TEST(DEC_ZRP);
+                break;
+            }
+            
+            case DEC_ZRPX:
+            {
+                PREPTEST(DEC_ZRPX);
+
+                address a = getZrpXAddr();      //get address from zeropage + X                 
+                PC += 2;                        //target next opcode
+                dec(a);                         //execute opcode
+
+                TEST(DEC_ZRPX);
+                break;
+            }
+
+            case DEC_ABS:
+            {
+                PREPTEST(DEC_ABS);
+
+                address a = getAbsAddr();       //get absolute address                
+                PC += 3;                        //target next opcode
+                dec(a);                         //execute opcode
+
+                TEST(DEC_ABS);
+                break;
+            }
+
+            case DEC_ABSX:
+            {
+                PREPTEST(DEC_ABSX);
+
+                address a = getAbsXAddr();      //get absolute address                
+                PC += 3;                        //target next opcode
+                dec(a);                         //execute opcode
+
+                TEST(DEC_ABSX);
+                break;
+            }
                 
             case DEX_IMPL: 
             {
@@ -1831,7 +1879,19 @@ void iny(void)
     Y++;
     
     setN(Y);
-    setZ(Y);        
+    setZ(Y);
+}
+
+//decrement memory at address a
+//affects N and Z
+void dec(address a)
+{
+    word w = mrd(a); //get value from mem
+    w--;             //decrement it
+    mwr(w, a);       //write it back
+
+    setN(w);
+    setZ(w);
 }
 
 
