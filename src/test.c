@@ -591,21 +591,32 @@ void preptest(word opcode)
             break;
         }
 
-        case DEC_ZRPX:  
+        case DEC_ZRPX:
         {   
-            NO_TEST_PREP_IMPL_WARN(DEC_ZRPX);        
+            X = 0x10;
+            mwr(0x01, 0x91+X);  //write test value to zeropage+X
+            M_EXP1 = 0x00;      //expected value in memory after decrement
+            P = 0xF0;           //1111.0000 some init value
+            P_EXP = 0x72;       //0111.0010 N must be cleared, Z must be set, other flags must be unchanged
             break;
         }
 
-        case DEC_ABS:  
+        case DEC_ABS:
         {   
-            NO_TEST_PREP_IMPL_WARN(DEC_ABS);        
+            mwr(0xFF, 0x4588);  //write some test value to mem
+            M_EXP1 = 0xFE;      //expected value in memory after decrement
+            P = 0xF0;           //1111.0000 some init value
+            P_EXP = 0xF0;       //1111.0000 unchanged
             break;
         }
 
-        case DEC_ABSX:  
+        case DEC_ABSX:
         {   
-            NO_TEST_PREP_IMPL_WARN(DEC_ABSX);        
+            X = 0x55;
+            mwr(0xFF, 0x4588+X);//write some test value to mem+X
+            M_EXP1 = 0xFE;      //expected value in memory after decrement
+            P = 0x11;           //0001.0001 some init value
+            P_EXP = 0x91;       //1001.0001 N must be set, other flags must be unchanged
             break;
         }
 
@@ -1708,6 +1719,27 @@ void test(word opcode)
         {
             checkMem(0x91, M_EXP1, "DEC_ZRP");  //expecting value M_EXP1 in mem[0x91]
             checkReg(P_EXP, P, "P", "DEC_ZRP"); //P changed
+            break;
+        }
+
+        case DEC_ZRPX:
+        {
+            checkMem(0x91+X, M_EXP1, "DEC_ZRPX");  //expecting value M_EXP1 in mem[0x91+X]
+            checkReg(P_EXP, P, "P", "DEC_ZRPX"); //P changed
+            break;
+        }
+
+        case DEC_ABS:
+        {
+            checkMem(0x4588, M_EXP1, "DEC_ABS");  //expecting value M_EXP1 in mem[0x4588]
+            checkReg(P_EXP, P, "P", "DEC_ABS");   //P unchanged
+            break;
+        }
+
+        case DEC_ABSX:
+        {
+            checkMem(0x4588+X, M_EXP1, "DEC_ABSX");  //expecting value M_EXP1 in mem[0x4588+X]
+            checkReg(P_EXP, P, "P", "DEC_ABSX");   //P changed
             break;
         }
 

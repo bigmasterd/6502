@@ -242,7 +242,7 @@ void inx    (void);
                 
 void iny    (void);  
                 
-void dec(address a));  
+void dec(address a);  
                 
 void dex    (void);  
                                 
