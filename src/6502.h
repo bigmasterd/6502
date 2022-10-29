@@ -75,10 +75,10 @@
                 
 #define INY_IMPL    0xC8    //done
                 
-#define DEC_ZRP     0xC6 
-#define DEC_ZRPX    0xD6 
-#define DEC_ABS     0xCE 
-#define DEC_ABSX    0xDE 
+#define DEC_ZRP     0xC6    //done
+#define DEC_ZRPX    0xD6    //done
+#define DEC_ABS     0xCE    //done
+#define DEC_ABSX    0xDE    //done
                 
 #define DEX_IMPL    0xCA    //done
                                 
@@ -178,7 +178,7 @@
 #define JMP_ABS     0x4C
 #define JMP_IND     0x6C
                 
-#define JSR_ABS     0x20
+#define JSR_ABS     0x20    //done
                  
 #define RTS_IMPL    0x60
                 
@@ -316,21 +316,21 @@ void rts (void);
 void rti_impl    (void);  
                 
 //BRANCH INSTRUCTIONS
-void bcc_rel     (void);  
+void bcc(sword operand);  
                 
-void bcs_rel     (void);  
+void bcs(void);  
                 
-void beq_rel     (void);  
+void beq(void);  
                 
-void bmi_rel     (void);  
+void bmi(void);  
                 
-void bne_rel     (void);  
+void bne(sword operand);  
                  
-void bpl_rel     (void);  
+void bpl(void);  
                  
-void bvc_rel     (void);  
+void bvc(void);  
                 
-void bvs_rel     (void);  
+void bvs(void);  
                 
 //STACK INSTRUCTIONS
 void pha_impl(void);  //done

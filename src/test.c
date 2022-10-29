@@ -1283,7 +1283,12 @@ void preptest(word opcode)
 
         case BCC_REL:
         {   
-            NO_TEST_PREP_IMPL_WARN(BCC_REL);
+            //note that branch-not-taken-case is not tested because of test env limitation
+            //note also that a positive offset is added here, negative offset is tested in other branch opcode
+
+            P = 0xFE;           //carry not set
+            PC_EXP = PC + 0x9;  //must branch to PC+9 (branch offset in assembly file is 7, but need to add 2 
+                                //because PC was incremented twice reading BCC and operand)
             break;
         }
 
@@ -1307,7 +1312,12 @@ void preptest(word opcode)
 
         case BNE_REL:
         {   
-            NO_TEST_PREP_IMPL_WARN(BNE_REL);
+            //note that branch-not-taken-case is not tested because of test env limitation
+            //note also that a negative offset is added here, positive offset is tested in other branch opcode
+
+            P = 0xFC;           //Z not set
+            PC_EXP = PC - 0x5;  //must branch to PC-5 (branch offset in assembly file is -7, but need to add 2 
+                                //because PC was incremented twice reading BCC and operand)
             break;
         }
 
@@ -2143,6 +2153,17 @@ void test(word opcode)
 
             
         //############################# BRANCH INSTRUCTIONS #############################    
+        case BCC_REL:
+        {
+            checkReg(PC_EXP, PC, "PC", "BCC_REL");   //PC must contain branch address
+            break;
+        }
+
+        case BNE_REL:
+        {
+            checkReg(PC_EXP, PC, "PC", "BNE_REL");   //PC must contain branch address
+            break;
+        }
 
 
         //############################# STACK INSTRUCTIONS #############################

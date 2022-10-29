@@ -263,6 +263,12 @@ word getAbsYOp(void)
     return operand;
 }
 
+sword getRelOp(void)
+{
+    word operand = mrd(PC+1);
+    return (sword) operand;
+}
+
 //Indexing first, then indirection:
 //A1 is an 8bit zeropage address located at mem[PC+1].
 //A2 = A1+X is a zeropage address that contains the lo-byte of the 16bit target address (location of operand to be fetched).
@@ -1621,9 +1627,29 @@ int main(int argc, char *argv[])
             }                      
                             
             //############################# BRANCH INSTRUCTIONS #############################
+
+            case BCC_REL:
+            {
+                PREPTEST(BCC_REL);
+
+                sword operand = getRelOp(); //get relative operand, which is a signed word
+                PC += 2;                    //target next instruction, if branch is taken, we'll jump from here
+                bcc(operand);               //execute opcode
+
+                TEST(BCC_REL);
+                break;
+
+            }
+
             case BNE_REL: 
             {
-                bne_rel(); //branch to PC+operand if Z == 0
+                PREPTEST(BNE_REL);
+
+                sword operand = getRelOp(); //get relative operand, which is a signed word
+                PC += 2;                    //target next instruction, if branch is taken, we'll jump from here
+                bne(operand);               //execute opcode
+
+                TEST(BNE_REL);
                 break;
             }
                 
@@ -2177,23 +2203,26 @@ void ldy(word operand)
     setZ(Y);    
 }
 
-//TODO: what's with this one? CHECK!
-//branch to PC+operand if result is not zero, i.e. Z == 0
+//branch to PC+operand if C is 0
 //2 bytes long, no flags affected
-void bne_rel(void)
-{
-    sword operand = mrd(PC+1);  //target operand 1 (it's the offset, which is in [-128, 127])    
-    PC = PC+2;                  //target next opcode, target will be overwritten if branch is taken
-    
-    //printf("before branch\n");
-    if (getZ() == 0) 
+void bcc(sword operand)
+{    
+    if (getC() == 0)
     {
-        //mdump(0, 10);
-        //printf("Z == 0, going to branch\n");
-        printRegs();
-        //printf("offset is: %i", operand);
-        PC = PC+(operand); //PC <- PC+operand, operand is in [-128, 127]        
+        //branch taken, add signed offset to jump to current position + offset, which is in [-128, 127]
+        PC = (address) ((int) PC + operand);
     }
+}
+
+//branch to PC+operand if Z is 0
+//2 bytes long, no flags affected
+void bne(sword operand)
+{
+    if (getZ() == 0)
+    {
+        //branch taken, add signed offset to jump to current position + offset, which is in [-128, 127]
+        PC = (address) ((int) PC + operand);
+    }    
 }
 
 //push A to stack, i.e. mem[SP] <- A
