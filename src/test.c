@@ -1233,10 +1233,9 @@ void preptest(word opcode)
 
 
         //############################# JUMP AND SUBROUTINE INSTRUCTIONS #############################
-
         case JMP_ABS:
         {   
-            NO_TEST_PREP_IMPL_WARN(JMP_ABS);
+            PC_EXP = 0x6699; //expecting this address in PC after JMP execution
             break;
         }
 
@@ -1287,8 +1286,7 @@ void preptest(word opcode)
             //note also that a positive offset is added here, negative offset is tested in other branch opcode
 
             P = 0xFE;           //carry not set
-            PC_EXP = PC + 0x9;  //must branch to PC+9 (branch offset in assembly file is 7, but need to add 2 
-                                //because PC was incremented twice reading BCC and operand)
+            PC_EXP = 0x0009;    //must branch to 0x0009 it's the BRK operation in the assembly file (branch target)
             break;
         }
 
@@ -1316,9 +1314,8 @@ void preptest(word opcode)
             //note also that a negative offset is added here, positive offset is tested in other branch opcode
 
             P = 0xFC;           //Z not set
-            PC_EXP = PC - 0x5;  //must branch to PC-5 (branch offset in assembly file is -7, but need to add 2 
-                                //because PC was incremented twice reading BCC and operand)
-            break;
+            PC_EXP = 0x0003;    //must branch to 0x0003 it's the BRK operation in the assembly file (branch target)
+            break;             
         }
 
         case BPL_REL:
@@ -2135,12 +2132,17 @@ void test(word opcode)
         
 
         //############################# JUMP AND SUBROUTINE INSTRUCTIONS #############################
+        case JMP_ABS:
+        {
+            checkReg(PC_EXP, PC, "PC", "JMP_ABS");  //PC must be loaded with the new address (absolute value from test file)
+            break;
+        }
 
         case JSR_ABS:
         {
             checkMem(SP+1, M_EXP1, "JSR_ABS");          //1st value on stack must be M_EXP1, which is LO byte of saved PC
             checkMem(SP+2, M_EXP2, "JSR_ABS");          //2nd value on stack must be M_EXP2, which is HI byte of saved PC
-            checkReg(PC_EXP, 0x1234, "PC", "JSR_ABS");  //PC must be loaded with the new address (absolute value from test file)
+            checkReg(PC_EXP, PC, "PC", "JSR_ABS");  //PC must be loaded with the new address (absolute value from test file)
             break;
         }
 

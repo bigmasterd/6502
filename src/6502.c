@@ -1568,13 +1568,13 @@ int main(int argc, char *argv[])
             }
                 
             //############################# JUMP AND SUBROUTINE INSTRUCTIONS #############################
-
-            case JMP_ABS: //TODO
+            case JMP_ABS:
             {
                 PREPTEST(JMP_ABS);
             
-                // PC++;   //target next opcode
-                // jmp();  //execute opcode
+                address a = getAbsAddr();   //get absolute address
+                PC += 3;                    //target next opcode
+                jmp(a);                     //execute opcode
             
                 TEST(JMP_ABS);
                 break; 
@@ -1706,8 +1706,15 @@ int main(int argc, char *argv[])
                 break;
             }
 
+            //case BRK_IMPL:
+            //{
+                //PC++;
+                //brk(); //TODO
+                //printf("TODO: BRK NOT IMPLEMENTED");
+            //    break;
+            //}
 
-            //############################# MISC INSTRUCTIONS #############################
+            //TODO: delte this if BRK works properly, BKR is also 0x0
             case 0x0: //no instruction found, assuming that program has exited
             {
                 printf("\nNo more instructions. Emulation stopped. \n");
@@ -2140,6 +2147,16 @@ void clv(void)
 {
     setV(0); //clear V
 }
+
+//jump to new location
+//3 bytes long
+//no flags affected
+void jmp(address a)
+{
+    PC = a;
+}
+
+
 
 //jump to subroutine: push PC to stack and load PC with jump address a
 //note: JSR instruction increments the PC only by 2 (according to real HW implementation)

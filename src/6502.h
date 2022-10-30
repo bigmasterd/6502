@@ -306,8 +306,8 @@ void cli    (void);
 void clv    (void);  
                 
 //JUMP AND SUBROUTINE INSTRUCTIONS
-void jmp_abs     (void);  
-void jmp_ind     (void);  
+void jmp(address a);  
+void jmp(address a);  
                 
 void jsr (address a);  
                  

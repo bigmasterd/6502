@@ -1,5 +1,5 @@
-nop
-here brk ;exit the program here, endless loop otherwise, PC must be 2 at test start   
+jmp $0004; initially, jump right after the BRK
+here brk ;exit the program here after branch, endless loop otherwise   
 nop
 nop
 nop
