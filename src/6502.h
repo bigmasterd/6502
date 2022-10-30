@@ -185,7 +185,7 @@
 #define RTI_IMPL    0x40
                 
 //BRANCH INSTRUCTIONS
-#define BCC_REL     0x90
+#define BCC_REL     0x90    //done
                 
 #define BCS_REL     0xB0
                  
@@ -193,7 +193,7 @@
                 
 #define BMI_REL     0x30
                 
-#define BNE_REL     0xD0
+#define BNE_REL     0xD0    //done
                  
 #define BPL_REL     0x10
                  
@@ -316,21 +316,21 @@ void rts (void);
 void rti_impl    (void);  
                 
 //BRANCH INSTRUCTIONS
-void bcc(sword operand);  
+void bcc(sword operand);    //done
                 
-void bcs(void);  
+void bcs(sword operand);    //done
                 
-void beq(void);  
+void beq(sword operand);    //done
                 
-void bmi(void);  
+void bmi(sword operand);    //done
                 
-void bne(sword operand);  
+void bne(sword operand);    //done
                  
-void bpl(void);  
+void bpl(sword operand);    //done
                  
-void bvc(void);  
+void bvc(sword operand);    //done
                 
-void bvs(void);  
+void bvs(sword operand);    //done
                 
 //STACK INSTRUCTIONS
 void pha_impl(void);  //done

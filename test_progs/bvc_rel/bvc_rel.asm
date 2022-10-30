@@ -5,5 +5,5 @@ nop
 nop
 nop
 nop
-bne here   ;assuming that Z is cleared, must branch to BRK and exit
+bvc here   ;assuming that V is cleared, must branch to BRK and exit
 nop

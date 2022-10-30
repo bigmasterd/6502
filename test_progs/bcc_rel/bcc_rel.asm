@@ -1,4 +1,4 @@
-bcc here   ;assuming that C is set, must branch to PC+7
+bcc here   ;assuming that C==0, must branch to BRK
 nop
 nop
 nop

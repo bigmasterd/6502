@@ -1638,7 +1638,42 @@ int main(int argc, char *argv[])
 
                 TEST(BCC_REL);
                 break;
+            }
 
+            case BCS_REL:
+            {
+                PREPTEST(BCS_REL);
+
+                sword operand = getRelOp(); //get relative operand, which is a signed word
+                PC += 2;                    //target next instruction, if branch is taken, we'll jump from here
+                bcs(operand);               //execute opcode
+
+                TEST(BCS_REL);
+                break;
+            }
+
+            case BEQ_REL:
+            {
+                PREPTEST(BEQ_REL);
+
+                sword operand = getRelOp(); //get relative operand, which is a signed word
+                PC += 2;                    //target next instruction, if branch is taken, we'll jump from here
+                beq(operand);               //execute opcode
+
+                TEST(BEQ_REL);
+                break;
+            }
+
+            case BMI_REL:
+            {
+                PREPTEST(BMI_REL);
+
+                sword operand = getRelOp(); //get relative operand, which is a signed word
+                PC += 2;                    //target next instruction, if branch is taken, we'll jump from here
+                bmi(operand);               //execute opcode
+
+                TEST(BMI_REL);
+                break;
             }
 
             case BNE_REL: 
@@ -1650,6 +1685,42 @@ int main(int argc, char *argv[])
                 bne(operand);               //execute opcode
 
                 TEST(BNE_REL);
+                break;
+            }
+
+            case BPL_REL: 
+            {
+                PREPTEST(BPL_REL);
+
+                sword operand = getRelOp(); //get relative operand, which is a signed word
+                PC += 2;                    //target next instruction, if branch is taken, we'll jump from here
+                bpl(operand);               //execute opcode
+
+                TEST(BPL_REL);
+                break;
+            }
+
+            case BVC_REL: 
+            {
+                PREPTEST(BVC_REL);
+
+                sword operand = getRelOp(); //get relative operand, which is a signed word
+                PC += 2;                    //target next instruction, if branch is taken, we'll jump from here
+                bvc(operand);               //execute opcode
+
+                TEST(BVC_REL);
+                break;
+            }
+
+            case BVS_REL: 
+            {
+                PREPTEST(BVS_REL);
+
+                sword operand = getRelOp(); //get relative operand, which is a signed word
+                PC += 2;                    //target next instruction, if branch is taken, we'll jump from here
+                bvs(operand);               //execute opcode
+
+                TEST(BVS_REL);
                 break;
             }
                 
@@ -2231,11 +2302,77 @@ void bcc(sword operand)
     }
 }
 
+//branch to PC+operand if C is 1
+//2 bytes long, no flags affected
+void bcs(sword operand)
+{    
+    if (getC() == 1)
+    {
+        //branch taken, add signed offset to jump to current position + offset, which is in [-128, 127]
+        PC = (address) ((int) PC + operand);
+    }
+}
+
+//branch to PC+operand if Z is 1
+//2 bytes long, no flags affected
+void beq(sword operand)
+{    
+    if (getZ() == 1)
+    {
+        //branch taken, add signed offset to jump to current position + offset, which is in [-128, 127]
+        PC = (address) ((int) PC + operand);
+    }
+}
+
+//branch to PC+operand if N is 1
+//2 bytes long, no flags affected
+void bmi(sword operand)
+{    
+    if (getN() == 1)
+    {
+        //branch taken, add signed offset to jump to current position + offset, which is in [-128, 127]
+        PC = (address) ((int) PC + operand);
+    }
+}
+
 //branch to PC+operand if Z is 0
 //2 bytes long, no flags affected
 void bne(sword operand)
 {
     if (getZ() == 0)
+    {
+        //branch taken, add signed offset to jump to current position + offset, which is in [-128, 127]
+        PC = (address) ((int) PC + operand);
+    }    
+}
+
+//branch to PC+operand if N is 0
+//2 bytes long, no flags affected
+void bpl(sword operand)
+{
+    if (getN() == 0)
+    {
+        //branch taken, add signed offset to jump to current position + offset, which is in [-128, 127]
+        PC = (address) ((int) PC + operand);
+    }    
+}
+
+//branch to PC+operand if V is 0
+//2 bytes long, no flags affected
+void bvc(sword operand)
+{
+    if (getV() == 0)
+    {
+        //branch taken, add signed offset to jump to current position + offset, which is in [-128, 127]
+        PC = (address) ((int) PC + operand);
+    }    
+}
+
+//branch to PC+operand if V is 1
+//2 bytes long, no flags affected
+void bvs(sword operand)
+{
+    if (getV() == 1)
     {
         //branch taken, add signed offset to jump to current position + offset, which is in [-128, 127]
         PC = (address) ((int) PC + operand);

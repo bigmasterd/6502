@@ -1292,19 +1292,31 @@ void preptest(word opcode)
 
         case BCS_REL:
         {   
-            NO_TEST_PREP_IMPL_WARN(BCS_REL);
+            //note that branch-not-taken-case is not tested because of test env limitation
+            //note also that a positive offset is added here, negative offset is tested in other branch opcode
+
+            P = 0x01;           //carry set
+            PC_EXP = 0x0009;    //must branch to 0x0009 it's the BRK operation in the assembly file (branch target)
             break;
         }
 
         case BEQ_REL:
         {   
-            NO_TEST_PREP_IMPL_WARN(BEQ_REL);
+            //note that branch-not-taken-case is not tested because of test env limitation
+            //note also that a positive offset is added here, negative offset is tested in other branch opcode
+
+            P = 0x02;           //Z set
+            PC_EXP = 0x0009;    //must branch to 0x0009 it's the BRK operation in the assembly file (branch target)
             break;
         }
 
         case BMI_REL:
         {   
-            NO_TEST_PREP_IMPL_WARN(BMI_REL);
+            //note that branch-not-taken-case is not tested because of test env limitation
+            //note also that a positive offset is added here, negative offset is tested in other branch opcode
+
+            P = 0x80;           //N set
+            PC_EXP = 0x0009;    //must branch to 0x0009 it's the BRK operation in the assembly file (branch target)
             break;
         }
 
@@ -1320,20 +1332,32 @@ void preptest(word opcode)
 
         case BPL_REL:
         {   
-            NO_TEST_PREP_IMPL_WARN(BPL_REL);
-            break;
+            //note that branch-not-taken-case is not tested because of test env limitation
+            //note also that a negative offset is added here, positive offset is tested in other branch opcode
+
+            P = 0x7F;           //N not set
+            PC_EXP = 0x0003;    //must branch to 0x0003 it's the BRK operation in the assembly file (branch target)
+            break;             
         }
 
         case BVC_REL:
         {   
-            NO_TEST_PREP_IMPL_WARN(BVC_REL);
-            break;
+            //note that branch-not-taken-case is not tested because of test env limitation
+            //note also that a negative offset is added here, positive offset is tested in other branch opcode
+
+            P = 0xBF;           //V not set
+            PC_EXP = 0x0003;    //must branch to 0x0003 it's the BRK operation in the assembly file (branch target)
+            break;             
         }
         
         case BVS_REL:
         {   
-            NO_TEST_PREP_IMPL_WARN(BVS_REL);
-            break;
+            //note that branch-not-taken-case is not tested because of test env limitation
+            //note also that a negative offset is added here, positive offset is tested in other branch opcode
+
+            P = 0x40;           //V set
+            PC_EXP = 0x0003;    //must branch to 0x0003 it's the BRK operation in the assembly file (branch target)
+            break;             
         }
 
 
@@ -2161,11 +2185,48 @@ void test(word opcode)
             break;
         }
 
+        case BCS_REL:
+        {
+            checkReg(PC_EXP, PC, "PC", "BCS_REL");   //PC must contain branch address
+            break;
+        }
+
+        case BEQ_REL:
+        {
+            checkReg(PC_EXP, PC, "PC", "BEQ_REL");   //PC must contain branch address
+            break;
+        }
+
+        case BMI_REL:
+        {
+            checkReg(PC_EXP, PC, "PC", "BMI_REL");   //PC must contain branch address
+            break;
+        }
+
         case BNE_REL:
         {
             checkReg(PC_EXP, PC, "PC", "BNE_REL");   //PC must contain branch address
             break;
         }
+        
+        case BPL_REL:
+        {
+            checkReg(PC_EXP, PC, "PC", "BPL_REL");   //PC must contain branch address
+            break;
+        }
+
+        case BVC_REL:
+        {
+            checkReg(PC_EXP, PC, "PC", "BVC_REL");   //PC must contain branch address
+            break;
+        }
+
+        case BVS_REL:
+        {
+            checkReg(PC_EXP, PC, "PC", "BVS_REL");   //PC must contain branch address
+            break;
+        }
+        
 
 
         //############################# STACK INSTRUCTIONS #############################
