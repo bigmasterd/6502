@@ -1,0 +1,2286 @@
+#include "test.h"
+#include "6502.h"
+#include "mem.h"
+#include "utils.h"
+#include <stdio.h>
+#include <stdlib.h>
+
+//6502 registers
+extern word 	X;  //X indexing register
+extern word 	Y;  //Y indexing register
+extern word 	A;  //accumulator
+extern word 	P;  //processor status word with the flags (N V - B D I Z C)
+extern word 	IR; //instruction register, contains instruction to be decoded, i.e. IR == mrd(PC)
+extern address 	SP; //6502's stack has a range of 256 and is hard wired to 2nd memory page 0100 to 01FF (9 bit address)
+extern address  PC; //program counter, NOTE: PC contains always the instruction to be fetched next !!!
+
+//test specific expected values
+word X_EXP;     //expected value in register X after test run
+word Y_EXP;     //expected value in register Y after test run
+word A_EXP;     //expected value in accumulator after test run
+word P_EXP;     //expected value in status register after test run
+word IR_EXP;    //expected value in instruction register after test run
+dword SP_EXP;   //expected value in stack pointer register after test run
+address PC_EXP; //expected value in PC register after test run
+word M_EXP1;    //expected value in memory location 1
+word M_EXP2;    //expected value in memory location 2
+
+
+#define X_DEF   0b00000001
+#define Y_DEF   0b00000010
+#define A_DEF   0b00000011
+#define P_DEF   0b00110000 //normal default value: (N V - B D I Z C) // - always 1, B is 1 too because NES does not use decimal mode D at all
+#define SP_DEF  0b00000100
+
+#define NO_TEST_PREP_IMPL_WARN(opcode) printf("NO TEST PREPARATION FOR OPCODE %X\n", opcode);
+#define NO_TEST_IMPL_WARN(opcode) printf("NO TEST FOR OPCODE %X\n", opcode);
+
+
+void checkReg(dword exp_reg_val, dword act_reg_value, char* reg_name, char* opcode_name)
+{
+    if (exp_reg_val != act_reg_value)
+    {
+        printf("%s: FAILED. Expected value in %s: 0x%.4X, but actual value: 0x%.4X.\n", opcode_name, reg_name, exp_reg_val, act_reg_value);
+    }
+    else
+    {
+        printf("%s: PASSED. Value in %s is just as expected: 0x%.4X.\n", opcode_name, reg_name, exp_reg_val);
+    }
+}
+
+
+void checkMem(address addr, word exp_mem_val, char* opcode_name)
+{
+    word act_mem_value = mrd(addr);
+    
+    if (exp_mem_val != act_mem_value)
+    {
+        printf("%s: FAILED. Expected value in mem[0x%.2X]: 0x%.2X, but actual value: 0x%.2X.\n", opcode_name, addr, exp_mem_val, act_mem_value);
+    }
+    else
+    {
+        printf("%s: PASSED. Value in mem[0x%.2X] is just as expected: 0x%.2X.\n", opcode_name, addr, exp_mem_val);
+    }
+}
+
+
+void preptest(word opcode)
+{
+    switch(opcode)
+	{        
+        //############################# TRANSFER INSTRUCTIONS #############################        
+
+        case TAX_IMPL:
+        {
+            NO_TEST_PREP_IMPL_WARN(TAX_IMPL);
+            break;
+        }
+        
+        case TXA_IMPL:  
+        {
+            X   =   0;
+            Y   =   Y_DEF;
+            A   =   A_DEF;
+            P   =   P_DEF; 
+            SP  =   SP_DEF;
+            break;
+        }
+            
+        case TAY_IMPL:  
+        {
+            X   =   X_DEF;
+            Y   =   Y_DEF;
+            A   =   -42;
+            P   =   P_DEF; 
+            SP  =   SP_DEF;
+            break;
+        }
+
+        case TYA_IMPL:  
+        {
+            NO_TEST_PREP_IMPL_WARN(TYA_IMPL);
+            break;
+        }
+
+        case TSX_IMPL:  
+        {
+            NO_TEST_PREP_IMPL_WARN(TSX_IMPL);
+            break;
+        }
+
+        case TXS_IMPL:  
+        {
+            NO_TEST_PREP_IMPL_WARN(TXS_IMPL);
+            break;
+        }
+
+
+        //############################# STORAGE INSTRUCTIONS #############################
+
+        case LDA_IMMD:  
+        {
+            X   =   X_DEF;
+            Y   =   Y_DEF;
+            A   =   A_DEF;  //will change to 0x23 after load
+            P   =   P_DEF;  
+            SP  =   SP_DEF;
+            break;
+        }
+            
+        case LDA_ZRP:  
+        {
+            X   =   X_DEF;
+            Y   =   Y_DEF;
+            A   =   A_DEF;  //will change to 0x77 after load
+            P   =   P_DEF;  
+            SP  =   SP_DEF;
+            mwr(0x77, 0xab); //M[0x00ab] <- 0x77
+            break;
+        }
+            
+        case LDA_ZRPX:
+        {
+            X   =   0x7;
+            Y   =   Y_DEF;
+            A   =   A_DEF;  //will change to 0x78 after load
+            P   =   P_DEF;  
+            SP  =   SP_DEF;
+            mwr(0x78, 0xab+X); //M[0x00ab+X] <- 0x78
+            break;
+        } 
+            
+        case LDA_ABS:
+        {
+            X   =   X_DEF;
+            Y   =   Y_DEF;
+            A   =   A_DEF;  //will change to 0x79 after load
+            P   =   P_DEF;  
+            SP  =   SP_DEF;
+            mwr(0x79, 0xabcd); //M[0xabcd] <- 0x79
+            break;
+        } 
+            
+        case LDA_ABSX:
+        {
+            X   =   0x8;
+            Y   =   Y_DEF;
+            A   =   A_DEF;  //will change to 0x80 after load
+            P   =   P_DEF;  
+            SP  =   SP_DEF;
+            mwr(0x80, 0xabcd+X); //M[0xabcd+X] <- 0x80
+            break;
+        } 
+            
+        case LDA_ABSY:
+        {
+            X   =   X_DEF;
+            Y   =   0xaa;
+            A   =   A_DEF;  //will change to 0x81 after load
+            P   =   P_DEF;  
+            SP  =   SP_DEF;
+            mwr(0x81, 0xabcd+Y); //M[0xabcd+Y] <- 0x81
+            break;
+        } 
+            
+        case LDA_XIND:
+        {
+            mwr(0x77, 0xABCD);  //store final value to be retrieved from mem
+            mwr(0xCD, 0x0A);    //store LO-byte of pointer to zeropage 0x0A
+            mwr(0xAB, 0x0B);    //store HI-byte of pointer to zeropage 0x0B
+            X = 0x06;           //let X be 6, so that in "LDA (OPER, X)" OPER+X will result in 0x0A
+                                //that is, code in test assembly must be: LDA ($04, X)
+            A_EXP = 0x77;       //after test, A must be loaded with this value            
+            P = 0xEE;           //1110.1110 some init value
+            P_EXP = 0x6C;       //0110.1100 N and Z must be cleared, other flags must be unchanged                                  
+            break;
+        }
+            
+        case LDA_INDY:
+        {
+            NO_TEST_PREP_IMPL_WARN(LDA_INDY);
+            break;
+        }
+            
+        case LDX_IMMD:  
+        {
+            X   =   X_DEF; //will change to 0x23 after load
+            Y   =   Y_DEF;
+            A   =   A_DEF;  
+            P   =   P_DEF;  
+            SP  =   SP_DEF;
+            break;
+        }
+            
+        case LDX_ZRP:  
+        {
+            X   =   X_DEF; //will change to 0x77 after load
+            Y   =   Y_DEF;
+            A   =   A_DEF;  
+            P   =   P_DEF;  
+            SP  =   SP_DEF;
+            mwr(0x77, 0xab); //M[0x00ab] <- 0x77
+            break;
+        }
+            
+        case LDX_ZRPY:  
+        {
+            X   =   X_DEF; //will change to 0xcc after load
+            Y   =   0xaa;  //offset
+            A   =   A_DEF;  
+            P   =   P_DEF;  
+            SP  =   SP_DEF;
+            mwr(0xcc, 0x42+Y); //M[0x0042+0x00aa] <- 0xcc
+            break;
+        }
+            
+        case LDX_ABS:
+        {
+            X   =   X_DEF; //will change to 0x12 after load
+            Y   =   Y_DEF;
+            A   =   A_DEF;  
+            P   =   P_DEF;  
+            SP  =   SP_DEF;
+            mwr(0x12, 0xabcd); //M[0xabcd] <- 0x12
+            break;
+        }
+            
+            
+        case LDX_ABSY:
+        {
+            X   =   X_DEF; //will change to 0xFA after load
+            Y   =   0xbb;
+            A   =   A_DEF;  
+            P   =   P_DEF;  
+            SP  =   SP_DEF;
+            mwr(0xFA, 0x1234+Y); //M[0xabcd+Y] <- 0xFA //negative
+            break;
+        } 
+         
+           
+        case LDY_IMMD:  
+        {
+            X   =   X_DEF; 
+            Y   =   Y_DEF; //will change to 0x23 after load
+            A   =   A_DEF;  
+            P   =   P_DEF;  
+            SP  =   SP_DEF;
+            break;
+        }
+            
+        case LDY_ZRP:  
+        {
+            X   =   X_DEF; 
+            Y   =   Y_DEF; //will change to 0x77 after load
+            A   =   A_DEF;  
+            P   =   P_DEF;  
+            SP  =   SP_DEF;
+            mwr(0x77, 0xab); //M[0x00ab] <- 0x77
+            break;
+        }
+            
+        case LDY_ZRPX:  
+        {
+            X   =   0xaa;  //offset
+            Y   =   Y_DEF; //will change to 0xcc after load
+            A   =   A_DEF;  
+            P   =   P_DEF;  
+            SP  =   SP_DEF;
+            mwr(0xcc, 0x42+X); //M[0x0042+0x00aa] <- 0xcc
+            break;
+        }
+            
+        case LDY_ABS:
+        {
+            X   =   X_DEF; 
+            Y   =   Y_DEF; //will change to 0x12 after load
+            A   =   A_DEF;  
+            P   =   P_DEF;  
+            SP  =   SP_DEF;
+            mwr(0x12, 0xabcd); //M[0xabcd] <- 0x12
+            break;
+        }
+            
+            
+        case LDY_ABSX:
+        {
+            X   =   0xbb; 
+            Y   =   Y_DEF; //will change to 0xFA after load
+            A   =   A_DEF;  
+            P   =   P_DEF;  
+            SP  =   SP_DEF;
+            mwr(0xFA, 0x1234+X); //M[0xabcd+X] <- 0xFA //negative
+            break;
+        }
+            
+        case STA_ZRP:  
+        {
+            X   =   X_DEF;
+            Y   =   Y_DEF;
+            A   =   0x47;  
+            P   =   P_DEF;  
+            SP  =   SP_DEF;            
+            break;
+        }
+            
+        case STA_ZRPX:  
+        {
+            X   =   0x33;
+            Y   =   Y_DEF;
+            A   =   0x48;  
+            P   =   P_DEF;  
+            SP  =   SP_DEF;            
+            break;
+        }
+            
+        case STA_ABS:  
+        {
+            X   =   X_DEF;
+            Y   =   Y_DEF;
+            A   =   0x99;  
+            P   =   P_DEF;  
+            SP  =   SP_DEF;            
+            break;
+        }
+            
+        case STA_ABSX:  
+        {
+            X   =   0x33;
+            Y   =   Y_DEF;
+            A   =   0x99;  
+            P   =   P_DEF;  
+            SP  =   SP_DEF;            
+            break;
+        }
+            
+        case STA_ABSY:  
+        {
+            X   =   X_DEF;
+            Y   =   0x44;
+            A   =   0x88;  
+            P   =   P_DEF;  
+            SP  =   SP_DEF;            
+            break;
+        }
+            
+        case STA_XIND:  
+        {
+            NO_TEST_PREP_IMPL_WARN(STA_XIND);
+            break;
+        }
+            
+        case STA_INDY:  
+        {
+            NO_TEST_PREP_IMPL_WARN(STA_INDY);
+            break;
+        }
+            
+        case STX_ZRP:  
+        {
+            X   =   0xcc;
+            Y   =   Y_DEF;
+            A   =   A_DEF;  
+            P   =   P_DEF;  
+            SP  =   SP_DEF;            
+            break;
+        }
+            
+        case STX_ZRPY:  
+        {
+            X   =   0xcc;
+            Y   =   0x01;
+            A   =   A_DEF;  
+            P   =   P_DEF;  
+            SP  =   SP_DEF;            
+            break;
+        }
+            
+        case STX_ABS:  
+        {
+            X   =   0x33;
+            Y   =   Y_DEF;
+            A   =   A_DEF;  
+            P   =   P_DEF;  
+            SP  =   SP_DEF;            
+            break;
+        }
+            
+        case STY_ZRP:  
+        {
+            X   =   X_DEF;
+            Y   =   0xcc;
+            A   =   A_DEF;  
+            P   =   P_DEF;  
+            SP  =   SP_DEF;            
+            break;
+        }
+            
+        case STY_ZRPX:  
+        {
+            X   =   0x01; 
+            Y   =   0xcc;
+            A   =   A_DEF;  
+            P   =   P_DEF;  
+            SP  =   SP_DEF;            
+            break;
+        }
+            
+        case STY_ABS:  
+        {
+            X   =   X_DEF;
+            Y   =   0x33;
+            A   =   A_DEF;  
+            P   =   P_DEF;  
+            SP  =   SP_DEF;            
+            break;
+        }
+
+
+        //############################# ARITHMETIC INSTRUCTIONS #############################
+
+        case ADC_IMMD:  
+        {   
+            NO_TEST_PREP_IMPL_WARN(ADC_IMMD);        
+            break;
+        }
+
+        case ADC_ZRP:  
+        {   
+            NO_TEST_PREP_IMPL_WARN(ADC_ZRP);        
+            break;
+        }
+
+        case ADC_ZRPX:  
+        {   
+            NO_TEST_PREP_IMPL_WARN(ADC_ZRPX);        
+            break;
+        }
+
+        case ADC_ABS:  
+        {   
+            NO_TEST_PREP_IMPL_WARN(ADC_ABS);        
+            break;
+        }
+
+        case ADC_ABSX:  
+        {   
+            NO_TEST_PREP_IMPL_WARN(ADC_ABSX);        
+            break;
+        }
+
+        case ADC_ABSY:  
+        {   
+            NO_TEST_PREP_IMPL_WARN(ADC_ABSY);        
+            break;
+        }
+
+        case ADC_XIND:  
+        {   
+            NO_TEST_PREP_IMPL_WARN(ADC_XIND);        
+            break;
+        }
+
+        case ADC_INDY:  
+        {   
+            NO_TEST_PREP_IMPL_WARN(ADC_INDY);        
+            break;
+        }
+
+        case SBC_IMMD:  
+        {   
+            NO_TEST_PREP_IMPL_WARN(SBC_IMMD);        
+            break;
+        }
+
+        case SBC_ZRP:  
+        {   
+            NO_TEST_PREP_IMPL_WARN(SBC_ZRP);        
+            break;
+        }
+
+        case SBC_ZRPX:  
+        {   
+            NO_TEST_PREP_IMPL_WARN(SBC_ZRPX);        
+            break;
+        }
+
+        case SBC_ABS:  
+        {   
+            NO_TEST_PREP_IMPL_WARN(SBC_ABS);        
+            break;
+        }
+
+        case SBC_ABSX:  
+        {   
+            NO_TEST_PREP_IMPL_WARN(SBC_ABSX);        
+            break;
+        }
+
+        case SBC_ABSY:  
+        {   
+            NO_TEST_PREP_IMPL_WARN(SBC_ABSY);        
+            break;
+        }
+
+        case SBC_XIND:  
+        {   
+            NO_TEST_PREP_IMPL_WARN(SBC_XIND);        
+            break;
+        }
+
+        case SBC_INDY:  
+        {   
+            NO_TEST_PREP_IMPL_WARN(SBC_INDY);        
+            break;
+        }
+
+//        
+        case INC_ZRP:
+        {
+            mwr(0x60, 0xAA);          
+            break;
+        }
+
+        case INC_ZRPX:
+        {
+            X = 0x5;
+            mwr(0xF0, 0xAA+X);          
+            break;
+        }
+
+        case INC_ABS:
+        {            
+            mwr(0x12, 0x1234);          
+            break;
+        }
+
+
+        case INC_ABSX:
+        {   
+            X = 0x77;            
+            mwr(0b10001111, 0x1234+X);  
+            M_EXP1 = 0b10001111+1;      //expecting increased value in memory
+            P = 0b00110011;             //init P with some value
+            P_EXP = 0b10110001;         //N must be set, Z must be cleared, other flags must be unchanged
+            break;
+        }
+
+        case INX_IMPL:  
+        {   
+            X = X_DEF;
+            X_EXP = X+1;    //X must be incremented
+            P_EXP = P_DEF;  //P must be unchanged
+            break;
+        }
+
+        case INY_IMPL:  
+        {
+            Y  =   0b11111111;      //will turn into 0 after increment
+            Y_EXP = Y + 1;          //0
+            P =  P_DEF; 
+            P_EXP = P | 0b00000010; //Z must be set
+            break;
+        }
+
+        case DEC_ZRP:
+        {   
+            mwr(0xAB, 0x91);    //write some test value to zeropage
+            M_EXP1 = 0xAA;      //expected value in memory after decrement
+            P = 0x55;           //0101.0101 some init value
+            P_EXP = 0xD5;       //1101.0101 N must be set, other flags must be unchanged
+            break;
+        }
+
+        case DEC_ZRPX:
+        {   
+            X = 0x10;
+            mwr(0x01, 0x91+X);  //write test value to zeropage+X
+            M_EXP1 = 0x00;      //expected value in memory after decrement
+            P = 0xF0;           //1111.0000 some init value
+            P_EXP = 0x72;       //0111.0010 N must be cleared, Z must be set, other flags must be unchanged
+            break;
+        }
+
+        case DEC_ABS:
+        {   
+            mwr(0xFF, 0x4588);  //write some test value to mem
+            M_EXP1 = 0xFE;      //expected value in memory after decrement
+            P = 0xF0;           //1111.0000 some init value
+            P_EXP = 0xF0;       //1111.0000 unchanged
+            break;
+        }
+
+        case DEC_ABSX:
+        {   
+            X = 0x55;
+            mwr(0xFF, 0x4588+X);//write some test value to mem+X
+            M_EXP1 = 0xFE;      //expected value in memory after decrement
+            P = 0x11;           //0001.0001 some init value
+            P_EXP = 0x91;       //1001.0001 N must be set, other flags must be unchanged
+            break;
+        }
+
+        case DEX_IMPL:  
+        {   
+            NO_TEST_PREP_IMPL_WARN(DEX_IMPL);        
+            break;
+        }
+
+        case DEY_IMPL:  
+        {   
+            NO_TEST_PREP_IMPL_WARN(DEY_IMPL);        
+            break;
+        }
+
+
+        //############################# SHIFT & ROTATE INSTRUCTIONS #############################
+
+        case ASL_ACCU:
+        {   
+            A = 0b10010011; //init A with test value
+            P = 0; //init P
+            A_EXP = 0b00100110; //bits shifted left, must change to 0b00100110                      
+            P_EXP = 0b00000001; //carry must be set
+            break;
+        }
+
+        case ASL_ZRP:  
+        {   
+            mwr(0b00010011, 0x0A); // init memory location that will be shifted
+            M_EXP1 = 0b00100110; //expected value in memory after shift
+            P = 0b1001001; //init P            
+            P_EXP = 0b1001000; //carry must be NOT set, other bits must be unchanged            
+            break;
+        }
+
+        case ASL_ZRPX:  
+        {   
+            X = 0x07;
+            mwr(0b00010011, 0x0A+X); // init memory location that will be shifted
+            M_EXP1 = 0b00100110; //expected value in memory after shift
+            P = 0b1001001; //init P            
+            P_EXP = 0b1001000; //carry must be NOT set, other bits must be unchanged            
+            break;
+        }
+
+        case ASL_ABS:  
+        {   
+            mwr(0b11111110, 0x6789); // init memory location that will be shifted
+            M_EXP1 = 0b11111100; //expected value in memory after shift
+            P = 0b11111101; //init P            
+            P_EXP = 0b11111101; //carry must be set, other bits must be unchanged            
+            break;
+        }
+
+        case ASL_ABSX:  
+        {   
+            X = 0xEE;
+            mwr(0b11111110, 0x6789+X); // init memory location that will be shifted
+            M_EXP1 = 0b11111100; //expected value in memory after shift
+            P = 0b11111101; //init P            
+            P_EXP = 0b11111101; //carry must be set, other bits must be unchanged            
+            break;
+        }
+
+        case LSR_ACCU:
+        {   
+            A = 0b10010011; //init A with test value
+            P = 0; //init P
+            A_EXP = 0b01001001; //bits shifted right, must change to 0b01001001
+            P_EXP = 0b00000001; //carry must be set
+            break;
+        }
+
+        case LSR_ZRP:
+        {   
+            mwr(0b00010010, 0xCC); //init memory location that will be shifted
+            M_EXP1 = 0b00001001; //expected value in memory after shift
+            P = 0b01001001; //init P            
+            P_EXP = 0b01001000; //carry must be NOT set, other bits must be unchanged            
+            break;
+        }
+
+        case LSR_ZRPX:
+        {   
+            X = 0x22;
+            mwr(0b11111111, 0xCC+X); // init memory location that will be shifted
+            M_EXP1 = 0b01111111; //expected value in memory after shift
+            P = 0b10000000; //init P            
+            P_EXP = 0b00000001; //carry must be set, N flag must be NOT set
+            break;
+        }
+
+        case LSR_ABS:  
+        {   
+            mwr(0b00001000, 0xDCBA); // init memory location that will be shifted
+            M_EXP1 = 0b00000100; //expected value in memory after shift
+            P = P_DEF; //init P            
+            P_EXP = P_DEF; //no changes in P expected            
+            break;
+        }
+
+        case LSR_ABSX:
+        {   
+            X = 0x30;
+            mwr(0b00001000, 0xDCBA+X); // init memory location that will be shifted
+            M_EXP1 = 0b00000100; //expected value in memory after shift
+            P = P_DEF; //init P            
+            P_EXP = P_DEF; //no changes in P expected            
+            break;
+        }
+
+        case ROL_ACCU:
+        {   
+            A = 0b10010011; //init A with test value
+            P = 0b10000000; //init P
+            A_EXP = 0b00100111; //rotated left, must change to 0b10100111
+            P_EXP = 0b00000001; //carry must be set, N must be cleared
+            break;
+        }
+
+        case ROL_ZRP:
+        {   
+            mwr(0xFF, 0x88); //init memory location that will be roteated
+            M_EXP1 = 0xFF; //expected value in memory after rotate, still 0xFF
+            P = 0x0; //init P
+            P_EXP = 0b10000001; //carry must be set, N must be set            
+            break;
+        }
+
+        case ROL_ZRPX:
+        {  
+            mwr(0b01111110, 0x01+X); // init memory location that will be rotated
+            M_EXP1 = 0b11111100; //expected value in memory after shift
+            P = 0b0; //init P            
+            P_EXP = 0b10000000; //carry must be NOT set, N flag must be set
+            break;
+        }
+
+        case ROL_ABS:
+        {   
+            mwr(0b11010000, 0x9999); // init memory location that will be rotated
+            M_EXP1 = 0b10100001; //expected value in memory after shift
+            P = 0b11100111; //init P            
+            P_EXP = 0b11100101; //carry and N must be set, Z must be NOT set, other bits must be unchanged
+            break;
+        }
+
+        case ROL_ABSX:
+        {   
+            X = 0x44;
+            mwr(0b11010000, 0x9999+X); // init memory location that will be rotated
+            M_EXP1 = 0b10100001; //expected value in memory after shift
+            P = 0b11100111; //init P            
+            P_EXP = 0b11100101; //carry and N must be set, Z must be NOT set, other bits must be unchanged
+            break;
+        }
+
+
+        case ROR_ACCU:
+        {   
+            A = 0b10010011; //init A with test value
+            P = 0b10000000; //init P
+            A_EXP = 0b11001001; //must change to this value after right rotation
+            P_EXP = 0b10000001; //carry must be set, N must be set
+            break;
+        }
+
+        case ROR_ZRP:
+        {   
+            mwr(0b00011000, 0x88); //init memory location that will be roteated
+            M_EXP1 = 0b00001100; //must change to this value after right rotation
+            P = 0x0; //init P
+            P_EXP = 0b0; //no flags must be set            
+            break;
+        }
+
+        case ROR_ZRPX:
+        {   
+            X = 0x33;
+            mwr(0b01111110, 0x01+X); // init memory location that will be rotated
+            M_EXP1 = 0b00111111; //must change to this value after right rotation
+            P = 0b0; //init P            
+            P_EXP = 0b00000000; //no flags set
+            break;
+        }
+
+        case ROR_ABS:
+        {   
+            mwr(0b11010000, 0x9999); // init memory location that will be rotated
+            M_EXP1 = 0b01101000; //must change to this value after right rotation
+            P = 0b11100111; //init P            
+            P_EXP = 0b01100100; //N must be cleared, Z must be cleared, carry must be set
+            break;
+        }
+
+        case ROR_ABSX:
+        {   
+            X = 0x44;
+            mwr(0b11010000, 0x9999+X); // init memory location that will be rotated
+            M_EXP1 = 0b01101000; //must change to this value after right rotation
+            P = 0b11100111; //init P            
+            P_EXP = 0b01100100; //carry and N must be cleared
+            break;
+        }
+
+
+        //############################# LOGIC INSTRUCTIONS #############################
+
+        case AND_IMMD:  
+        {   
+            A = 0b11111111;         //init A with some value
+            A_EXP = A & 0b00111100; //expected value in A after ANDing it with 0x3C
+            P = 0b11111111;         //init P with some value
+            P_EXP = 0b01111101;     //N and Z flags must be clreared, other flags must be unchanged
+            break;
+        }
+
+        case AND_ZRP:  
+        {   
+            mwr(0xF0, 0x88);    //write 0xF0 to zeropage at mem[0x88]
+            A = 0x1F;           //init A with some value
+            A_EXP = A & 0xF0;   //expected value in A after ANDing it with 0xF0
+            P = 0b01111101;     //init P with some value
+            P_EXP = 0b01111101; //all flags must be unchanged
+            break;
+        }
+
+        case AND_ZRPX:  
+        {   
+            X = 77;
+            mwr(0xF0, 0x88+X);  //write 0xF0 to zeropage at mem[0x88+X]
+            A = 0xF1;           //init A with some value
+            A_EXP = A & 0xF0;   //expected value in A after ANDing it with 0xF0
+            P = 0b01111111;     //init P with some value
+            P_EXP = 0b11111101; //N must be set, Z must be cleared, other flags must be unchanged
+            break;
+        }
+
+        case AND_ABS:  
+        {   
+            mwr(0x45, 0x3322);  //write 0x45 to mem[0x3322]
+            A = 0x01;           //init A with some value
+            A_EXP = A & 0x45;   //expected value in A after ANDing it with 0x45
+            P = 0b10000000;     //init P with some value
+            P_EXP = 0b00000000; //Z must be cleared, other flags must be unchanged
+            break;
+        }
+
+        case AND_ABSX:  
+        {   
+            X = 0XAA;
+            mwr(0x55, 0x3322+X);//write 0x55 to mem[0x3322+X]
+            A = 0x11;           //init A with some value
+            A_EXP = A & 0x55;   //expected value in A after ANDing it with 0x55
+            P = 0b10000011;     //init P with some value
+            P_EXP = 0b00000001; //Z must be cleared, N must be cleared, other flags must be unchanged
+            break;
+        }
+
+        case AND_ABSY:  
+        {   
+            Y = 0X09;
+            mwr(0xFE, 0x3322+Y);//write 0xFE to mem[0x3322+Y]
+            A = 0xEF;           //init A with some value
+            A_EXP = A & 0xFE;   //expected value in A after ANDing it with 0xFE
+            P = 0b10000011;     //init P with some value
+            P_EXP = 0b10000001; //Z must be cleared, other flags must be unchanged
+            break;
+        }
+
+        case AND_XIND:  
+        {   
+            A = 0xAA;           //init a with some value
+
+            mwr(0x77, 0xABCD);  //store final value to be retrieved from mem and to perform AND with
+            mwr(0xCD, 0x0A);    //store LO-byte of pointer to zeropage 0x0A
+            mwr(0xAB, 0x0B);    //store HI-byte of pointer to zeropage 0x0B
+            X = 0x06;           //let X be 6, so that in "AND (OPER, X)" OPER+X will result in 0x0A
+                                //that is, code in test assembly must be: AND ($04, X)
+            A_EXP = A & 0x77;   //after test, A must be loaded with this value
+            P = 0xEE;           //1110.1110 some init value
+            P_EXP = 0x6C;       //0110.1100 N and Z must be cleared, other flags must be unchanged   
+            break;
+        }
+
+         case ORA_IMMD:  
+        {   
+            A = 0b11111111;         //init A with some value
+            A_EXP = A | 0b00111100; //expected value in A after ORing it with 0x3C
+            P = 0b11111111;         //init P with some value
+            P_EXP = 0b11111101;     //Z flags must be clreared, other flags must be unchanged
+            break;
+        }
+
+        case ORA_ZRP:  
+        {   
+            mwr(0xF1, 0x88);    //write 0xF0 to zeropage at mem[0x88]
+            A = 0x10;           //init A with some value
+            A_EXP = A | 0xF1;   //expected value in A after ORing it with 0xF1
+            P = 0b01111101;     //init P with some value
+            P_EXP = 0b11111101; //Z must be set, other flags must be unchanged
+            break;
+        }
+
+        case ORA_ZRPX:  
+        {   
+            X = 77;
+            mwr(0xF0, 0x88+X);  //write 0xF0 to zeropage at mem[0x88+X]
+            A = 0xF1;           //init A with some value
+            A_EXP = A | 0xF0;   //expected value in A after ORing it with 0xF1
+            P = 0b01111111;     //init P with some value
+            P_EXP = 0b11111101; //N must be set, Z must be cleared, other flags must be unchanged
+            break;
+        }
+
+        case ORA_ABS:  
+        {   
+            mwr(0x45, 0x3322);  //write 0x45 to mem[0x3322]
+            A = 0x01;           //init A with some value
+            A_EXP = A | 0x45;   //expected value in A after ORing it with 0x45
+            P = 0b10000000;     //init P with some value
+            P_EXP = 0b00000000; //N must be cleared, other flags must be unchanged
+            break;
+        }
+
+        case ORA_ABSX:  
+        {   
+            X = 0XAA;
+            mwr(0x55, 0x3322+X);//write 0x55 to mem[0x3322+X]
+            A = 0x11;           //init A with some value
+            A_EXP = A | 0x55;   //expected value in A after ORing it with 0x55
+            P = 0b10000011;     //init P with some value
+            P_EXP = 0b00000001; //Z must be cleared, N must be cleared, other flags must be unchanged
+            break;
+        }
+
+        case ORA_ABSY:  
+        {   
+            Y = 0X09;
+            mwr(0xFE, 0x3322+Y);//write 0xFE to mem[0x3322+Y]
+            A = 0xEF;           //init A with some value
+            A_EXP = A | 0xFE;   //expected value in A after ORing it with 0xFE
+            P = 0b10000011;     //init P with some value
+            P_EXP = 0b10000001; //Z must be cleared, other flags must be unchanged
+            break;
+        }
+
+        //note: this test uses a way too big X-offset, so that operand+X will cause a wrap to stay within the zeropage
+        case ORA_XIND:
+        {
+            A = 0xAA;           //init A with some value
+
+            mwr(0x77, 0xABCD);  //store final value to be retrieved from mem and to perform OR with
+            mwr(0xCD, 0x03);    //store LO-byte of pointer to zeropage 0x03
+            mwr(0xAB, 0x04);    //store HI-byte of pointer to zeropage 0x04
+            X = 0xFF;           //let X be 0xFF, so that in "OR (OPER, X)" OPER+X will wrap over and result in 0x03
+                                //that is, code in test assembly must be: OR ($04, X) //because (0x04 + 0xFF) & 0xFF is 0x03
+            A_EXP = A | 0x77;   //after test, A must be loaded with this value
+            P = 0xEE;           //1110.1110 some init value
+            P_EXP = 0xEC;       //1110.1100 Z must be cleared, other flags must be unchanged   
+            break;            
+        }
+
+        case ORA_INDY:  
+        {   
+            NO_TEST_PREP_IMPL_WARN(ORA_INDY);
+            break;
+        }
+
+        case EOR_IMMD:  
+        {   
+            A = 0b11111111;         //init A with some value
+            A_EXP = A ^ 0b00111100; //expected value in A after XORing it with 0x3C
+            P = 0b11111111;         //init P with some value
+            P_EXP = 0b11111101;     //Z flags must be clreared, other flags must be unchanged
+            break;
+        }
+
+        case EOR_ZRP:  
+        {   
+            mwr(0xF1, 0x88);    //write 0xF0 to zeropage at mem[0x88]
+            A = 0x10;           //init A with some value
+            A_EXP = A ^ 0xF1;   //expected value in A after XORing it with 0xF1
+            P = 0b01111101;     //init P with some value
+            P_EXP = 0b11111101; //Z must be set, other flags must be unchanged
+            break;
+        }
+
+        case EOR_ZRPX:  
+        {   
+            X = 77;
+            mwr(0xF0, 0x88+X);  //write 0xF0 to zeropage at mem[0x88+X]
+            A = 0xF1;           //init A with some value
+            A_EXP = A ^ 0xF0;   //expected value in A after XORing it with 0xF0
+            P = 0b01111111;     //init P with some value
+            P_EXP = 0b01111101; //N must be cleared, Z must be cleared, other flags must be unchanged
+            break;
+        }
+
+        case EOR_ABS:  
+        {   
+            mwr(0x45, 0x3322);  //write 0x45 to mem[0x3322]
+            A = 0x01;           //init A with some value
+            A_EXP = A ^ 0x45;   //expected value in A after XORing it with 0x45
+            P = 0b10000000;     //init P with some value
+            P_EXP = 0b00000000; //N must be cleared, other flags must be unchanged
+            break;
+        }
+
+        case EOR_ABSX:  
+        {   
+            X = 0XAA;
+            mwr(0x55, 0x3322+X);//write 0x55 to mem[0x3322+X]
+            A = 0x11;           //init A with some value
+            A_EXP = A ^ 0x55;   //expected value in A after XORing it with 0x55
+            P = 0b10000011;     //init P with some value
+            P_EXP = 0b00000001; //Z must be cleared, N must be cleared, other flags must be unchanged
+            break;
+        }
+
+        case EOR_ABSY:  
+        {   
+            Y = 0X09;
+            mwr(0xFE, 0x3322+Y);//write 0xFE to mem[0x3322+Y]
+            A = 0xEF;           //init A with some value
+            A_EXP = A ^ 0xFE;   //expected value in A after XORing it with 0xFE
+            P = 0b10000011;     //init P with some value
+            P_EXP = 0b00000001; //N must be cleared, Z must be cleared, other flags must be unchanged
+            break;
+        }
+
+        //note: this test uses a way too big X-offset, so that operand+X will cause a wrap to stay within the zeropage
+        case EOR_XIND:
+        {
+            A = 0xAA;           //init A with some value
+
+            mwr(0x77, 0xABCD);  //store final value to be retrieved from mem and to perform XOR with
+            mwr(0xCD, 0x03);    //store LO-byte of pointer to zeropage 0x03
+            mwr(0xAB, 0x04);    //store HI-byte of pointer to zeropage 0x04
+            X = 0xFF;           //let X be 0xFF, so that in "OR (OPER, X)" OPER+X will wrap over and result in 0x03
+                                //that is, code in test assembly must be: OR ($04, X) //because (0x04 + 0xFF) & 0xFF is 0x03
+            A_EXP = A ^ 0x77;   //after test, A must be loaded with this value
+            P = 0xEE;           //1110.1110 some init value
+            P_EXP = 0xEC;       //1110.1100 Z must be cleared, other flags must be unchanged   
+            break;            
+        }
+
+        case EOR_INDY:
+        {   
+            NO_TEST_PREP_IMPL_WARN(EOR_INDY);
+            break;
+        }
+
+
+        //############################# COMPARE AND TEST BIT INSTRUCTIONS #############################
+
+        case CMP_IMMD:
+        {   
+            NO_TEST_PREP_IMPL_WARN(CMP_IMMD);
+            break;
+        }
+
+        case CMP_ZRP:
+        {   
+            NO_TEST_PREP_IMPL_WARN(CMP_ZRP);
+            break;
+        }
+
+        case CMP_ZRPX:
+        {   
+            NO_TEST_PREP_IMPL_WARN(CMP_ZRPX);
+            break;
+        }
+
+        case CMP_ABS:
+        {   
+            NO_TEST_PREP_IMPL_WARN(CMP_ABS);
+            break;
+        }
+
+        case CMP_ABSX:
+        {   
+            NO_TEST_PREP_IMPL_WARN(CMP_ABSX);
+            break;
+        }
+
+        case CMP_ABSY:
+        {   
+            NO_TEST_PREP_IMPL_WARN(CMP_ABSY);
+            break;
+        }
+
+        case CMP_XIND:
+        {   
+            NO_TEST_PREP_IMPL_WARN(CMP_XIND);
+            break;
+        }
+
+        case CMP_INDY:
+        {   
+            NO_TEST_PREP_IMPL_WARN(CMP_INDY);
+            break;
+        }
+
+        case CPX_IMMD:
+        {   
+            NO_TEST_PREP_IMPL_WARN(CPX_IMMD);
+            break;
+        }
+
+        case CPX_ZRP:
+        {   
+            NO_TEST_PREP_IMPL_WARN(CPX_ZRP);
+            break;
+        }
+
+        case CPX_ABS:
+        {   
+            NO_TEST_PREP_IMPL_WARN(CPX_ABS);
+            break;
+        }
+
+        case CPY_IMMD:
+        {   
+            NO_TEST_PREP_IMPL_WARN(CPY_IMMD);
+            break;
+        }
+
+        case CPY_ZRP:
+        {   
+            NO_TEST_PREP_IMPL_WARN(CPY_ZRP);
+            break;
+        }
+
+        case CPY_ABS:
+        {   
+            NO_TEST_PREP_IMPL_WARN(CPY_ABS);
+            break;
+        }
+
+        case BIT_ZRP:
+        {   
+            NO_TEST_PREP_IMPL_WARN(BIT_ZRP);
+            break;
+        }
+
+        case BIT_ABS:
+        {   
+            NO_TEST_PREP_IMPL_WARN(BIT_ABS);
+            break;
+        }
+
+
+        //############################# SET AND CLEAR INSTRUCTIONS #############################
+
+        case SEC_IMPL:
+        {   
+            NO_TEST_PREP_IMPL_WARN(SEC_IMPL);
+            break;
+        }
+
+        case SED_IMPL:
+        {   
+            NO_TEST_PREP_IMPL_WARN(SED_IMPL);
+            break;
+        }
+
+        case SEI_IMPL:
+        {   
+            NO_TEST_PREP_IMPL_WARN(SEI_IMPL);
+            break;
+        }
+
+        case CLC_IMPL:  
+        {
+            X   =   X_DEF;
+            Y   =   Y_DEF;
+            A   =   A_DEF;
+            P   =   P_DEF | 0b00000001; //set carry to 1, to be deleted by CLC_IMPL 
+            SP  =   SP_DEF;
+            break;
+        }
+            
+        case CLD_IMPL:  
+        {
+            X   =   X_DEF;
+            Y   =   Y_DEF;
+            A   =   A_DEF;
+            P   =   P_DEF | 0b00001000; //set decimal flag to 1, to be deleted by CLD_IMPL 
+            SP  =   SP_DEF;
+            break;
+        }
+            
+        case CLI_IMPL:  
+        {
+            X   =   X_DEF;
+            Y   =   Y_DEF;
+            A   =   A_DEF;
+            P   =   P_DEF | 0b00000100; //set interrupt-disable flag to 1, to be deleted by CLI_IMPL 
+            SP  =   SP_DEF;
+            break;
+        }
+            
+        case CLV_IMPL:  
+        {
+            X   =   X_DEF;
+            Y   =   Y_DEF;
+            A   =   A_DEF;
+            P   =   P_DEF | 0b01000000; //set overflow flag to 1, to be deleted by CLV_IMPL 
+            SP  =   SP_DEF;
+            break;
+        }
+
+
+        //############################# JUMP AND SUBROUTINE INSTRUCTIONS #############################
+        case JMP_ABS:
+        {   
+            PC_EXP = 0x6699; //expecting this address in PC after JMP execution
+            break;
+        }
+
+        case JMP_IND:
+        {   
+            NO_TEST_PREP_IMPL_WARN(JMP_IND);
+            break;
+        }
+
+        case JSR_ABS:
+        {   
+            //JSR: - address of next instruction after subroutine exit is stored on stack (this is PC+3)
+            //     - then the PC is loaded with a given absolute jump address
+            
+            SP = 0x01AA;                        //init SP with some value
+            M_EXP1 = (PC + 3) & 0x00FF;         //expected value on top of the stack is LO byte of return address
+            M_EXP2 = ((PC + 3) & 0xFF00) >> 2;  //expected value on top-1 of the stack is HI byte of return address
+            PC_EXP = 0x1234;                    //expected address in PC after JSR (PC must be loaded with this jump adddress)
+            
+            break;
+        }
+
+        case RTS_IMPL:
+        {   
+            //RTS: - pull PC-LO and PC-HI from stack
+            //     - make address from PC-LO and PC-HI and store it into PC register
+
+            SP = 0x01AA;        //init SP with some value
+            mwr(0x34, SP+1);    //put PC-LO test value to stack
+            mwr(0x12, SP+2);    //put PC-HI test value to stack
+            PC_EXP = 0x1234+1;  //after pulling both PC bytes, we expect 0x1234+1 in PC (+1 because RTS increments the pulled PC!)
+            SP_EXP = SP+2;      //pulled two words, SP must move by two bytes
+            break;
+        }
+
+        case RTI_IMPL:
+        {   
+            NO_TEST_PREP_IMPL_WARN(RTI_IMPL);
+            break;
+        }
+
+
+        //############################# BRANCH INSTRUCTIONS #############################
+
+        case BCC_REL:
+        {   
+            //note that branch-not-taken-case is not tested because of test env limitation
+            //note also that a positive offset is added here, negative offset is tested in other branch opcode
+
+            P = 0xFE;           //carry not set
+            PC_EXP = 0x0009;    //must branch to 0x0009 it's the BRK operation in the assembly file (branch target)
+            break;
+        }
+
+        case BCS_REL:
+        {   
+            //note that branch-not-taken-case is not tested because of test env limitation
+            //note also that a positive offset is added here, negative offset is tested in other branch opcode
+
+            P = 0x01;           //carry set
+            PC_EXP = 0x0009;    //must branch to 0x0009 it's the BRK operation in the assembly file (branch target)
+            break;
+        }
+
+        case BEQ_REL:
+        {   
+            //note that branch-not-taken-case is not tested because of test env limitation
+            //note also that a positive offset is added here, negative offset is tested in other branch opcode
+
+            P = 0x02;           //Z set
+            PC_EXP = 0x0009;    //must branch to 0x0009 it's the BRK operation in the assembly file (branch target)
+            break;
+        }
+
+        case BMI_REL:
+        {   
+            //note that branch-not-taken-case is not tested because of test env limitation
+            //note also that a positive offset is added here, negative offset is tested in other branch opcode
+
+            P = 0x80;           //N set
+            PC_EXP = 0x0009;    //must branch to 0x0009 it's the BRK operation in the assembly file (branch target)
+            break;
+        }
+
+        case BNE_REL:
+        {   
+            //note that branch-not-taken-case is not tested because of test env limitation
+            //note also that a negative offset is added here, positive offset is tested in other branch opcode
+
+            P = 0xFC;           //Z not set
+            PC_EXP = 0x0003;    //must branch to 0x0003 it's the BRK operation in the assembly file (branch target)
+            break;             
+        }
+
+        case BPL_REL:
+        {   
+            //note that branch-not-taken-case is not tested because of test env limitation
+            //note also that a negative offset is added here, positive offset is tested in other branch opcode
+
+            P = 0x7F;           //N not set
+            PC_EXP = 0x0003;    //must branch to 0x0003 it's the BRK operation in the assembly file (branch target)
+            break;             
+        }
+
+        case BVC_REL:
+        {   
+            //note that branch-not-taken-case is not tested because of test env limitation
+            //note also that a negative offset is added here, positive offset is tested in other branch opcode
+
+            P = 0xBF;           //V not set
+            PC_EXP = 0x0003;    //must branch to 0x0003 it's the BRK operation in the assembly file (branch target)
+            break;             
+        }
+        
+        case BVS_REL:
+        {   
+            //note that branch-not-taken-case is not tested because of test env limitation
+            //note also that a negative offset is added here, positive offset is tested in other branch opcode
+
+            P = 0x40;           //V set
+            PC_EXP = 0x0003;    //must branch to 0x0003 it's the BRK operation in the assembly file (branch target)
+            break;             
+        }
+
+
+        //############################# STACK INSTRUCTIONS #############################
+                
+        case PHA_IMPL:
+        {   
+            SP = 0x01AA;    //current stack pointer position
+            A = A_DEF;      //init A with some value
+            M_EXP1 = A_DEF;  //after reading memory at address SP-1, we must read back the stored A
+            SP_EXP = SP-1;  //after pushing the value to stack, stack pointer must decrease 
+            break;
+        }
+        
+        case PLA_IMPL:
+        {   
+            SP = 0x01AA;            //current stack pointer position
+            mwr(0b10110000, SP+1);  //put value 0b10110000 on top of the stack, this value is to be pulled into A
+            A = 0;                  //init A with zero
+            A_EXP = 0b10110000;     //expecting the value from stack in A
+            SP_EXP = SP+1;          //after pulling the value from stack, stack pointer must increase
+            P = 0b00011010;         //init P with some value
+            P_EXP = 0b10011000;     //N must be set, Z must be cleared, other bits must be unchanged
+            break;
+        }
+
+        case PHP_IMPL:
+        {   
+            SP = 0x0177;    //current stack pointer position
+            P = P_DEF;      //init P with some value
+            M_EXP1 = P_DEF;  //after reading memory at address SP-1, we must read back the stored P
+            SP_EXP = SP-1;  //after pushing the value to stack, stack pointer must decrease
+            break;
+        }
+        
+        case PLP_IMPL:
+        {   
+            SP = 0x0177;            //current stack pointer position
+            mwr(0b10110000, SP+1);  //put value 0b10110000 on top of the stack, this value is to be pulled into P
+            P = 0xFF;               //init P with some dummy value, to be overwritten by pulled value
+            P_EXP = 0b10110000;     //expecting the value from stack in P
+            SP_EXP = SP+1;          //after pulling the value from stack, stack pointer must increase
+            break;
+        }
+    
+
+        //############################# MISC INSTRUCTIONS #############################
+
+        case NOP_IMPL:
+        {   
+            NO_TEST_PREP_IMPL_WARN(NOP_IMPL);
+            break;
+        }
+        
+        case BRK_IMPL:
+        {   
+            NO_TEST_PREP_IMPL_WARN(BRK_IMPL);
+            break;
+        }
+
+
+        default:
+        {
+            X   =   X_DEF;
+            Y   =   Y_DEF;
+            A   =   A_DEF;
+            P   =   P_DEF; 
+            SP  =   SP_DEF;    
+            break;
+        }
+    }
+}
+
+
+void test(word opcode)
+{
+    switch(opcode)
+	{
+        //############################# TRANSFER INSTRUCTIONS #############################
+	    case TAX_IMPL:  //X <- A, 1 byte long, affects N and Z
+        {
+            checkReg(A_DEF, X, "X", "TAX_IMPL");
+            checkReg(P_DEF, P, "P", "TAX_IMPL"); //P unchanged, since A was non negative and was not 0 (defaut case in preptest())
+            break;
+        }
+        
+        case TXA_IMPL:  //A <- X, 1 byte long, affects N and Z
+        {
+            checkReg(0, A, "A", "TXA_IMPL");
+            checkReg(0b00110010, P, "P", "TXA_IMPL"); //P changed, since X was 0
+            break;
+        }
+            
+        case TAY_IMPL:  //Y <- A, 1 byte long, affects N and Z
+        {
+            checkReg(-42, Y, "Y", "TAY_IMPL");
+            checkReg(0b10110000, P, "P", "TAY_IMPL"); //P changed, since A was negative
+            break;
+        }
+            
+        case TYA_IMPL:  //A <- Y, 1 byte long, affects N and Z
+        {
+            checkReg(Y_DEF, A, "A", "TYA_IMPL");
+            checkReg(P_DEF, P, "P", "TYA_IMPL"); 
+            break;
+        }
+            
+        case TSX_IMPL:  //X <- SP, 1 byte long, affects N and Z
+        {
+            checkReg(SP_DEF, X, "X", "TSX_IMPL");
+            checkReg(P_DEF, P, "P", "TSX_IMPL"); 
+            break;
+        }
+            
+        case TXS_IMPL:  //SP <- X, 1 byte long, no flags
+        {
+            checkReg(X_DEF, SP, "SP", "TSX_IMPL");            
+            break;
+        }
+            
+        case INX_IMPL:  //X++, 1 byte long, affects N and Z
+        {
+            checkReg(X_EXP, X, "X", "INX_IMPL");            
+            checkReg(P_EXP, P, "P", "INX_IMPL"); 
+            break;
+        }
+            
+        case INY_IMPL:  //Y++, 1 byte long, affects N and Z
+        {
+            checkReg(Y_EXP, Y, "Y", "INY_IMPL");            
+            checkReg(P_EXP, P, "P", "INY_IMPL"); //zero flag changed sinse 0b11111111 + 1 = 0 
+            break;
+        }
+            
+        case DEX_IMPL:  //X--, 1 byte long, affects N and Z
+        {
+            checkReg(X_DEF-1, X, "X", "DEX_IMPL");            
+            checkReg(P_DEF | 0b00000010, P, "P", "DEX_IMPL"); //zero flag changed sinse 1 - 1 = 0 
+            break;
+        }
+            
+        case DEY_IMPL:  //Y--, 1 byte long, affects N and Z
+        {
+            checkReg(Y_DEF-1, Y, "Y", "DEY_IMPL");            
+            checkReg(P_DEF, P, "P", "DEY_IMPL");  
+            break;
+        }
+
+        //############################# STORAGE INSTRUCTIONS #############################        
+        case LDA_IMMD: //A <- M, 2 bytes long
+        {
+            checkReg(0x23, A, "A", "LDA_IMMD"); 
+            break;  
+        }         
+            
+        case LDA_ZRP: //A <- M[zrp], 2 bytes long
+        {
+            checkReg(0x77, A, "A", "LDA_ZRP"); 
+            break;  
+        }
+            
+        case LDA_ZRPX: //A <- M[zrp+X], 2 bytes long
+        {
+            checkReg(0x78, A, "A", "LDA_ZRPX"); 
+            break;  
+        }
+            
+        case LDA_ABS: //A <- M[abcd], 3 bytes long
+        {
+            checkReg(0x79, A, "A", "LDA_ABS"); 
+            break;  
+        }
+            
+        case LDA_ABSX: //A <- M[abcd+X], 3 bytes long
+        {
+            checkReg(0x80, A, "A", "LDA_ABSX"); 
+            break;  
+        }
+            
+        case LDA_ABSY: //A <- M[abcd+Y], 3 bytes long
+        {
+            checkReg(0x81, A, "A", "LDA_ABSY"); 
+            break;  
+        }
+                        
+    
+        case LDA_XIND:
+        {            
+            checkReg(A_EXP, A, "A", "LDA_XIND"); 
+            checkReg(P_EXP, P, "P", "LDA_XIND"); 
+            break;
+        }        
+            
+        case LDA_INDY:
+        {
+            //TODO
+        }
+
+
+        case LDX_IMMD: //X <- M, 2 bytes long
+        {
+            checkReg(0x23, X, "X", "LDX_IMMD"); 
+            break;  
+        }      
+            
+        case LDX_ZRP: //X <- M[zrp], 2 bytes long
+        {
+            checkReg(0x77, X, "X", "LDX_ZRP"); 
+            break;  
+        }
+            
+        case LDX_ZRPY: //X <- M[zrp+Y], 2 bytes long
+        {
+            checkReg(0xcc, X, "X", "LDX_ZRPY"); 
+            break;  
+        }
+            
+        case LDX_ABS: //X <- M[abcd], 3 bytes long
+        {
+            checkReg(0x12, X, "X", "LDX_ABS"); 
+            break;  
+        }
+            
+        case LDX_ABSY: //X <- M[1234+Y], 3 bytes long
+        {
+            printRegs();
+            checkReg(0xFA, X, "X", "LDX_ABSY"); 
+            checkReg(0b10110000, P, "P", "LDX_ABSY"); //P changed, since value in mem was negative (0xFA)
+            break;  
+        }
+             
+        
+        case LDY_IMMD: //Y <- M, 2 bytes long
+        {
+            printRegs();
+            checkReg(0x23, Y, "Y", "LDY_IMMD"); 
+            break;  
+        }      
+            
+        case LDY_ZRP: //Y <- M[zrp], 2 bytes long
+        {
+            printRegs();
+            checkReg(0x77, Y, "Y", "LDY_ZRP"); 
+            break;  
+        }
+            
+        case LDY_ZRPX: //Y <- M[zrp+Y], 2 bytes long
+        {
+            printRegs();
+            checkReg(0xcc, Y, "Y", "LDY_ZRPX"); 
+            break;  
+        }
+            
+        case LDY_ABS: //Y <- M[abcd], 3 bytes long
+        {
+            printRegs();
+            checkReg(0x12, Y, "Y", "LDY_ABS"); 
+            break;  
+        }
+            
+        case LDY_ABSX: //Y <- M[1234+Y], 3 bytes long
+        {
+            printRegs();
+            checkReg(0xFA, Y, "Y", "LDY_ABSX"); 
+            checkReg(0b10110000, P, "P", "LDY_ABSX"); //P changed, since value in mem was negative (0xFA)
+            break;  
+        }
+            
+        case STA_ZRP: //M[zrp] <--A, 2 bytes long
+        {
+            printRegs();
+            checkMem(0xab, 0x47, "STA_ZRP"); //expecting value 0x47 in mem[0xab]
+            break;  
+        }
+            
+        case STA_ZRPX: //M[zrp+X] <--A, 2 bytes long
+        {
+            printRegs();
+            checkMem(0xab+X, 0x48, "STA_ZRPX"); //expecting value 0x48 in mem[0xab+X]
+            checkReg(P_DEF, P, "P", "STA_ZRPX"); //P unchanged!           
+            break;  
+        }
+            
+        case STA_ABS: //M[abcd] <--A, 3 bytes long
+        {
+            printRegs();
+            checkMem(0x6666, 0x99, "STA_ABS"); //expecting value 0x99 in mem[0x6666]
+            break;  
+        }
+            
+        case STA_ABSX: //M[abcd+X] <--A, 3 bytes long
+        {
+            printRegs();
+            checkMem(0x6666+X, 0x99, "STA_ABSX"); //expecting value 0x99 in mem[0x6666+X]
+            break;  
+        }
+            
+        case STA_ABSY: //M[abcd+Y] <--A, 3 bytes long
+        {
+            printRegs();
+            checkMem(0x6666+Y, 0x88, "STA_ABSY"); //expecting value 0x88 in mem[0x6666+Y]
+            break;  
+        }
+            
+        case STA_XIND:  
+        {
+            //TODO;
+        }
+            
+        case STA_INDY:  
+        {
+            //TODO;
+        }
+            
+        case STX_ZRP: //M[zrp] <--X, 2 bytes long
+        {
+            printRegs();
+            checkMem(0xab, 0xcc, "STX_ZRP"); //expecting value 0xcc in mem[0xab]
+            break;  
+        }
+            
+        case STX_ZRPY: //M[zrp+Y] <--X, 2 bytes long
+        {
+            printRegs();
+            checkMem(0xab+Y, 0xcc, "STX_ZRPY"); //expecting value 0xcc in mem[0xab+Y]
+            break;  
+        }
+            
+        case STX_ABS: //M[abcd] <--X, 3 bytes long
+        {
+            printRegs();
+            checkMem(0x1234, 0x33, "STX_ABS"); //expecting value 0x33 in mem[0x1234]
+            break;  
+        }
+            
+        case STY_ZRP: //M[zrp] <--Y, 2 bytes long
+        {
+            printRegs();
+            checkMem(0xab, 0xcc, "STY_ZRP"); //expecting value 0xcc in mem[0xab]
+            break;  
+        }
+            
+        case STY_ZRPX: //M[zrp+X] <--Y, 2 bytes long
+        {
+            printRegs();
+            checkMem(0xab+X, 0xcc, "STY_ZRPX"); //expecting value 0xcc in mem[0xab+X]
+            break;  
+        }
+            
+        case STY_ABS: //M[abcd] <--Y, 3 bytes long
+        {
+            printRegs();
+            checkMem(0x1234, 0x33, "STY_ABS"); //expecting value 0x33 in mem[0x1234]
+            break;  
+        }        
+
+
+        //############################# ARITHMETIC INSTRUCTIONS #############################
+
+        case INC_ZRP: //M[zrp] <- M[zrp]+1, 3 bytes long
+        {
+            printRegs();
+            checkMem(0xAA, 0x61, "INC_ZRP"); //expecting value 0x61 in mem[0xAA]
+            break;  
+        }
+
+        case INC_ZRPX: //M[zrp+X] <- M[zrp]+1, 2 bytes long
+        {
+            printRegs();
+            checkMem(0xAA+0x5, 0xf1, "INC_ZRPX"); //expecting value 0xf1 in mem[0xAF]
+            checkReg(0b10110000, P, "P", "INC_ZRPX"); //P changed, since value in mem was negative (0xF1)
+            break;  
+        }
+            
+        case INC_ABS: //M[abcd] <- M[abcd]+1, 3 bytes long
+        {
+            printRegs();
+            checkMem(0x1234, 0x13, "INC_ABS"); //expecting value 0x12+1 in mem[0x1234]
+            break;  
+        }
+
+        case INC_ABSX: //M[abcd+X] <- M[abcd+X]+1, 3 bytes long
+        {
+            checkMem(0x1234+X, M_EXP1, "INC_ABSX"); //expecting value M_EXP1 in mem[0x1234+X]
+            checkReg(P_EXP, P, "P", "INC_ABSX");    //P changed
+            break;  
+        }
+
+        case DEC_ZRP:
+        {
+            checkMem(0x91, M_EXP1, "DEC_ZRP");  //expecting value M_EXP1 in mem[0x91]
+            checkReg(P_EXP, P, "P", "DEC_ZRP"); //P changed
+            break;
+        }
+
+        case DEC_ZRPX:
+        {
+            checkMem(0x91+X, M_EXP1, "DEC_ZRPX");  //expecting value M_EXP1 in mem[0x91+X]
+            checkReg(P_EXP, P, "P", "DEC_ZRPX"); //P changed
+            break;
+        }
+
+        case DEC_ABS:
+        {
+            checkMem(0x4588, M_EXP1, "DEC_ABS");  //expecting value M_EXP1 in mem[0x4588]
+            checkReg(P_EXP, P, "P", "DEC_ABS");   //P unchanged
+            break;
+        }
+
+        case DEC_ABSX:
+        {
+            checkMem(0x4588+X, M_EXP1, "DEC_ABSX");  //expecting value M_EXP1 in mem[0x4588+X]
+            checkReg(P_EXP, P, "P", "DEC_ABSX");   //P changed
+            break;
+        }
+
+
+        //############################# SHIFT & ROTATE INSTRUCTIONS #############################
+
+        case ASL_ACCU: //A <- [A << 1], original bit #7 is stored to carry flag
+        {
+            printRegs();
+            checkReg(A_EXP, A, "A", "ASL_ACCU");
+            checkReg(P_EXP, P, "P", "ASL_ACCU");
+            break;  
+        }
+
+        case ASL_ZRP: //M[zrp] <- [M[zrp] << 1], original bit #7 is stored to carry flag
+        {
+            printRegs();
+            checkMem(0x0A, M_EXP1, "ASL_ZRP"); //expecting value M_EXP1 in mem[0x0A]
+            checkReg(P_EXP, P, "P", "ASL_ZRP");
+            break;  
+        }        
+
+        case ASL_ZRPX: //M[zrp+X] <- [M[zrp+X] << 1], original bit #7 is stored to carry flag
+        {
+            printRegs();
+            checkMem(0x0A+X, M_EXP1, "ASL_ZRP"); //expecting value M_EXP1 in mem[0x0A+X]
+            checkReg(P_EXP, P, "P", "ASL_ZRP");
+            break;  
+        }        
+
+        case ASL_ABS: //M[abcd] <- [M[abcd] << 1], original bit #7 is stored to carry flag
+        {
+            printRegs();
+            checkMem(0x6789, M_EXP1, "ASL_ABS"); //expecting value M_EXP1 in mem[0xabcd]
+            checkReg(P_EXP, P, "P", "ASL_ABS");
+            break;  
+        }        
+
+        case ASL_ABSX: //M[abcd+X] <- [M[abcd+X] << 1], original bit #7 is stored to carry flag
+        {
+            printRegs();
+            checkMem(0x6789+X, M_EXP1, "ASL_ABSX"); //expecting value M_EXP1 in mem[0xabcd+X]
+            checkReg(P_EXP, P, "P", "ASL_ABSX");
+            break;  
+        }
+
+        case LSR_ACCU: //A <- [A >> 1], original bit #0 is stored to carry flag
+        {
+            printRegs();
+            checkReg(A_EXP, A, "A", "LSR_ACCU");
+            checkReg(P_EXP, P, "P", "LSR_ACCU");
+            break;  
+        }
+
+        case LSR_ZRP: //M[zrp] <- [M[zrp] >> 1], original bit #0 is stored to carry flag
+        {
+            printRegs();
+            checkMem(0xCC, M_EXP1, "LSR_ZRP"); //expecting value M_EXP1 in mem[0xCC]
+            checkReg(P_EXP, P, "P", "LSR_ZRP");
+            break;  
+        }
+
+        case LSR_ZRPX: //M[zrp+X] <- [M[zrp+X] >> 1], original bit #0 is stored to carry flag
+        {
+            printRegs();
+            checkMem(0xCC+X, M_EXP1, "LSR_ZRPX"); //expecting value M_EXP1 in mem[0xCC]
+            checkReg(P_EXP, P, "P", "LSR_ZRPX");
+            break;  
+        }
+
+        case LSR_ABS: //M[abcd] <- [M[abcd] >> 1], original bit #0 is stored to carry flag
+        {
+            printRegs();
+            checkMem(0xDCBA, M_EXP1, "LSR_ABS"); //expecting value M_EXP1 in mem[0xabcd]
+            checkReg(P_EXP, P, "P", "LSR_ABS");
+            break;  
+        }        
+
+        case LSR_ABSX: //M[abcd+X] <- [M[abcd+X] >> 1], original bit #0 is stored to carry flag
+        {
+            printRegs();
+            checkMem(0xDCBA+X, M_EXP1, "LSR_ABSX"); //expecting value M_EXP1 in mem[0xabcd+X]
+            checkReg(P_EXP, P, "P", "LSR_ABSX");
+            break;  
+        }        
+
+        case ROL_ACCU: //rotate A left, copy bit #7 to carry and to bit #0
+        {
+            printRegs();
+            checkReg(A_EXP, A, "A", "ROL_ACCU");
+            checkReg(P_EXP, P, "P", "ROL_ACCU");
+            break;  
+        }
+
+        case ROL_ZRP: //rotate M[zrp] left, copy bit #7 to carry and to bit #0
+        {
+            printRegs();
+            checkMem(0x88, M_EXP1, "ROL_ZRP"); //expecting value M_EXP1 in mem[0x88]
+            checkReg(P_EXP, P, "P", "ROL_ZRP");
+            break;  
+        }
+
+        case ROL_ZRPX: //rotate M[zrp+X] left, copy bit #7 to carry and to bit #0
+        {
+            printRegs();
+            checkMem(0x01+X, M_EXP1, "ROL_ZRPX"); //expecting value M_EXP1 in mem[0x01+X]
+            checkReg(P_EXP, P, "P", "ROL_ZRPX");
+            break;  
+        }
+
+        case ROL_ABS: //rotate M[abcd] left, copy bit #7 to carry and to bit #0
+        {
+            printRegs();
+            checkMem(0x9999, M_EXP1, "ROL_ABS"); //expecting value M_EXP1 in mem[0x9999]
+            checkReg(P_EXP, P, "P", "ROL_ABS");
+            break;  
+        } 
+
+        case ROL_ABSX: //rotate M[abcd] left, copy bit #7 to carry and to bit #0
+        {
+            printRegs();
+            checkMem(0x9999+X, M_EXP1, "ROL_ABSX"); //expecting value M_EXP1 in mem[0x9999]
+            checkReg(P_EXP, P, "P", "ROL_ABSX");
+            break;  
+        } 
+
+        case ROR_ACCU: //rotate A right, copy bit #0 to carry and to bit #7
+        {
+            printRegs();
+            checkReg(A_EXP, A, "A", "ROR_ACCU");
+            checkReg(P_EXP, P, "P", "ROR_ACCU");
+            break;  
+        }
+
+        case ROR_ZRP:
+        {
+            printRegs();
+            checkMem(0x88, M_EXP1, "ROR_ZRP"); //expecting value M_EXP1 in mem[0x88]
+            checkReg(P_EXP, P, "P", "ROR_ZRP");
+            break;  
+        }
+
+        case ROR_ZRPX:
+        {
+            printRegs();
+            checkMem(0x01+X, M_EXP1, "ROR_ZRPX"); //expecting value M_EXP1 in mem[0x01+X]
+            checkReg(P_EXP, P, "P", "ROR_ZRPX");
+            break;  
+        }
+
+        case ROR_ABS:
+        {
+            printRegs();
+            checkMem(0x9999, M_EXP1, "ROR_ABS"); //expecting value M_EXP1 in mem[0x9999]
+            checkReg(P_EXP, P, "P", "ROR_ABS");
+            break;  
+        } 
+
+        case ROR_ABSX:
+        {
+            printRegs();
+            checkMem(0x9999+X, M_EXP1, "ROR_ABSX"); //expecting value M_EXP1 in mem[0x9999]
+            checkReg(P_EXP, P, "P", "ROR_ABSX");
+            break;  
+        } 
+
+        //############################# LOGIC INSTRUCTIONS #############################
+        case AND_IMMD:
+        {
+            printRegs();
+            checkReg(A_EXP, A, "A", "AND_IMMD");
+            checkReg(P_EXP, P, "P", "AND_IMMD");
+            break;  
+        } 
+
+        case AND_ZRP:
+        {
+            printRegs();
+            checkReg(A_EXP, A, "A", "AND_ZRP");
+            checkReg(P_EXP, P, "P", "AND_ZRP");
+            break;  
+        }
+
+        case AND_ZRPX:
+        {
+            printRegs();
+            checkReg(A_EXP, A, "A", "AND_ZRPX");
+            checkReg(P_EXP, P, "P", "AND_ZRPX");
+            break;  
+        }
+
+        case AND_ABS:
+        {
+            printRegs();
+            checkReg(A_EXP, A, "A", "AND_ABS");
+            checkReg(P_EXP, P, "P", "AND_ABS");
+            break;  
+        }
+
+        case AND_ABSX:
+        {
+            printRegs();
+            checkReg(A_EXP, A, "A", "AND_ABSX");
+            checkReg(P_EXP, P, "P", "AND_ABSX");
+            break;  
+        }
+
+        case AND_ABSY:
+        {
+            printRegs();
+            checkReg(A_EXP, A, "A", "AND_ABSY");
+            checkReg(P_EXP, P, "P", "AND_ABSY");
+            break;  
+        }
+
+        case AND_XIND:
+        {
+            printRegs();
+            checkReg(A_EXP, A, "A", "AND_XIND");
+            checkReg(P_EXP, P, "P", "AND_XIND");
+            break;  
+        }
+
+        case ORA_IMMD:
+        {
+            printRegs();
+            checkReg(A_EXP, A, "A", "ORA_IMMD");
+            checkReg(P_EXP, P, "P", "ORA_IMMD");
+            break;  
+        } 
+
+        case ORA_ZRP:
+        {
+            printRegs();
+            checkReg(A_EXP, A, "A", "ORA_ZRP");
+            checkReg(P_EXP, P, "P", "ORA_ZRP");
+            break;  
+        }
+
+        case ORA_ZRPX:
+        {
+            printRegs();
+            checkReg(A_EXP, A, "A", "ORA_ZRPX");
+            checkReg(P_EXP, P, "P", "ORA_ZRPX");
+            break;  
+        }
+
+        case ORA_ABS:
+        {
+            printRegs();
+            checkReg(A_EXP, A, "A", "ORA_ABS");
+            checkReg(P_EXP, P, "P", "ORA_ABS");
+            break;  
+        }
+
+        case ORA_ABSX:
+        {
+            printRegs();
+            checkReg(A_EXP, A, "A", "ORA_ABSX");
+            checkReg(P_EXP, P, "P", "ORA_ABSX");
+            break;  
+        }
+
+        case ORA_ABSY:
+        {
+            printRegs();
+            checkReg(A_EXP, A, "A", "ORA_ABSY");
+            checkReg(P_EXP, P, "P", "ORA_ABSY");
+            break;  
+        }
+
+        case ORA_XIND:
+        {
+            printRegs();
+            checkReg(A_EXP, A, "A", "ORA_XIND");
+            checkReg(P_EXP, P, "P", "ORA_XIND");
+            break;  
+        }
+
+        case EOR_IMMD:
+        {
+            printRegs();
+            checkReg(A_EXP, A, "A", "EOR_IMMD");
+            checkReg(P_EXP, P, "P", "EOR_IMMD");
+            break;  
+        } 
+
+        case EOR_ZRP:
+        {
+            printRegs();
+            checkReg(A_EXP, A, "A", "EOR_ZRP");
+            checkReg(P_EXP, P, "P", "EOR_ZRP");
+            break;  
+        }
+
+        case EOR_ZRPX:
+        {
+            printRegs();
+            checkReg(A_EXP, A, "A", "EOR_ZRPX");
+            checkReg(P_EXP, P, "P", "EOR_ZRPX");
+            break;  
+        }
+
+        case EOR_ABS:
+        {
+            printRegs();
+            checkReg(A_EXP, A, "A", "EOR_ABS");
+            checkReg(P_EXP, P, "P", "EOR_ABS");
+            break;  
+        }
+
+        case EOR_ABSX:
+        {
+            printRegs();
+            checkReg(A_EXP, A, "A", "EOR_ABSX");
+            checkReg(P_EXP, P, "P", "EOR_ABSX");
+            break;  
+        }
+
+        case EOR_ABSY:
+        {
+            printRegs();
+            checkReg(A_EXP, A, "A", "EOR_ABSY");
+            checkReg(P_EXP, P, "P", "EOR_ABSY");
+            break;  
+        }
+
+        case EOR_XIND:
+        {
+            printRegs();
+            checkReg(A_EXP, A, "A", "EOR_XIND");
+            checkReg(P_EXP, P, "P", "EOR_XIND");
+            break;  
+        }
+
+
+        //############################# COMPARE AND TEST BIT INSTRUCTIONS #############################
+
+
+        //############################# SET AND CLEAR INSTRUCTIONS #############################
+            
+        case SEC_IMPL:
+        {
+            checkReg(P_DEF | 0b00000001, P, "P", "SEC_IMPL"); //carry changed in P from 0 to 1  
+            break;
+        } 
+            
+        case SED_IMPL:
+        {
+            checkReg(P_DEF | 0b00001000, P, "P", "SED_IMPL"); //decimal flag changed in P from 0 to 1  
+            break;
+        } 
+            
+        case SEI_IMPL:
+        {
+            checkReg(P_DEF | 0b00000100, P, "P", "SEI_IMPL"); //interrupt flag changed in P from 0 to 1  
+            break;
+        }
+         
+        case CLC_IMPL:
+        {
+            checkReg(P_DEF, P, "P", "CLC_IMPL");
+            break;
+        }
+            
+        case CLD_IMPL:
+        {
+            checkReg(P_DEF, P, "P", "CLD_IMPL"); //decimal flag set from 1 to 0   
+            break;
+        }
+            
+        case CLI_IMPL:
+        {
+            checkReg(P_DEF, P, "P", "CLI_IMPL"); //interrupt flag set from 1 to 0   
+            break;
+        }
+            
+        case CLV_IMPL:
+        {
+            checkReg(P_DEF, P, "P", "CLV_IMPL"); //overflow flag set from 1 to 0   
+            break;
+        }
+        
+
+        //############################# JUMP AND SUBROUTINE INSTRUCTIONS #############################
+        case JMP_ABS:
+        {
+            checkReg(PC_EXP, PC, "PC", "JMP_ABS");  //PC must be loaded with the new address (absolute value from test file)
+            break;
+        }
+
+        case JSR_ABS:
+        {
+            checkMem(SP+1, M_EXP1, "JSR_ABS");          //1st value on stack must be M_EXP1, which is LO byte of saved PC
+            checkMem(SP+2, M_EXP2, "JSR_ABS");          //2nd value on stack must be M_EXP2, which is HI byte of saved PC
+            checkReg(PC_EXP, PC, "PC", "JSR_ABS");  //PC must be loaded with the new address (absolute value from test file)
+            break;
+        }
+
+        case RTS_IMPL:
+        {
+            checkReg(PC_EXP, PC, "PC", "RTS_IMPL");  //PC must be loaded with the address restored from stack +1
+            checkReg(SP_EXP, SP, "SP", "RTS_IMPL");  //SP must have moved two bytes up
+            break;
+        }
+
+            
+        //############################# BRANCH INSTRUCTIONS #############################    
+        case BCC_REL:
+        {
+            checkReg(PC_EXP, PC, "PC", "BCC_REL");   //PC must contain branch address
+            break;
+        }
+
+        case BCS_REL:
+        {
+            checkReg(PC_EXP, PC, "PC", "BCS_REL");   //PC must contain branch address
+            break;
+        }
+
+        case BEQ_REL:
+        {
+            checkReg(PC_EXP, PC, "PC", "BEQ_REL");   //PC must contain branch address
+            break;
+        }
+
+        case BMI_REL:
+        {
+            checkReg(PC_EXP, PC, "PC", "BMI_REL");   //PC must contain branch address
+            break;
+        }
+
+        case BNE_REL:
+        {
+            checkReg(PC_EXP, PC, "PC", "BNE_REL");   //PC must contain branch address
+            break;
+        }
+        
+        case BPL_REL:
+        {
+            checkReg(PC_EXP, PC, "PC", "BPL_REL");   //PC must contain branch address
+            break;
+        }
+
+        case BVC_REL:
+        {
+            checkReg(PC_EXP, PC, "PC", "BVC_REL");   //PC must contain branch address
+            break;
+        }
+
+        case BVS_REL:
+        {
+            checkReg(PC_EXP, PC, "PC", "BVS_REL");   //PC must contain branch address
+            break;
+        }
+        
+
+
+        //############################# STACK INSTRUCTIONS #############################
+
+        case PHA_IMPL:
+        {
+            checkReg(A_DEF, A, "A", "PHA_IMPL");   //A must be unchanged
+            checkReg(SP_EXP, SP, "SP", "PHA_IMPL");//stack pointer must have decreaded
+            checkMem(SP+2, 0, "PHA_IMPL");         //make sure nothing was pushed above the initial SP
+            checkMem(SP+1, M_EXP1, "PHA_IMPL");    //expecting pushed value M_EXP1 (=A) in mem[SP+1]
+            checkMem(SP, 0, "PHA_IMPL");           //make sure nothing was pushed to current SP            
+            break;
+        }
+
+        case PLA_IMPL:
+        {
+            checkReg(A_EXP, A, "A", "PLA_IMPL");   //expected value in A
+            checkReg(P_EXP, P, "P", "PLA_IMPL");   //expected value in P    
+            checkReg(SP_EXP, SP, "SP", "PLA_IMPL");//stack pointer must have increased
+            checkMem(SP, A_EXP, "PLA_IMPL");       //check if current SP points to value that was pulled (this value is now free to be overwritten)
+            break;
+        }
+
+        case PHP_IMPL:
+        {
+            checkReg(P_DEF, P, "P", "PHP_IMPL");    //P must be unchanged
+            checkReg(SP_EXP, SP, "SP", "PHP_IMPL"); //stack pointer must have decreaded
+            checkMem(SP+2, 0, "PHP_IMPL");          //make sure nothing was pushed above the initial SP
+            checkMem(SP+1, M_EXP1, "PHP_IMPL");     //expecting pushed value M_EXP1 (=P) in mem[SP+1]
+            checkMem(SP, 0, "PHP_IMPL");            //make sure nothing was pushed to current SP            
+            break;
+        }
+
+        case PLP_IMPL:
+        {
+            checkReg(P_EXP, P, "P", "PLP_IMPL");   //expected value in P
+            checkReg(SP_EXP, SP, "SP", "PLP_IMPL");//stack pointer must have increased
+            checkMem(SP, P_EXP, "PLP_IMPL");       //check if current SP points to value that was pulled (this value is now free to be overwritten)
+            break;
+        }
+
+        //############################# MISC INSTRUCTIONS #############################
+
+        
+        
+        
+         
+            
+        default:
+        {
+            printf("There is no test for opcode %x", opcode);
+            break;
+        }
+    }
+	
+}
+
+
